@@ -36,11 +36,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	GeneratorVisitor generator(filename + std::string("_out.svasm"));
+	GeneratorVisitor generator(filename + std::string(".svasm"));
 	generator.visitAllChildren(root);
 
 	SVASMParser asm_parser;
-	SVASMParserResult result = asm_parser.parse(filename + std::string("_out.svasm"));
+	SVASMParserResult result = asm_parser.parse(generator.getOutput());
 
 	if (!result.success)
 	{
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	SimpleVirtualMachine vm(128KB);
+	SimpleVirtualMachine vm(1KB);
 	vm.enableStackCheck(true);
 
 	try
