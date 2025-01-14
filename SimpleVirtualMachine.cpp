@@ -260,7 +260,7 @@ bool SimpleVirtualMachine::checkStack()
 
 bool SimpleVirtualMachine::memorySizeCheck(const uint64_t *program, size_t programSize)
 {
-	uint64_t stack_size_needed = 0;
+	int64_t stack_size_needed = 0;
 
 	for (size_t i = 0; i < programSize; i++)
 	{

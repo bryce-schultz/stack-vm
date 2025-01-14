@@ -10,13 +10,13 @@
 
 int main(int argc, char **argv)
 {
-	/*if (argc != 2)
+	if (argc != 2)
 	{
 		printf("usage: %s <source>\n", argv[0]);
 		return 1;
-	}*/
+	}
 
-	const char *filename = "tests/test.li";
+	const char *filename = argv[1];
 
 	LithiumParser li_parser;
 

@@ -1,6 +1,6 @@
 MAKEFLAGS := --jobs=$(shell nproc)
 CC=g++
-CPPFLAGS=-g -Wall -Wno-literal-suffix
+CPPFLAGS=-g -Wall -Werror -Wextra -pedantic -Wno-literal-suffix
 OBJS=main.o \
  GeneratorVisitor.o \
  LithiumParser.o \
