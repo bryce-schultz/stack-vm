@@ -1,0 +1,5 @@
+push 100 
+push 2 
+mul
+print
+halt

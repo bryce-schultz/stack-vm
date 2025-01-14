@@ -1,0 +1,30 @@
+﻿    PROGRAM -> STATEMENTS
+ STATEMENTS -> STATEMENT STATEMENTS'
+  STATEMENT -> EXPRESSION
+             | ϵ
+ EXPRESSION -> ADDIT
+      ADDIT -> TERM ADDIT''
+             | -TERM ADDIT''
+       TERM -> EXPONENT TERM''
+   EXPONENT -> FACTORIAL EXPONENT'
+  FACTORIAL -> PRIMARY FACTORIAL'
+    PRIMARY -> ( EXPRESSION )
+             | integer
+     ADDIT' -> + TERM
+             | - TERM
+      TERM' -> * EXPONENT
+             | / EXPONENT
+             | % EXPONENT
+STATEMENTS' -> STATEMENT STATEMENTS'
+             | ϵ
+    ADDIT'' -> ADDIT' ADDIT''
+             | ϵ
+     TERM'' -> TERM' TERM''
+             | ϵ
+  EXPONENT' -> ^ FACTORIAL EXPONENT'
+             | ϵ
+ FACTORIAL' -> ! FACTORIAL'
+             | ϵ
+
+
+statement: printStatement
