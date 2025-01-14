@@ -82,5 +82,5 @@ void GeneratorVisitor::out(const std::string& text)
 
 void GeneratorVisitor::out(int64_t value)
 {
-	_buffer << " " << value << " ";
+	_buffer << " " << value;
 }

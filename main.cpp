@@ -6,11 +6,19 @@
 #include "LithiumParser.h"
 #include "GeneratorVisitor.h"
 
-int main()
+int main(int argc, char **argv)
 {
+	if (argc != 2)
+	{
+		printf("usage: %s <source>\n", argv[0]);
+		return 1;
+	}
+
+	char *filename = argv[1];
+
 	LithiumParser li_parser;
 
-	Node *root = li_parser.parse("test.li");
+	Node *root = li_parser.parse(filename);
 
 	if (root == nullptr)
 	{
@@ -28,11 +36,11 @@ int main()
 		return 1;
 	}
 
-	GeneratorVisitor generator("test_out.svasm");
+	GeneratorVisitor generator(filename + std::string("_out.svasm"));
 	generator.visitAllChildren(root);
 
 	SVASMParser asm_parser;
-	SVASMParserResult result = asm_parser.parse("test_out.svasm");
+	SVASMParserResult result = asm_parser.parse(filename + std::string("_out.svasm"));
 
 	if (!result.success)
 	{
