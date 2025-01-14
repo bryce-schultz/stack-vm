@@ -10,4 +10,3 @@ public:
 		visitor->visit(this);
 	}
 };
-

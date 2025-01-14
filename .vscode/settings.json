@@ -47,5 +47,12 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/bryce/projects/stack-vm",
+            "binaryPath": "/home/bryce/projects/stack-vm/svm",
+            "binaryArgs": []
+        }
+    ]
 }

@@ -6,15 +6,17 @@
 #include "LithiumParser.h"
 #include "GeneratorVisitor.h"
 
+#define DEBUG
+
 int main(int argc, char **argv)
 {
-	if (argc != 2)
+	/*if (argc != 2)
 	{
 		printf("usage: %s <source>\n", argv[0]);
 		return 1;
-	}
+	}*/
 
-	char *filename = argv[1];
+	const char *filename = "tests/test.li";
 
 	LithiumParser li_parser;
 
@@ -22,8 +24,8 @@ int main(int argc, char **argv)
 
 	if (root == nullptr)
 	{
-		const auto& errors = li_parser.getErrors();
-		for (const auto& error : errors)
+		const auto &errors = li_parser.getErrors();
+		for (const auto &error : errors)
 		{
 			printf("%s\n", error.c_str());
 		}
@@ -36,7 +38,11 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
+#ifdef DEBUG
 	GeneratorVisitor generator(filename + std::string(".svasm"));
+#else
+	GeneratorVisitor generator;
+#endif
 	generator.visitAllChildren(root);
 
 	SVASMParser asm_parser;
@@ -48,16 +54,17 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	SimpleVirtualMachine vm(1KB);
+	SimpleVirtualMachine vm(128KB);
 	vm.enableStackCheck(true);
 
 	try
 	{
 		vm.load(result.program);
 	}
-	catch (const SVMException& e)
+	catch (const SVMException &e)
 	{
 		printf("error: %s\n", e.what());
+		return 1;
 	}
 
 	return vm.run() ? 0 : 1;

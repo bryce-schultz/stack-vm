@@ -48,6 +48,7 @@ public:
 	bool run();
 
 	void enableStackCheck(bool enable);
+
 private:
 	bool runInternal();
 	void push(uint64_t value);
@@ -59,6 +60,8 @@ private:
 	bool execute(uint64_t instruction);
 
 	bool checkStack();
+	bool memorySizeCheck(const uint64_t *program, size_t programSize);
+
 private:
 	uint64_t *memory;
 	uint64_t *sp;
@@ -68,6 +71,7 @@ private:
 
 	size_t memorySize;
 	size_t stackSize;
+
 private:
 	bool isStackCheckEnabled;
 };

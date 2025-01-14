@@ -17,13 +17,16 @@ LithiumParser::~LithiumParser()
 {
 }
 
-Node *LithiumParser::parse(const std::string& source)
+Node *LithiumParser::parse(const std::string &source)
 {
 	std::ifstream file(source);
 	if (!file.is_open())
 	{
+		filename = "";
 		return parseInternal(source);
 	}
+
+	filename = source;
 
 	std::string result;
 	std::string line;
@@ -41,19 +44,19 @@ std::vector<std::string> LithiumParser::getErrors() const
 	return errors;
 }
 
-void LithiumParser::error(const std::string& message)
+void LithiumParser::error(const std::string &message)
 {
-	errors.push_back("error " + std::to_string(lineno) + ":" + std::to_string(colno) + ":\n" + message);
+	errors.push_back("error " + filename + ":" + std::to_string(lineno) + ":" + std::to_string(colno) + ":\n" + message);
 }
 
-Node *LithiumParser::parseInternal(const std::string& source)
+Node *LithiumParser::parseInternal(const std::string &source)
 {
 	this->source = source;
 	index = 0;
 	lineno = 1;
 	colno = 1;
 
-	ProgramNode* program = parseProgram();
+	ProgramNode *program = parseProgram();
 	if (program == nullptr)
 	{
 		return nullptr;
@@ -179,13 +182,13 @@ bool LithiumParser::isWhitespace(char c) const
 	return c == ' ' || c == '\t' || c == '\n' || c == '\r';
 }
 
-ProgramNode* LithiumParser::parseProgram()
+ProgramNode *LithiumParser::parseProgram()
 {
-	ProgramNode* program = new ProgramNode();
+	ProgramNode *program = new ProgramNode();
 
 	while (index < source.size())
 	{
-		StatementNode* statement = parseStatement();
+		StatementNode *statement = parseStatement();
 		if (statement == nullptr)
 		{
 			delete program;
@@ -198,13 +201,13 @@ ProgramNode* LithiumParser::parseProgram()
 	return program;
 }
 
-StatementNode* LithiumParser::parseStatement()
+StatementNode *LithiumParser::parseStatement()
 {
 	int token = peekToken();
 
 	if (token == PRINT)
 	{
-		PrintStatementNode* printStatement = parsePrintStatement();
+		PrintStatementNode *printStatement = parsePrintStatement();
 		if (!printStatement)
 		{
 			return nullptr;
@@ -216,7 +219,7 @@ StatementNode* LithiumParser::parseStatement()
 	return nullptr;
 }
 
-PrintStatementNode* LithiumParser::parsePrintStatement()
+PrintStatementNode *LithiumParser::parsePrintStatement()
 {
 	int token = peekToken();
 
@@ -238,7 +241,7 @@ PrintStatementNode* LithiumParser::parsePrintStatement()
 
 	nextToken();
 
-	ExpressionNode* expression = parseExpression();
+	ExpressionNode *expression = parseExpression();
 
 	token = peekToken();
 
@@ -254,12 +257,12 @@ PrintStatementNode* LithiumParser::parsePrintStatement()
 	return new PrintStatementNode(expression);
 }
 
-ExpressionNode* LithiumParser::parseExpression()
+ExpressionNode *LithiumParser::parseExpression()
 {
 	return parseAddit();
 }
 
-ExpressionNode* LithiumParser::parseAddit()
+ExpressionNode *LithiumParser::parseAddit()
 {
 	int token = peekToken();
 
@@ -269,13 +272,13 @@ ExpressionNode* LithiumParser::parseAddit()
 		nextToken();
 	}
 
-	ExpressionNode* term = parseTerm();
+	ExpressionNode *term = parseTerm();
 	if (!term)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode* additPP = parseAdditPP(term);
+	ExpressionNode *additPP = parseAdditPP(term);
 	if (!additPP)
 	{
 		return nullptr;
@@ -284,7 +287,7 @@ ExpressionNode* LithiumParser::parseAddit()
 	return additPP;
 }
 
-ExpressionNode* LithiumParser::parseAdditP(ExpressionNode* lhs)
+ExpressionNode *LithiumParser::parseAdditP(ExpressionNode *lhs)
 {
 	int token = peekToken();
 
@@ -293,7 +296,7 @@ ExpressionNode* LithiumParser::parseAdditP(ExpressionNode* lhs)
 		char op = token;
 		nextToken();
 
-		ExpressionNode* term = parseTerm();
+		ExpressionNode *term = parseTerm();
 
 		if (!term)
 		{
@@ -306,19 +309,19 @@ ExpressionNode* LithiumParser::parseAdditP(ExpressionNode* lhs)
 	return nullptr;
 }
 
-ExpressionNode* LithiumParser::parseAdditPP(ExpressionNode* lhs)
+ExpressionNode *LithiumParser::parseAdditPP(ExpressionNode *lhs)
 {
 	int token = peekToken();
 
 	if (token == '+' || token == '-')
 	{
-		ExpressionNode* additP = parseAdditP(lhs);
+		ExpressionNode *additP = parseAdditP(lhs);
 		if (!additP)
 		{
 			return nullptr;
 		}
 
-		ExpressionNode* additPP = parseAdditPP(additP);
+		ExpressionNode *additPP = parseAdditPP(additP);
 		if (!additPP)
 		{
 			return nullptr;
@@ -330,15 +333,15 @@ ExpressionNode* LithiumParser::parseAdditPP(ExpressionNode* lhs)
 	return lhs;
 }
 
-ExpressionNode* LithiumParser::parseTerm()
+ExpressionNode *LithiumParser::parseTerm()
 {
-	ExpressionNode* exponent = parseExponent();
+	ExpressionNode *exponent = parseExponent();
 	if (!exponent)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode* termPP = parseTermPP(exponent);
+	ExpressionNode *termPP = parseTermPP(exponent);
 	if (!termPP)
 	{
 		return nullptr;
@@ -347,7 +350,7 @@ ExpressionNode* LithiumParser::parseTerm()
 	return termPP;
 }
 
-ExpressionNode* LithiumParser::parseTermP(ExpressionNode* lhs)
+ExpressionNode *LithiumParser::parseTermP(ExpressionNode *lhs)
 {
 	int token = peekToken();
 
@@ -356,7 +359,7 @@ ExpressionNode* LithiumParser::parseTermP(ExpressionNode* lhs)
 		char op = token;
 		nextToken();
 
-		ExpressionNode* exponent = parseExponent();
+		ExpressionNode *exponent = parseExponent();
 		if (!exponent)
 		{
 			return nullptr;
@@ -368,19 +371,19 @@ ExpressionNode* LithiumParser::parseTermP(ExpressionNode* lhs)
 	return nullptr;
 }
 
-ExpressionNode* LithiumParser::parseTermPP(ExpressionNode* lhs)
+ExpressionNode *LithiumParser::parseTermPP(ExpressionNode *lhs)
 {
 	int token = peekToken();
 
 	if (token == '*' || token == '/' || token == '%')
 	{
-		ExpressionNode* termP = parseTermP(lhs);
+		ExpressionNode *termP = parseTermP(lhs);
 		if (!termP)
 		{
 			return nullptr;
 		}
 
-		ExpressionNode* termPP = parseTermPP(termP);
+		ExpressionNode *termPP = parseTermPP(termP);
 		if (!termPP)
 		{
 			return nullptr;
@@ -392,15 +395,15 @@ ExpressionNode* LithiumParser::parseTermPP(ExpressionNode* lhs)
 	return lhs;
 }
 
-ExpressionNode* LithiumParser::parseExponent()
+ExpressionNode *LithiumParser::parseExponent()
 {
-	ExpressionNode* factorial = parseFactorial();
+	ExpressionNode *factorial = parseFactorial();
 	if (!factorial)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode* exponentP = parseExponentP();
+	ExpressionNode *exponentP = parseExponentP();
 	if (!exponentP)
 	{
 		return nullptr;
@@ -409,7 +412,7 @@ ExpressionNode* LithiumParser::parseExponent()
 	return factorial;
 }
 
-ExpressionNode* LithiumParser::parseExponentP()
+ExpressionNode *LithiumParser::parseExponentP()
 {
 	int token = peekToken();
 
@@ -417,13 +420,13 @@ ExpressionNode* LithiumParser::parseExponentP()
 	{
 		nextToken();
 
-		ExpressionNode* factorial = parseFactorial();
+		ExpressionNode *factorial = parseFactorial();
 		if (!factorial)
 		{
 			return nullptr;
 		}
 
-		ExpressionNode* exponentP = parseExponentP();
+		ExpressionNode *exponentP = parseExponentP();
 		if (!exponentP)
 		{
 			return nullptr;
@@ -435,32 +438,35 @@ ExpressionNode* LithiumParser::parseExponentP()
 	return new ExpressionNode();
 }
 
-ExpressionNode* LithiumParser::parseFactorial()
+ExpressionNode *LithiumParser::parseFactorial()
 {
-	ExpressionNode* primary = parsePrimary();
+	ExpressionNode *primary = parsePrimary();
 	if (!primary)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode* factorialP = parseFactorialP();
+	ExpressionNode *factorialP = parseFactorialP(primary);
 	if (!factorialP)
 	{
 		return nullptr;
 	}
 
-	return primary;
+	return factorialP;
 }
 
-ExpressionNode* LithiumParser::parseFactorialP()
+ExpressionNode *LithiumParser::parseFactorialP(ExpressionNode *lhs)
 {
 	int token = peekToken();
 
 	if (token == '!')
 	{
+		char op = token;
 		nextToken();
 
-		ExpressionNode* factorialP = parseFactorialP();
+		UnaryExpressionNode *unary = new UnaryExpressionNode(lhs, op);
+
+		ExpressionNode *factorialP = parseFactorialP(unary);
 		if (!factorialP)
 		{
 			return nullptr;
@@ -469,10 +475,10 @@ ExpressionNode* LithiumParser::parseFactorialP()
 		return factorialP;
 	}
 
-	return new ExpressionNode();
+	return lhs;
 }
 
-ExpressionNode* LithiumParser::parsePrimary()
+ExpressionNode *LithiumParser::parsePrimary()
 {
 	int token = peekToken();
 
@@ -480,7 +486,7 @@ ExpressionNode* LithiumParser::parsePrimary()
 	{
 		nextToken();
 
-		ExpressionNode* expression = parseExpression();
+		ExpressionNode *expression = parseExpression();
 		if (!expression)
 		{
 			return nullptr;

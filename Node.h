@@ -21,21 +21,21 @@ public:
 		children.push_back(child);
 	}
 
-	Node* getChild(int index) const
+	Node *getChild(int index) const
 	{
 		return children[index];
 	}
 
 	virtual void visit(IVisitor *visitor) = 0;
 
-	void visitAllChildren(IVisitor* visitor)
+	void visitAllChildren(IVisitor *visitor)
 	{
 		for (auto child : children)
 		{
 			child->visit(visitor);
 		}
 	}
+
 private:
 	std::vector<Node *> children;
 };
-

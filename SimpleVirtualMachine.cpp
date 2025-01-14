@@ -28,9 +28,9 @@ SimpleVirtualMachine::~SimpleVirtualMachine()
 	fp = nullptr;
 }
 
-bool SimpleVirtualMachine::load(const uint64_t* program, size_t programSize)
+bool SimpleVirtualMachine::load(const uint64_t *program, size_t programSize)
 {
-	if (programSize > memorySize)
+	if (programSize > memorySize || !memorySizeCheck(program, programSize))
 	{
 		throw SVMProgramTooLargeException();
 	}
@@ -57,7 +57,8 @@ bool SimpleVirtualMachine::run()
 {
 	bool result = runInternal();
 
-	if (!result) isStackCheckEnabled = true;
+	if (!result)
+		isStackCheckEnabled = true;
 
 	checkStack();
 
@@ -74,7 +75,7 @@ bool SimpleVirtualMachine::runInternal()
 		{
 			result = execute(instruction);
 		}
-		catch (const SVMException& e)
+		catch (const SVMException &e)
 		{
 			printf("error: %s\n", e.what());
 			return false;
@@ -252,6 +253,44 @@ bool SimpleVirtualMachine::checkStack()
 			printf("[STACK CHECK] stack corruption detected\n");
 			return false;
 		}
+	}
+
+	return true;
+}
+
+bool SimpleVirtualMachine::memorySizeCheck(const uint64_t *program, size_t programSize)
+{
+	uint64_t stack_size_needed = 0;
+
+	for (size_t i = 0; i < programSize; i++)
+	{
+		switch (static_cast<Instruction>(program[i]))
+		{
+			case Instruction::PUSH:
+			{
+				stack_size_needed++;
+				break;
+			}
+			case Instruction::POP:
+			{
+				stack_size_needed--;
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+
+		if (stack_size_needed < 0)
+		{
+			return false;
+		}
+	}
+
+	if (stack_size_needed * sizeof(uint64_t) > memorySize)
+	{
+		return false;
 	}
 
 	return true;

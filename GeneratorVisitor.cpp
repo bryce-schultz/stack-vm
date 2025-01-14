@@ -1,7 +1,7 @@
 #include "GeneratorVisitor.h"
 #include "Nodes.h"
 
-GeneratorVisitor::GeneratorVisitor(const std::string& output_filename)
+GeneratorVisitor::GeneratorVisitor(const std::string &output_filename)
 {
 	_file.open(output_filename);
 }
@@ -14,13 +14,13 @@ GeneratorVisitor::~GeneratorVisitor()
 	}
 }
 
-void GeneratorVisitor::visit(ProgramNode* node)
+void GeneratorVisitor::visit(ProgramNode *node)
 {
 	node->visitAllChildren(this);
 	out("halt\n");
 }
 
-void GeneratorVisitor::visit(BinaryExpressionNode* node)
+void GeneratorVisitor::visit(BinaryExpressionNode *node)
 {
 	node->getLeft()->visit(this);
 	node->getRight()->visit(this);
@@ -46,20 +46,38 @@ void GeneratorVisitor::visit(BinaryExpressionNode* node)
 	out("\n");
 }
 
-void GeneratorVisitor::visit(IntExpressionNode* node)
+void GeneratorVisitor::visit(IntExpressionNode *node)
 {
 	out("push");
 	out(node->getValue());
 	out("\n");
 }
 
-void GeneratorVisitor::visit(PrintStatementNode* node)
+void GeneratorVisitor::visit(PrintStatementNode *node)
 {
+	if (node->getExpression() == nullptr)
+	{
+		return;
+	}
+
 	node->getExpression()->visit(this);
 	out("print\n");
 }
 
-void GeneratorVisitor::visitAllChildren(Node* node)
+void GeneratorVisitor::visit(UnaryExpressionNode *node)
+{
+	node->getExpr()->visit(this);
+
+	switch (node->getOperator())
+	{
+	case '!':
+		out("fact");
+		break;
+	}
+	out("\n");
+}
+
+void GeneratorVisitor::visitAllChildren(Node *node)
 {
 	node->visit(this);
 
@@ -75,7 +93,7 @@ std::string GeneratorVisitor::getOutput() const
 	return _buffer.str();
 }
 
-void GeneratorVisitor::out(const std::string& text)
+void GeneratorVisitor::out(const std::string &text)
 {
 	_buffer << text;
 }

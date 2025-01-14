@@ -21,9 +21,10 @@ public:
 	Node *parse(const std::string &source);
 
 	std::vector<std::string> getErrors() const;
+
 private:
-	void error(const std::string& message);
-	Node *parseInternal(const std::string& source);
+	void error(const std::string &message);
+	Node *parseInternal(const std::string &source);
 
 	int peekToken();
 	int getToken();
@@ -39,7 +40,7 @@ private:
 	StatementNode *parseStatement();
 
 	// print statement
-	PrintStatementNode* parsePrintStatement();
+	PrintStatementNode *parsePrintStatement();
 
 	// addit
 	ExpressionNode *parseExpression();
@@ -48,36 +49,37 @@ private:
 	ExpressionNode *parseAddit();
 	// + term
 	// - term
-	ExpressionNode *parseAdditP(ExpressionNode* lhs);
+	ExpressionNode *parseAdditP(ExpressionNode *lhs);
 	// additP additPP
 	// nothing
-	ExpressionNode *parseAdditPP(ExpressionNode* lhs);
-				   
-	// exponent termPP   
+	ExpressionNode *parseAdditPP(ExpressionNode *lhs);
+
+	// exponent termPP
 	ExpressionNode *parseTerm();
 	// * exponent
 	// / exponent
 	// % exponent
-	ExpressionNode *parseTermP(ExpressionNode* lhs);
+	ExpressionNode *parseTermP(ExpressionNode *lhs);
 	// termP termPP
 	// nothing
-	ExpressionNode *parseTermPP(ExpressionNode* lhs);
-				   
+	ExpressionNode *parseTermPP(ExpressionNode *lhs);
+
 	// factorial exponentP
 	ExpressionNode *parseExponent();
 	// ^ factorial exponentP
 	// nothing
 	ExpressionNode *parseExponentP();
-				   
+
 	// primary factorialP
 	ExpressionNode *parseFactorial();
 	// ! factorialP
 	// nothing
-	ExpressionNode *parseFactorialP();
-	
+	ExpressionNode *parseFactorialP(ExpressionNode *lhs);
+
 	// ( expression )
 	// number
 	ExpressionNode *parsePrimary();
+
 private:
 	std::string source;
 	size_t index;
@@ -87,4 +89,5 @@ private:
 	int colno;
 	int lineno;
 	std::vector<std::string> errors;
+	std::string filename;
 };
