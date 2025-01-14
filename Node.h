@@ -7,6 +7,15 @@
 class Node
 {
 public:
+	virtual ~Node()
+	{
+		for (auto child : children)
+		{
+			delete child;
+		}
+		children.clear();
+	}
+
 	void addChild(Node *child)
 	{
 		children.push_back(child);
@@ -17,9 +26,6 @@ public:
 		return children[index];
 	}
 
-	//*************************************
-	// Used by visitor pattern. Every node must override with:
-	//    virtual void visit(IVisitor *visitor) { visitor->visit(this); }
 	virtual void visit(IVisitor *visitor) = 0;
 
 	void visitAllChildren(IVisitor* visitor)

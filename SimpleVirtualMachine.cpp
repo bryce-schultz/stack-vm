@@ -222,7 +222,7 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		case Instruction::PRINT:
 		{
 			uint64_t value = pop();
-			printf("%llu\n", value);
+			printf("%lu\n", value);
 			break;
 		}
 		case Instruction::HALT:

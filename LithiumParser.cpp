@@ -2,10 +2,14 @@
 
 #include "LithiumParser.h"
 
-LithiumParser::LithiumParser(): 
-	index(0),
+LithiumParser::LithiumParser():
 	source(""),
-	currentToken(NONE)
+	index(0),
+	currentToken(NONE),
+	text(""),
+	colno(0),
+	lineno(0),
+	errors()
 {
 }
 
@@ -442,7 +446,7 @@ ExpressionNode* LithiumParser::parseFactorial()
 	ExpressionNode* factorialP = parseFactorialP();
 	if (!factorialP)
 	{
-		nullptr;
+		return nullptr;
 	}
 
 	return primary;

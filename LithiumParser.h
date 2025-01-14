@@ -86,6 +86,5 @@ private:
 
 	int colno;
 	int lineno;
-
 	std::vector<std::string> errors;
 };
