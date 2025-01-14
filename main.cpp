@@ -6,21 +6,28 @@
 #include "LithiumParser.h"
 #include "GeneratorVisitor.h"
 
-#define DEBUG
+//#define DEBUG
+#define ASM
 
 #define UNUSED(x) (void)(x)
 
 int main(int argc, char **argv)
 {
-	UNUSED(argc);
-	UNUSED(argv);
-	/*if (argc != 2)
+#ifndef DEBUG
+	if (argc != 2)
 	{
 		printf("usage: %s <source>\n", argv[0]);
 		return 1;
-	}*/
+	}
+#endif
 
+#ifdef DEBUG
+	UNUSED(argc);
+	UNUSED(argv);
 	const char *filename = "tests/test.li";
+#else
+	const char *filename = argv[1];
+#endif
 
 	LithiumParser li_parser;
 
@@ -42,7 +49,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-#ifdef DEBUG
+#ifdef ASM
 	GeneratorVisitor generator(filename + std::string(".svasm"));
 #else
 	GeneratorVisitor generator;
