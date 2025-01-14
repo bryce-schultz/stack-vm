@@ -40,3 +40,13 @@ void IVisitor::visit(PrintStatementNode* node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(AsmStatementNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(StringExpressionNode *node)
+{
+	node->visitAllChildren(this);
+}

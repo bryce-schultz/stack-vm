@@ -77,6 +77,13 @@ void GeneratorVisitor::visit(UnaryExpressionNode *node)
 	out("\n");
 }
 
+void GeneratorVisitor::visit(AsmStatementNode *node)
+{
+	std::string asm_ = node->getStringExpression()->getValue();
+	out(asm_);
+	out("\n");
+}
+
 void GeneratorVisitor::visitAllChildren(Node *node)
 {
 	node->visit(this);

@@ -8,15 +8,19 @@
 
 #define DEBUG
 
+#define UNUSED(x) (void)(x)
+
 int main(int argc, char **argv)
 {
-	if (argc != 2)
+	UNUSED(argc);
+	UNUSED(argv);
+	/*if (argc != 2)
 	{
 		printf("usage: %s <source>\n", argv[0]);
 		return 1;
-	}
+	}*/
 
-	const char *filename = argv[1];
+	const char *filename = "tests/test.li";
 
 	LithiumParser li_parser;
 

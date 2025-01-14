@@ -9,3 +9,5 @@
 #include "IntExpressionNode.h"
 #include "UnaryExpressionNode.h"
 #include "PrintStatementNode.h"
+#include "AsmStatementNode.h"
+#include "StringExpressionNode.h"

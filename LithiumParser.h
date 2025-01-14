@@ -8,6 +8,8 @@ enum TokenType
 	NUMBER,
 	PRINT,
 	IDENTIFIER,
+	STRING,
+	ASM,
 	END,
 	JUNK
 };
@@ -41,6 +43,9 @@ private:
 
 	// print statement
 	PrintStatementNode *parsePrintStatement();
+
+	// asm statement
+	AsmStatementNode *parseAsmStatement();
 
 	// addit
 	ExpressionNode *parseExpression();

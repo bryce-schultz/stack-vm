@@ -9,6 +9,8 @@ class OperatorNode;
 class IntExpressionNode;
 class UnaryExpressionNode;
 class PrintStatementNode;
+class AsmStatementNode;
+class StringExpressionNode;
 
 class IVisitor
 {
@@ -22,5 +24,7 @@ public:
 	virtual void visit(IntExpressionNode* node);
 	virtual void visit(UnaryExpressionNode* node);
 	virtual void visit(PrintStatementNode* node);
+	virtual void visit(AsmStatementNode* node);
+	virtual void visit(StringExpressionNode* node);
 };
 

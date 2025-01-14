@@ -1,1 +1,4 @@
 asm("push 10")
+asm("push 20")
+asm("add")
+asm("print")

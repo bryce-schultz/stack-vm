@@ -165,7 +165,35 @@ int LithiumParser::getToken()
 			return PRINT;
 		}
 
+		if (text == "asm")
+		{
+			return ASM;
+		}
+
 		return IDENTIFIER;
+	}
+
+	if (c == '"')
+	{
+		text.clear();
+		index++;
+		colno++;
+		c = source[index];
+		while (c != '"')
+		{
+			text += c;
+			index++;
+			colno++;
+			if (index >= source.size())
+			{
+				break;
+			}
+			c = source[index];
+		}
+
+		index++;
+		colno++;
+		return STRING;
 	}
 
 	return JUNK;
@@ -216,6 +244,17 @@ StatementNode *LithiumParser::parseStatement()
 		return printStatement;
 	}
 
+	if (token == ASM)
+	{
+		AsmStatementNode *asmStatement = parseAsmStatement();
+		if (!asmStatement)
+		{
+			return nullptr;
+		}
+
+		return asmStatement;
+	}
+
 	return nullptr;
 }
 
@@ -255,6 +294,55 @@ PrintStatementNode *LithiumParser::parsePrintStatement()
 	nextToken();
 
 	return new PrintStatementNode(expression);
+}
+
+AsmStatementNode *LithiumParser::parseAsmStatement()
+{
+	int token = peekToken();
+
+	if (token != ASM)
+	{
+		return nullptr;
+	}
+
+	nextToken();
+
+	token = peekToken();
+
+	if (token != '(')
+	{
+		nextToken();
+		error("expected '('");
+		return nullptr;
+	}
+
+	nextToken();
+
+	token = peekToken();
+
+	if (token != STRING)
+	{
+		nextToken();
+		error("expected string");
+		return nullptr;
+	}
+
+	std::string value = text;
+
+	nextToken();
+
+	token = peekToken();
+
+	if (token != ')')
+	{
+		nextToken();
+		error("expected ')'");
+		return nullptr;
+	}
+
+	nextToken();
+
+	return new AsmStatementNode(new StringExpressionNode(value));
 }
 
 ExpressionNode *LithiumParser::parseExpression()

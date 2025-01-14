@@ -16,6 +16,7 @@ public:
 	virtual void visit(IntExpressionNode *node) override;
 	virtual void visit(PrintStatementNode* node) override;
 	virtual void visit(UnaryExpressionNode* node) override;
+	virtual void visit(AsmStatementNode *node) override;
 
 	virtual void visitAllChildren(Node* node) override;
 	std::string getOutput() const;
