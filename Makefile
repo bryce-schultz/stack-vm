@@ -22,6 +22,7 @@ all: svm
 
 clean:
 	rm -f $(OBJS) svm
+	rm -f tests/*.svasm
 
 .cpp.o:
 	$(CC) $(CPPFLAGS) -c $<
