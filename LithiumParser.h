@@ -89,7 +89,7 @@ private:
 	NumericExpressionNode *parseExponent();
 	// ^ factorial exponentP
 	// nothing
-	NumericExpressionNode *parseExponentP();
+	NumericExpressionNode *parseExponentP(NumericExpressionNode *);
 
 	// primary factorialP
 	NumericExpressionNode *parseFactorial();

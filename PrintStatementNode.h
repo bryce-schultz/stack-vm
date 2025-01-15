@@ -16,9 +16,9 @@ public:
 		visitor->visit(this);
 	}
 
-	ExpressionNode* getExpression() const 
-	{ 
-		return dynamic_cast<ExpressionNode*>(getChild(0)); 
+	ExpressionNode* getExpression() const
+	{
+		return dynamic_cast<ExpressionNode*>(getChild(0));
 	}
 };
 

@@ -43,6 +43,9 @@ void GeneratorVisitor::visit(BinaryExpressionNode *node)
 	case '%':
 		out("mod");
 		break;
+	case '^':
+		out("pow");
+		break;
 	}
 	out("\n");
 }

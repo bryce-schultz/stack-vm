@@ -258,7 +258,18 @@ StatementNode *LithiumParser::parseStatement()
 		return asmStatement;
 	}
 
-	nextToken();
+	if (token == NUMBER || token == STRING || token == '(')
+	{
+		ExpressionNode *expression = parseExpression();
+		if (!expression)
+		{
+			return nullptr;
+		}
+
+		return new PrintStatementNode(expression);
+	}
+
+	//nextToken();
 	error("unexpected token: " + text);
 	return nullptr;
 }
@@ -286,6 +297,11 @@ PrintStatementNode *LithiumParser::parsePrintStatement()
 	nextToken();
 
 	ExpressionNode *expression = parseExpression();
+	if (!expression)
+	{
+		error("print expects an expression");
+		return nullptr;
+	}
 
 	token = peekToken();
 
@@ -431,6 +447,7 @@ StringExpressionNode *LithiumParser::parseStringExpressionP()
 		return new StringExpressionNode(number);
 	}
 
+	error("expected string or number after concatenation operator");
 	return nullptr;
 }
 
@@ -602,21 +619,22 @@ NumericExpressionNode *LithiumParser::parseExponent()
 		return nullptr;
 	}
 
-	NumericExpressionNode *exponentP = parseExponentP();
+	NumericExpressionNode *exponentP = parseExponentP(factorial);
 	if (!exponentP)
 	{
 		return nullptr;
 	}
 
-	return factorial;
+	return exponentP;
 }
 
-NumericExpressionNode *LithiumParser::parseExponentP()
+NumericExpressionNode *LithiumParser::parseExponentP(NumericExpressionNode *lhs)
 {
 	int token = peekToken();
 
 	if (token == '^')
 	{
+		char op = token;
 		nextToken();
 
 		NumericExpressionNode *factorial = parseFactorial();
@@ -625,16 +643,18 @@ NumericExpressionNode *LithiumParser::parseExponentP()
 			return nullptr;
 		}
 
-		NumericExpressionNode *exponentP = parseExponentP();
+		BinaryExpressionNode *exponent = new BinaryExpressionNode(lhs, op, factorial);
+
+		NumericExpressionNode *exponentP = parseExponentP(exponent);
 		if (!exponentP)
 		{
 			return nullptr;
 		}
 
-		return factorial;
+		return exponentP;
 	}
 
-	return new NumericExpressionNode();
+	return lhs;
 }
 
 NumericExpressionNode *LithiumParser::parseFactorial()

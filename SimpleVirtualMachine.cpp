@@ -223,7 +223,8 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		case Instruction::PRINT:
 		{
 			uint64_t value = pop();
-			printf("%lu\n", value);
+			printf("%lu", value);
+			fflush(stdout);
 			break;
 		}
 		case Instruction::PRINTSTR:
@@ -232,9 +233,35 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			for (uint64_t i = 0; i < length; i++)
 			{
 				uint64_t value = pop();
+
+				if (value == '\\')
+				{
+					length--;
+					value = pop();
+					switch (value)
+					{
+						case 'n':
+						{
+							printf("\n");
+							break;
+						}
+						case 't':
+						{
+							printf("\t");
+							break;
+						}
+						default:
+						{
+							printf("%c", static_cast<char>(value));
+							break;
+						}
+					}
+					continue;
+				}
+
 				printf("%c", static_cast<char>(value));
 			}
-			printf("\n");
+			fflush(stdout);
 			break;
 		}
 		case Instruction::CONCAT:

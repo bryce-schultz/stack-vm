@@ -1,1 +1,1 @@
-print("hello " + 10 + " test" + " this " + "hi")
+println(10)
