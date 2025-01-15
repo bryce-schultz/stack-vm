@@ -6,11 +6,13 @@ class StatementNode;
 class ExpressionNode;
 class BinaryExpressionNode;
 class OperatorNode;
-class IntExpressionNode;
 class UnaryExpressionNode;
 class PrintStatementNode;
 class AsmStatementNode;
+class NumericExpressionNode;
 class StringExpressionNode;
+class IntExpressionNode;
+class ConcatNode;
 
 class IVisitor
 {
@@ -21,10 +23,12 @@ public:
 	virtual void visit(ExpressionNode* node);
 	virtual void visit(BinaryExpressionNode* node);
 	virtual void visit(OperatorNode* node);
-	virtual void visit(IntExpressionNode* node);
 	virtual void visit(UnaryExpressionNode* node);
 	virtual void visit(PrintStatementNode* node);
 	virtual void visit(AsmStatementNode* node);
+	virtual void visit(NumericExpressionNode* node);
 	virtual void visit(StringExpressionNode* node);
+	virtual void visit(IntExpressionNode* node);
+	virtual void visit(ConcatNode* node);
 };
 

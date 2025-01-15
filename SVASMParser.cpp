@@ -12,7 +12,7 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 
     for (size_t i = 0; i < source.size(); i++)
     {
-        if (source[i] == '#')
+        if (source[i] == '#' || source[i] == '.')
         {
             while (i < source.size() && source[i] != '\n')
             {
@@ -95,6 +95,14 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		else if (tokens[i] == "print")
 		{
 			result.program.push_back(iprint);
+		}
+		else if (tokens[i] == "printstr")
+		{
+			result.program.push_back(iprintstr);
+		}
+		else if (tokens[i] == "concat")
+		{
+			result.program.push_back(iconcat);
 		}
 		else if (tokens[i] == "halt")
 		{

@@ -1,26 +1,26 @@
 #pragma once
 
-#include "ExpressionNode.h"
+#include "NumericExpressionNode.h"
 #include "OperatorNode.h"
 
-class BinaryExpressionNode : public ExpressionNode
+class BinaryExpressionNode : public NumericExpressionNode
 {
 public:
-	BinaryExpressionNode(ExpressionNode *left, char op, ExpressionNode* right)
+	BinaryExpressionNode(NumericExpressionNode *left, char op, NumericExpressionNode *right)
 	{
 		addChild(left);
 		addChild(new OperatorNode(op));
 		addChild(right);
 	}
 
-	ExpressionNode* getLeft() const
+	NumericExpressionNode *getLeft() const
 	{
-		return dynamic_cast<ExpressionNode*>(getChild(0));
+		return dynamic_cast<NumericExpressionNode *>(getChild(0));
 	}
 
-	ExpressionNode* getRight() const
+	NumericExpressionNode *getRight() const
 	{
-		return dynamic_cast<ExpressionNode*>(getChild(2));
+		return dynamic_cast<NumericExpressionNode *>(getChild(2));
 	}
 
 	char getOperator() const

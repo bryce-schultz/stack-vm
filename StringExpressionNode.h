@@ -21,6 +21,11 @@ public:
         visitor->visit(this);
     }
 
+    virtual bool isString() const override
+    {
+        return true;
+    }
+
 private:
     std::string value;
 };

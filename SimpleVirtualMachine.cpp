@@ -226,6 +226,49 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			printf("%lu\n", value);
 			break;
 		}
+		case Instruction::PRINTSTR:
+		{
+			uint64_t length = pop();
+			for (uint64_t i = 0; i < length; i++)
+			{
+				uint64_t value = pop();
+				printf("%c", static_cast<char>(value));
+			}
+			printf("\n");
+			break;
+		}
+		case Instruction::CONCAT:
+		{
+			std::string right;
+			std::string left;
+			
+
+			uint64_t length = pop();
+
+			for (uint64_t i = 0; i < length; i++)
+			{
+				uint64_t value = pop();
+				right += static_cast<char>(value);
+			}
+
+			length = pop();
+
+			for (uint64_t i = 0; i < length; i++)
+			{
+				uint64_t value = pop();
+				left += static_cast<char>(value);
+			}
+
+			std::string result = left + right;
+
+			for (ssize_t i = result.size() - 1; i >= 0; i--)
+			{
+				push(result[i]);
+			}
+
+			push(result.size());
+			break;
+		}
 		case Instruction::HALT:
 		{
 			return false;

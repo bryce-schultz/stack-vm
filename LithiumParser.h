@@ -38,58 +38,75 @@ private:
 	// statement
 	ProgramNode *parseProgram();
 
-	// expression
+	// print_statement
+	// asm_statement
 	StatementNode *parseStatement();
 
-	// print statement
+	// print ( expression )
 	PrintStatementNode *parsePrintStatement();
 
-	// asm statement
+	// asm ( string_expression )
 	AsmStatementNode *parseAsmStatement();
 
-	// addit
+	// numeric_expression
+	// string_expression
 	ExpressionNode *parseExpression();
 
+	// addit
+	NumericExpressionNode *parseNumericExpression();
+
+	// STRING string_expressionPP
+	StringExpressionNode *parseStringExpression();
+
+	// STRING
+	// NUMBER
+	StringExpressionNode *parseStringExpressionP();
+
+	// + string_expressionP string_expressionPP
+	// nothing
+	StringExpressionNode *parseStringExpressionPP(StringExpressionNode *lhs);
+
 	// term additPP
-	ExpressionNode *parseAddit();
+	NumericExpressionNode *parseAddit();
 	// + term
 	// - term
-	ExpressionNode *parseAdditP(ExpressionNode *lhs);
+	NumericExpressionNode *parseAdditP(NumericExpressionNode *lhs);
 	// additP additPP
 	// nothing
-	ExpressionNode *parseAdditPP(ExpressionNode *lhs);
+	NumericExpressionNode *parseAdditPP(NumericExpressionNode *lhs);
 
 	// exponent termPP
-	ExpressionNode *parseTerm();
+	NumericExpressionNode *parseTerm();
 	// * exponent
 	// / exponent
 	// % exponent
-	ExpressionNode *parseTermP(ExpressionNode *lhs);
+	NumericExpressionNode *parseTermP(NumericExpressionNode *lhs);
 	// termP termPP
 	// nothing
-	ExpressionNode *parseTermPP(ExpressionNode *lhs);
+	NumericExpressionNode *parseTermPP(NumericExpressionNode *lhs);
 
 	// factorial exponentP
-	ExpressionNode *parseExponent();
+	NumericExpressionNode *parseExponent();
 	// ^ factorial exponentP
 	// nothing
-	ExpressionNode *parseExponentP();
+	NumericExpressionNode *parseExponentP();
 
 	// primary factorialP
-	ExpressionNode *parseFactorial();
+	NumericExpressionNode *parseFactorial();
 	// ! factorialP
 	// nothing
-	ExpressionNode *parseFactorialP(ExpressionNode *lhs);
+	NumericExpressionNode *parseFactorialP(NumericExpressionNode *lhs);
 
-	// ( expression )
+	// ( numeric_expression )
 	// number
-	ExpressionNode *parsePrimary();
+	NumericExpressionNode *parsePrimary();
 
 private:
 	std::string source;
 	size_t index;
 	int currentToken;
 	std::string text;
+	std::string oldText;
 
 	int colno;
 	int lineno;

@@ -9,5 +9,15 @@ public:
 	{
 		visitor->visit(this);
 	}
+
+	virtual bool isNumeric() const
+	{
+		return false;
+	}
+
+	virtual bool isString() const
+	{
+		return false;
+	}
 };
 

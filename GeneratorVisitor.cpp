@@ -16,6 +16,7 @@ GeneratorVisitor::~GeneratorVisitor()
 
 void GeneratorVisitor::visit(ProgramNode *node)
 {
+	out(".start\n");
 	node->visitAllChildren(this);
 	out("halt\n");
 }
@@ -55,13 +56,25 @@ void GeneratorVisitor::visit(IntExpressionNode *node)
 
 void GeneratorVisitor::visit(PrintStatementNode *node)
 {
-	if (node->getExpression() == nullptr)
+	auto expression = node->getExpression();
+
+	if (!expression)
 	{
 		return;
 	}
 
-	node->getExpression()->visit(this);
-	out("print\n");
+	expression->visit(this);
+
+	if (expression->isString())
+	{
+		out("printstr");
+	}
+	else
+	{
+		out("print");
+	}
+
+	out("\n");
 }
 
 void GeneratorVisitor::visit(UnaryExpressionNode *node)
@@ -82,6 +95,31 @@ void GeneratorVisitor::visit(AsmStatementNode *node)
 	std::string asm_ = node->getStringExpression()->getValue();
 	out(asm_);
 	out("\n");
+}
+
+void GeneratorVisitor::visit(StringExpressionNode *node)
+{
+	std::string str = node->getValue();
+
+	// loop backwards through the string
+	for (int i = str.size() - 1; i >= 0; i--)
+	{
+		out("push ");
+		out(str[i]);
+		out("\n");
+	}
+
+	out("push ");
+	out(str.size());
+	out("\n");
+}
+
+void GeneratorVisitor::visit(ConcatNode *node)
+{
+	node->getLeft()->visit(this);
+	node->getRight()->visit(this);
+
+	out("concat\n");
 }
 
 void GeneratorVisitor::visitAllChildren(Node *node)

@@ -6,7 +6,7 @@
 #include "LithiumParser.h"
 #include "GeneratorVisitor.h"
 
-//#define DEBUG
+#define DEBUG
 #define ASM
 
 #define UNUSED(x) (void)(x)

@@ -46,7 +46,8 @@ std::vector<std::string> LithiumParser::getErrors() const
 
 void LithiumParser::error(const std::string &message)
 {
-	errors.push_back("error " + filename + ":" + std::to_string(lineno) + ":" + std::to_string(colno) + ":\n" + message);
+	errors.push_back("error: " + message);
+	//errors.push_back("error " + filename + ":" + std::to_string(lineno) + ":" + std::to_string(colno) + ":\n" + message);
 }
 
 Node *LithiumParser::parseInternal(const std::string &source)
@@ -81,6 +82,7 @@ int LithiumParser::peekToken()
 
 int LithiumParser::getToken()
 {
+	oldText = text;
 	text.clear();
 
 	if (index >= source.size())
@@ -196,6 +198,7 @@ int LithiumParser::getToken()
 		return STRING;
 	}
 
+	text = c;
 	return JUNK;
 }
 
@@ -255,6 +258,8 @@ StatementNode *LithiumParser::parseStatement()
 		return asmStatement;
 	}
 
+	nextToken();
+	error("unexpected token: " + text);
 	return nullptr;
 }
 
@@ -347,10 +352,116 @@ AsmStatementNode *LithiumParser::parseAsmStatement()
 
 ExpressionNode *LithiumParser::parseExpression()
 {
-	return parseAddit();
+	int token = peekToken();
+
+	if (token == NUMBER || token == '(')
+	{
+		NumericExpressionNode *numericExpression = parseNumericExpression();
+		if (!numericExpression)
+		{
+			return nullptr;
+		}
+
+		return numericExpression;
+	}
+
+	if (token == STRING)
+	{
+		StringExpressionNode *stringExpression = parseStringExpression();
+		if (!stringExpression)
+		{
+			return nullptr;
+		}
+
+		return stringExpression;
+	}
+
+	return nullptr;
 }
 
-ExpressionNode *LithiumParser::parseAddit()
+NumericExpressionNode *LithiumParser::parseNumericExpression()
+{
+	NumericExpressionNode *addit = parseAddit();
+	if (!addit)
+	{
+		return nullptr;
+	}
+
+	return addit;
+}
+
+StringExpressionNode *LithiumParser::parseStringExpression()
+{
+	int token = peekToken();
+
+	if (token != STRING)
+	{
+		return nullptr;
+	}
+
+	std::string value = text;
+	nextToken();
+
+	StringExpressionNode *stringExpressionPP = parseStringExpressionPP(new StringExpressionNode(value));
+	if (!stringExpressionPP)
+	{
+		return nullptr;
+	}
+
+	return stringExpressionPP;
+}
+
+StringExpressionNode *LithiumParser::parseStringExpressionP()
+{
+	int token = peekToken();
+
+	if (token == STRING)
+	{
+		std::string value = text;
+		nextToken();
+
+		return new StringExpressionNode(value);
+	}
+
+	if (token == NUMBER)
+	{
+		std::string number = text;
+		nextToken();
+
+		return new StringExpressionNode(number);
+	}
+
+	return nullptr;
+}
+
+StringExpressionNode *LithiumParser::parseStringExpressionPP(StringExpressionNode *lhs)
+{
+	int token = peekToken();
+
+	if (token == '+')
+	{
+		nextToken();
+		StringExpressionNode *stringExpressionP = parseStringExpressionP();
+		if (!stringExpressionP)
+		{
+			return nullptr;
+		}
+
+		auto concat = new ConcatNode(lhs, stringExpressionP);
+
+		StringExpressionNode *stringExpressionPP = parseStringExpressionPP(concat);
+		if (!stringExpressionPP)
+		{
+			return nullptr;
+		}
+
+		return stringExpressionPP;
+	}
+
+	return lhs;
+}
+
+NumericExpressionNode *LithiumParser::parseAddit()
 {
 	int token = peekToken();
 
@@ -360,13 +471,13 @@ ExpressionNode *LithiumParser::parseAddit()
 		nextToken();
 	}
 
-	ExpressionNode *term = parseTerm();
+	NumericExpressionNode *term = parseTerm();
 	if (!term)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode *additPP = parseAdditPP(term);
+	NumericExpressionNode *additPP = parseAdditPP(term);
 	if (!additPP)
 	{
 		return nullptr;
@@ -375,7 +486,7 @@ ExpressionNode *LithiumParser::parseAddit()
 	return additPP;
 }
 
-ExpressionNode *LithiumParser::parseAdditP(ExpressionNode *lhs)
+NumericExpressionNode *LithiumParser::parseAdditP(NumericExpressionNode *lhs)
 {
 	int token = peekToken();
 
@@ -384,7 +495,7 @@ ExpressionNode *LithiumParser::parseAdditP(ExpressionNode *lhs)
 		char op = token;
 		nextToken();
 
-		ExpressionNode *term = parseTerm();
+		NumericExpressionNode *term = parseTerm();
 
 		if (!term)
 		{
@@ -397,19 +508,19 @@ ExpressionNode *LithiumParser::parseAdditP(ExpressionNode *lhs)
 	return nullptr;
 }
 
-ExpressionNode *LithiumParser::parseAdditPP(ExpressionNode *lhs)
+NumericExpressionNode *LithiumParser::parseAdditPP(NumericExpressionNode *lhs)
 {
 	int token = peekToken();
 
 	if (token == '+' || token == '-')
 	{
-		ExpressionNode *additP = parseAdditP(lhs);
+		NumericExpressionNode *additP = parseAdditP(lhs);
 		if (!additP)
 		{
 			return nullptr;
 		}
 
-		ExpressionNode *additPP = parseAdditPP(additP);
+		NumericExpressionNode *additPP = parseAdditPP(additP);
 		if (!additPP)
 		{
 			return nullptr;
@@ -421,15 +532,15 @@ ExpressionNode *LithiumParser::parseAdditPP(ExpressionNode *lhs)
 	return lhs;
 }
 
-ExpressionNode *LithiumParser::parseTerm()
+NumericExpressionNode *LithiumParser::parseTerm()
 {
-	ExpressionNode *exponent = parseExponent();
+	NumericExpressionNode *exponent = parseExponent();
 	if (!exponent)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode *termPP = parseTermPP(exponent);
+	NumericExpressionNode *termPP = parseTermPP(exponent);
 	if (!termPP)
 	{
 		return nullptr;
@@ -438,7 +549,7 @@ ExpressionNode *LithiumParser::parseTerm()
 	return termPP;
 }
 
-ExpressionNode *LithiumParser::parseTermP(ExpressionNode *lhs)
+NumericExpressionNode *LithiumParser::parseTermP(NumericExpressionNode *lhs)
 {
 	int token = peekToken();
 
@@ -447,7 +558,7 @@ ExpressionNode *LithiumParser::parseTermP(ExpressionNode *lhs)
 		char op = token;
 		nextToken();
 
-		ExpressionNode *exponent = parseExponent();
+		NumericExpressionNode *exponent = parseExponent();
 		if (!exponent)
 		{
 			return nullptr;
@@ -459,19 +570,19 @@ ExpressionNode *LithiumParser::parseTermP(ExpressionNode *lhs)
 	return nullptr;
 }
 
-ExpressionNode *LithiumParser::parseTermPP(ExpressionNode *lhs)
+NumericExpressionNode *LithiumParser::parseTermPP(NumericExpressionNode *lhs)
 {
 	int token = peekToken();
 
 	if (token == '*' || token == '/' || token == '%')
 	{
-		ExpressionNode *termP = parseTermP(lhs);
+		NumericExpressionNode *termP = parseTermP(lhs);
 		if (!termP)
 		{
 			return nullptr;
 		}
 
-		ExpressionNode *termPP = parseTermPP(termP);
+		NumericExpressionNode *termPP = parseTermPP(termP);
 		if (!termPP)
 		{
 			return nullptr;
@@ -483,15 +594,15 @@ ExpressionNode *LithiumParser::parseTermPP(ExpressionNode *lhs)
 	return lhs;
 }
 
-ExpressionNode *LithiumParser::parseExponent()
+NumericExpressionNode *LithiumParser::parseExponent()
 {
-	ExpressionNode *factorial = parseFactorial();
+	NumericExpressionNode *factorial = parseFactorial();
 	if (!factorial)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode *exponentP = parseExponentP();
+	NumericExpressionNode *exponentP = parseExponentP();
 	if (!exponentP)
 	{
 		return nullptr;
@@ -500,7 +611,7 @@ ExpressionNode *LithiumParser::parseExponent()
 	return factorial;
 }
 
-ExpressionNode *LithiumParser::parseExponentP()
+NumericExpressionNode *LithiumParser::parseExponentP()
 {
 	int token = peekToken();
 
@@ -508,13 +619,13 @@ ExpressionNode *LithiumParser::parseExponentP()
 	{
 		nextToken();
 
-		ExpressionNode *factorial = parseFactorial();
+		NumericExpressionNode *factorial = parseFactorial();
 		if (!factorial)
 		{
 			return nullptr;
 		}
 
-		ExpressionNode *exponentP = parseExponentP();
+		NumericExpressionNode *exponentP = parseExponentP();
 		if (!exponentP)
 		{
 			return nullptr;
@@ -523,18 +634,18 @@ ExpressionNode *LithiumParser::parseExponentP()
 		return factorial;
 	}
 
-	return new ExpressionNode();
+	return new NumericExpressionNode();
 }
 
-ExpressionNode *LithiumParser::parseFactorial()
+NumericExpressionNode *LithiumParser::parseFactorial()
 {
-	ExpressionNode *primary = parsePrimary();
+	NumericExpressionNode *primary = parsePrimary();
 	if (!primary)
 	{
 		return nullptr;
 	}
 
-	ExpressionNode *factorialP = parseFactorialP(primary);
+	NumericExpressionNode *factorialP = parseFactorialP(primary);
 	if (!factorialP)
 	{
 		return nullptr;
@@ -543,7 +654,7 @@ ExpressionNode *LithiumParser::parseFactorial()
 	return factorialP;
 }
 
-ExpressionNode *LithiumParser::parseFactorialP(ExpressionNode *lhs)
+NumericExpressionNode *LithiumParser::parseFactorialP(NumericExpressionNode *lhs)
 {
 	int token = peekToken();
 
@@ -554,7 +665,7 @@ ExpressionNode *LithiumParser::parseFactorialP(ExpressionNode *lhs)
 
 		UnaryExpressionNode *unary = new UnaryExpressionNode(lhs, op);
 
-		ExpressionNode *factorialP = parseFactorialP(unary);
+		NumericExpressionNode *factorialP = parseFactorialP(unary);
 		if (!factorialP)
 		{
 			return nullptr;
@@ -566,7 +677,7 @@ ExpressionNode *LithiumParser::parseFactorialP(ExpressionNode *lhs)
 	return lhs;
 }
 
-ExpressionNode *LithiumParser::parsePrimary()
+NumericExpressionNode *LithiumParser::parsePrimary()
 {
 	int token = peekToken();
 
@@ -574,7 +685,7 @@ ExpressionNode *LithiumParser::parsePrimary()
 	{
 		nextToken();
 
-		ExpressionNode *expression = parseExpression();
+		NumericExpressionNode *expression = parseNumericExpression();
 		if (!expression)
 		{
 			return nullptr;

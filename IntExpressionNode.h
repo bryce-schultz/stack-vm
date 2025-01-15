@@ -1,9 +1,9 @@
 #pragma once
 
-#include "ExpressionNode.h"
+#include "NumericExpressionNode.h"
 #include "IVisitor.h"
 
-class IntExpressionNode : public ExpressionNode
+class IntExpressionNode : public NumericExpressionNode
 {
 public:
 	IntExpressionNode(int value) : value(value) {}

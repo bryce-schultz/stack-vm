@@ -33,7 +33,9 @@ enum class Instruction : uint64_t
 	MOD,
 	POW,
 	FACT,
-	PRINT
+	PRINT,
+	PRINTSTR,
+	CONCAT
 };
 
 class SimpleVirtualMachine

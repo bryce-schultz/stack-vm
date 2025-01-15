@@ -31,6 +31,11 @@ void IVisitor::visit(IntExpressionNode* node)
 	node->visitAllChildren(this);
 }
 
+void IVisitor::visit(ConcatNode *node)
+{
+	node->visitAllChildren(this);
+}
+
 void IVisitor::visit(UnaryExpressionNode* node)
 {
 	node->visitAllChildren(this);
@@ -47,6 +52,11 @@ void IVisitor::visit(AsmStatementNode *node)
 }
 
 void IVisitor::visit(StringExpressionNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(NumericExpressionNode *node)
 {
 	node->visitAllChildren(this);
 }

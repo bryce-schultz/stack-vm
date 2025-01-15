@@ -16,4 +16,6 @@ typedef std::vector<uint64_t> Program;
 #define ifact		(uint64_t)Instruction::FACT
 #define inop		(uint64_t)Instruction::NOP
 #define iprint		(uint64_t)Instruction::PRINT
+#define iprintstr   (uint64_t)Instruction::PRINTSTR
+#define iconcat     (uint64_t)Instruction::CONCAT
 #define ihalt		(uint64_t)Instruction::HALT

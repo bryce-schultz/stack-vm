@@ -11,3 +11,5 @@
 #include "PrintStatementNode.h"
 #include "AsmStatementNode.h"
 #include "StringExpressionNode.h"
+#include "NumericExpressionNode.h"
+#include "ConcatNode.h"
