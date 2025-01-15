@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "IVisitor.h"
+#include "../../visitors/include/IVisitor.h"
 
 class Node
 {

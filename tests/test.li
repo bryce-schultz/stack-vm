@@ -1,1 +1,1 @@
-println(10)
+print("Hello World!")

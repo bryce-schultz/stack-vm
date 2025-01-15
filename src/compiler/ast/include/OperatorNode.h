@@ -1,6 +1,6 @@
 #pragma once
 
-#include "IVisitor.h"
+#include "../../visitors/include/IVisitor.h"
 #include "Node.h"
 
 class OperatorNode : public Node

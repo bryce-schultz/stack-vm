@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include "LithiumParser.h"
+#include "../include/LithiumParser.h"
 
 LithiumParser::LithiumParser():
 	source(""),

@@ -223,8 +223,8 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		case Instruction::PRINT:
 		{
 			uint64_t value = pop();
-			printf("%lu", value);
-			fflush(stdout);
+			printf("%lu\n", value);
+			//fflush(stdout);
 			break;
 		}
 		case Instruction::PRINTSTR:
@@ -261,7 +261,8 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 
 				printf("%c", static_cast<char>(value));
 			}
-			fflush(stdout);
+			printf("\n");
+			//fflush(stdout);
 			break;
 		}
 		case Instruction::CONCAT:

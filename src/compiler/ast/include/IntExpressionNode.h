@@ -1,7 +1,7 @@
 #pragma once
 
 #include "NumericExpressionNode.h"
-#include "IVisitor.h"
+#include "../../visitors/include/IVisitor.h"
 
 class IntExpressionNode : public NumericExpressionNode
 {

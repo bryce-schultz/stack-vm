@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "Nodes.h"
+#include "../ast/include/Nodes.h"
 
 enum TokenType
 {

@@ -1,6 +1,6 @@
 #include <fstream>
 
-#include "SVASMParser.h"
+#include "../include/SVASMParser.h"
 
 SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 {

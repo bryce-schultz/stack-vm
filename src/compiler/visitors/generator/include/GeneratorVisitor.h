@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 
-#include "IVisitor.h"
+#include "../include/IVisitor.h"
 
 class GeneratorVisitor : public IVisitor
 {

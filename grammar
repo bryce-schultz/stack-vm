@@ -10,6 +10,7 @@ statements: statements statement
 
 statement: asm_statement
          | print_statement
+         | expression
 
 asm_statement: ASM ( string_expression )
 
@@ -40,5 +41,5 @@ factorial: factorial !
          | fact
 
 primary: ( numeric_expression )
-    | NUMBER
+       | NUMBER
 
