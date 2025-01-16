@@ -1,8 +1,5 @@
 #include <cstdio>
 
-#include "../../vm/include/SimpleVirtualMachine.h"
-#include "../../vm/exception/include/SVMException.h"
-#include "../../vm/parser/include/SVASMParser.h"
 #include "../include/LithiumParser.h"
 #include "../visitors/generator/include/GeneratorVisitor.h"
 
@@ -35,4 +32,7 @@ int main(int argc, char **argv)
 	}
 
 	GeneratorVisitor generator(argv[1] + std::string(".svasm"));
+	generator.visitAllChildren(root);
+
+	return 0;
 }

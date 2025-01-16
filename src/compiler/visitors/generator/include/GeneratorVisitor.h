@@ -11,6 +11,8 @@ public:
 	GeneratorVisitor(const std::string &output_filename = "");
 	~GeneratorVisitor();
 
+	virtual void visitAllChildren(Node* node) override;
+
 	virtual void visit(ProgramNode* node) override;
 	virtual void visit(BinaryExpressionNode *node) override;
 	virtual void visit(IntExpressionNode *node) override;
@@ -20,13 +22,12 @@ public:
 	virtual void visit(StringExpressionNode* node) override;
 	virtual void visit(ConcatNode* node) override;
 
-	virtual void visitAllChildren(Node* node) override;
 	std::string getOutput() const;
 private:
 	void out(const std::string& text);
 	void out(int64_t value);
 private:
-	std::ofstream _file;
+	std::string _output_filename;
 	std::stringstream _buffer;
 };
 

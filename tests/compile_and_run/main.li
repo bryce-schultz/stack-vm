@@ -1,0 +1,23 @@
+# print a string
+print("Hello World!")
+
+# print a string with concatination
+print("Hello" + " " + "World" + "!")
+
+# print a string with numerical concatination
+print("ben" + 10)
+
+# print a string with numerical concatination twice
+# probably not what is wanted, I need to fix the grammar or something :/
+# this is what javascript does 🤮
+print("ben" + 1 + 0)
+
+# inline assembly
+asm("push 10")
+asm("print")
+
+# print isn't necessary, expressions are treated as print statements
+100 / 50 * (3 - 1)
+
+# emoji support, it's 2025 why wouldn't it
+"This string ❤️ 's you"

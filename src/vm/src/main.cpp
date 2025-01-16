@@ -1,8 +1,9 @@
 #include <cstdio>
+#include <unistd.h>
 
 #include "SimpleVirtualMachine.h"
-#include "SVMException.h"
-#include "../parser/include/SVASMParser.h"
+
+#define UNUSED(x) (void)(x)
 
 int main(int argc, char **argv)
 {
@@ -13,7 +14,7 @@ int main(int argc, char **argv)
 	}
 
 	SVASMParser asm_parser;
-	SVASMParserResult result = asm_parser.parse(argv[0]);
+	SVASMParserResult result = asm_parser.parse(argv[1]);
 
 	if (!result.success)
 	{

@@ -1,22 +1,32 @@
 #include "GeneratorVisitor.h"
 #include "Nodes.h"
 
-GeneratorVisitor::GeneratorVisitor(const std::string &output_filename)
+GeneratorVisitor::GeneratorVisitor(const std::string &output_filename):
+	_output_filename(output_filename)
 {
-	_file.open(output_filename);
 }
 
 GeneratorVisitor::~GeneratorVisitor()
 {
-	if (_file.is_open())
+}
+
+void GeneratorVisitor::visitAllChildren(Node *node)
+{
+	node->visit(this);
+
+	std::ofstream file(_output_filename);
+
+	if (file.is_open())
 	{
-		_file.close();
+		file << _buffer.str();
+		file.close();
+
+		printf("-> %s\n", _output_filename.c_str());
 	}
 }
 
 void GeneratorVisitor::visit(ProgramNode *node)
 {
-	out(".start\n");
 	node->visitAllChildren(this);
 	out("halt\n");
 }
@@ -123,17 +133,6 @@ void GeneratorVisitor::visit(ConcatNode *node)
 	node->getRight()->visit(this);
 
 	out("concat\n");
-}
-
-void GeneratorVisitor::visitAllChildren(Node *node)
-{
-	node->visit(this);
-
-	if (_file.is_open())
-	{
-		_file << _buffer.str();
-		_file.close();
-	}
 }
 
 std::string GeneratorVisitor::getOutput() const

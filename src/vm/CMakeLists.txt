@@ -1,4 +1,5 @@
 # VM project
+
 add_executable(vm
     src/main.cpp
     src/SimpleVirtualMachine.cpp

@@ -10,8 +10,8 @@ SimpleVirtualMachine::SimpleVirtualMachine(size_t memorySize):
 	memory(new uint64_t[memorySize / sizeof(uint64_t)]),
 	sp(memory),
 	bp(memory),
-	ip(memory),
 	fp(memory),
+	ip(memory),
 	memorySize(memorySize / sizeof(uint64_t)),
 	stackSize(0),
 	isStackCheckEnabled(false)

@@ -4,6 +4,9 @@
 #include <cstring>
 #include <string>
 
+#include "../exception/include/SVMException.h"
+#include "../parser/include/SVASMParser.h"
+
 // define a literal operator for memory sizes
 constexpr size_t operator"" KB(unsigned long long size)
 {
@@ -65,11 +68,11 @@ private:
 	bool memorySizeCheck(const uint64_t *program, size_t programSize);
 
 private:
-	uint64_t *memory;
-	uint64_t *sp;
-	uint64_t *bp;
-	uint64_t *ip;
-	uint64_t *fp;
+	uint64_t *memory; // the entire memory space
+	uint64_t *sp; // stack pointer
+	uint64_t *bp; // base pointer
+	uint64_t *fp; // frame pointer
+	uint64_t *ip; // instruction pointer
 
 	size_t memorySize;
 	size_t stackSize;

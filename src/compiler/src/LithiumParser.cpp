@@ -1,4 +1,5 @@
 #include <fstream>
+#include <string.h>
 
 #include "../include/LithiumParser.h"
 
@@ -109,17 +110,20 @@ int LithiumParser::getToken()
 		c = source[index];
 	}
 
-	// parse operators
-	if (c == '+' || c == '-' || c == '*' || c == '/' || c == '%' || c == '^' || c == '!')
+	// skip comments
+	if (c == '#')
 	{
-		index++;
-		colno++;
-		text = c;
-		return c;
+		while (c != '\n' && index < source.size())
+		{
+			index++;
+			colno++;
+			c = source[index];
+		}
+		return getToken();
 	}
 
-	// parse parentheses
-	if (c == '(' || c == ')')
+	// parse operators and parentheses
+	if (strchr("+-*/%^!()", c))
 	{
 		index++;
 		colno++;
@@ -128,37 +132,26 @@ int LithiumParser::getToken()
 	}
 
 	// parse numbers
-	if (c >= '0' && c <= '9')
+	if (isdigit(c))
 	{
-		text.clear();
-		while (c >= '0' && c <= '9')
+		while (isdigit(c) && index < source.size())
 		{
 			text += c;
 			index++;
 			colno++;
-			if (index >= source.size())
-			{
-				break;
-			}
 			c = source[index];
 		}
-
 		return NUMBER;
 	}
 
-	// parse identifiers
-	if (c >= 'a' && c <= 'z')
+	// parse identifiers and keywords
+	if (isalpha(c))
 	{
-		text.clear();
-		while ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
+		while ((isalpha(c) || isdigit(c)) && index < source.size())
 		{
 			text += c;
 			index++;
 			colno++;
-			if (index >= source.size())
-			{
-				break;
-			}
 			c = source[index];
 		}
 
@@ -166,33 +159,24 @@ int LithiumParser::getToken()
 		{
 			return PRINT;
 		}
-
 		if (text == "asm")
 		{
 			return ASM;
 		}
-
 		return IDENTIFIER;
 	}
 
+	// parse strings
 	if (c == '"')
 	{
-		text.clear();
 		index++;
 		colno++;
-		c = source[index];
-		while (c != '"')
+		while (index < source.size() && (c = source[index]) != '"')
 		{
 			text += c;
 			index++;
 			colno++;
-			if (index >= source.size())
-			{
-				break;
-			}
-			c = source[index];
 		}
-
 		index++;
 		colno++;
 		return STRING;
@@ -269,7 +253,6 @@ StatementNode *LithiumParser::parseStatement()
 		return new PrintStatementNode(expression);
 	}
 
-	//nextToken();
 	error("unexpected token: " + text);
 	return nullptr;
 }
