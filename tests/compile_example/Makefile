@@ -7,7 +7,7 @@ compile: main.li
 	$(LIC) main.li
 
 run: compile
-	$(VM) main.li.svasm
+	$(VM) main.li.lsm
 
 clean:
-	rm -f main.li.svasm
+	rm -f main.li.lsm

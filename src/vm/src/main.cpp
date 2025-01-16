@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
 	if (!result.success)
 	{
-		printf("error: failed to parse the asm\n");
+		printf("error: failed to parse the lsm\n");
 		return 1;
 	}
 

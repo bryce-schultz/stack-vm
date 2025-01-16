@@ -3,6 +3,8 @@
 #include "../include/LithiumParser.h"
 #include "../visitors/generator/include/GeneratorVisitor.h"
 
+constexpr const char* const extension = ".lsm";
+
 int main(int argc, char **argv)
 {
 	if (argc != 2)
@@ -31,7 +33,7 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	GeneratorVisitor generator(argv[1] + std::string(".svasm"));
+	GeneratorVisitor generator(std::string(argv[1]) + extension);
 	generator.visitAllChildren(root);
 
 	return 0;
