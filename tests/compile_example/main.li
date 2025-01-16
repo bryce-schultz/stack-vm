@@ -8,8 +8,8 @@ print("Hello" + " " + "World" + "!")
 print("ben" + 10)
 
 # print a string with numerical concatination twice
-# probably not what is wanted, I need to fix the grammar or something :/
-# this is what javascript does 🤮
+# probably not what is wanted, I need to fix the
+# grammar or something, this is what javascript does 🤮
 print("ben" + 1 + 0)
 
 # inline assembly
@@ -19,5 +19,5 @@ asm("print")
 # print isn't necessary, expressions are treated as print statements
 100 / 50 * (3 - 1)
 
-# emoji support, it's 2025 why wouldn't it
+# it has emoji support, it's (insert current year here) why wouldn't it
 "This string ❤️ 's you"

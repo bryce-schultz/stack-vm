@@ -2,4 +2,4 @@
 
 ### How to build
 
-mkdir build && cd build && cmake .. && cmake -build .
+`mkdir build && cd build && cmake .. && make`
