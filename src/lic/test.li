@@ -1,0 +1,52 @@
+# print a string
+print("Hello World!");
+
+# print a string with concatination
+print("Hello" + " " + "World" + "!");
+
+# print a string with numerical concatination
+print("ben" + 10);
+
+# print a string with numerical concatination twice
+# probably not what is wanted, I need to fix the
+# grammar or something, this is what javascript does 🤮
+print("ben" + 1 + 0);
+
+# inline assembly
+asm("push 10");
+asm("print");
+
+# print isn't necessary, expressions are treated as print statements
+100 / 50 * (3 - 1);
+
+# it has emoji support, it's (insert current year here) why wouldn't it
+"This string ❤️ 's you";
+
+# write syscall example, write to stderr "Hi"
+# write(fd, data, size)
+# syscall(number, args)
+# fd - param
+# data - param
+# size - param
+# 1 - syscall number
+# syscall - the actual call
+#
+# push 2 - fd (2 for stderr)
+# push 10 - char (\n)
+# push 105 - char (i)
+# push 72 - char (H)
+# push 2 - size (2)
+# push 1 - write syscall number
+# syscall
+asm("push 2");
+asm("push 10");
+asm("push 105");
+asm("push 72");
+asm("push 3"); # -> should be pushed back on stack after syscall
+asm("push 1");
+asm("syscall");
+asm("print");
+
+print(-5! + 6)
+
+.

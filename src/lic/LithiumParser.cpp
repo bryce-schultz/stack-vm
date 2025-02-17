@@ -1,43 +1,40 @@
 #include <fstream>
 #include <string.h>
+#include <string>
+#include <vector>
+#include <sstream>
 
 #include "LithiumParser.h"
+#include "Color.h"
+
+#define error(message, token) _error(message, token, __FILE__, __LINE__)
 
 LithiumParser::LithiumParser():
-	source(""),
-	index(0),
-	currentToken(NONE, "", {0, 0, ""}),
-	text(""),
-	colno(0),
-	lineno(0),
+	tokenizer(),
 	errors()
-{
-}
-
-LithiumParser::~LithiumParser()
 {
 }
 
 Node *LithiumParser::parse(const std::string &source)
 {
 	std::ifstream file(source);
+	// if the file is not open, treat the source as a string
 	if (!file.is_open())
 	{
-		filename = "";
 		return parseInternal(source);
 	}
 
-	filename = source;
-
-	std::string result;
+	// if the file is open, treat the source as a filename
+	// and read the file into a string
 	std::string line;
+	std::string content;
 	while (std::getline(file, line))
 	{
-		result += line + '\n';
+		content += line + "\n";
 	}
 
 	file.close();
-	return parseInternal(result);
+	return parseInternal(content, source);
 }
 
 std::vector<std::string> LithiumParser::getErrors() const
@@ -45,169 +42,48 @@ std::vector<std::string> LithiumParser::getErrors() const
 	return errors;
 }
 
-void LithiumParser::error(const std::string &message, const Token &token)
+void LithiumParser::_error(const std::string &message, const Token &token, const char* file, size_t lineno)
 {
-	//errors.push_back("error: " + message);
-	errors.push_back("error " + filename + ":" + std::to_string(token.getLocation().getLine()) + ":" + std::to_string(token.getLocation().getColumn()) + ":\n" + message);
+	const std::string &filename = token.getLocation().getFilename();
+	const std::string line = std::to_string(token.getLocation().getLine());
+	const std::string column = std::to_string(token.getLocation().getColumn());
+
+	bool showLocation = true;
+
+	std::stringstream ss;
+
+	if (file != nullptr && showLocation)
+	{
+		ss << red << "error " << reset << filename << ":" << line << ":" << column << ":\n|  " << message << "\n|  @ " << file << ":" << lineno;
+	}
+	else
+	{
+		ss << red << "error " << filename << ":" << line << ":" << column << ":\n|  " << message << reset;
+	}
+
+	errors.push_back(ss.str());
 }
 
-Node *LithiumParser::parseInternal(const std::string &source)
+Node *LithiumParser::parseInternal(const std::string &source, const std::string &filename)
 {
-	this->source = source;
-	index = 0;
-	lineno = 1;
-	colno = 1;
-
-	ProgramNode *program = parseProgram();
-	if (program == nullptr)
-	{
-		return nullptr;
-	}
-
-	return program;
-}
-
-Token LithiumParser::peekToken()
-{
-	if (currentToken == NONE)
-	{
-		int save_lineno = lineno;
-		int save_colno = colno;
-		currentToken = nextToken();
-		lineno = save_lineno;
-		colno = save_colno;
-	}
-
-	return currentToken;
-}
-
-Token LithiumParser::getToken()
-{
-	oldText = text;
-	text.clear();
-
-	if (index >= source.size())
-	{
-		return { END, "", {lineno, colno, filename} };
-	}
-
-	char c = source[index];
-
-	// skip whitespace
-	while (isWhitespace(c))
-	{
-		if (c == '\n')
-		{
-			lineno++;
-			colno = 0;
-		}
-		index++;
-		colno++;
-		if (index >= source.size())
-		{
-			return { END, "", {lineno, colno, filename} };
-		}
-		c = source[index];
-	}
-
-	// skip comments
-	if (c == '#')
-	{
-		while (c != '\n' && index < source.size())
-		{
-			index++;
-			colno++;
-			c = source[index];
-		}
-		lineno++;
-		return getToken();
-	}
-
-	// parse operators and parentheses
-	if (strchr("+-*/%^!()", c))
-	{
-		index++;
-		colno++;
-		text = c;
-		return { c, text, {lineno, colno, filename} };
-	}
-
-	// parse numbers
-	if (isdigit(c))
-	{
-		while (isdigit(c) && index < source.size())
-		{
-			text += c;
-			index++;
-			colno++;
-			c = source[index];
-		}
-		return { NUMBER, text, {lineno, colno, filename} };
-	}
-
-	// parse identifiers and keywords
-	if (isalpha(c))
-	{
-		while ((isalpha(c) || isdigit(c)) && index < source.size())
-		{
-			text += c;
-			index++;
-			colno++;
-			c = source[index];
-		}
-
-		if (text == "print")
-		{
-			return { PRINT, text, {lineno, colno, filename} };
-		}
-
-		if (text == "asm")
-		{
-			return { ASM, text, {lineno, colno, filename} };
-		}
-
-		return { IDENTIFIER, text, {lineno, colno, filename} };
-	}
-
-	// parse strings
-	if (c == '"')
-	{
-		index++;
-		colno++;
-		while (index < source.size() && (c = source[index]) != '"')
-		{
-			text += c;
-			index++;
-			colno++;
-		}
-		index++;
-		colno++;
-
-		return { STRING, text, {lineno, colno, filename} };
-	}
-
-	text = c;
-	return { JUNK, text, {lineno, colno, filename} };
-}
-
-Token LithiumParser::nextToken()
-{
-	currentToken = getToken();
-	return currentToken;
-}
-
-bool LithiumParser::isWhitespace(char c) const
-{
-	return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+	tokenizer = LithiumTokenizer(source, filename);
+	return parseProgram();
 }
 
 ProgramNode *LithiumParser::parseProgram()
 {
 	ProgramNode *program = new ProgramNode();
 
-	while (index < source.size())
+	while (!tokenizer.eof())
 	{
+		Token token = peekToken();
+		if (token == END)
+		{
+			return program;
+		}
+
 		StatementNode *statement = parseStatement();
+
 		if (statement == nullptr)
 		{
 			delete program;
@@ -246,7 +122,7 @@ StatementNode *LithiumParser::parseStatement()
 		return asmStatement;
 	}
 
-	if (token == NUMBER || token == STRING || token == '(')
+	if (token == NUMBER || token == STRING || token == '(' || token == '-')
 	{
 		ExpressionNode *expression = parseExpression();
 		if (!expression)
@@ -254,10 +130,21 @@ StatementNode *LithiumParser::parseStatement()
 			return nullptr;
 		}
 
+		token = peekToken();
+
+		if (token != ';')
+		{
+			nextToken();
+			error("expected ';'", token);
+			return nullptr;
+		}
+
+		nextToken();
+
 		return new PrintStatementNode(expression);
 	}
 
-	error("unexpected token: " + text, token);
+	error("unexpected token: " + token.getText() + " (" + std::to_string(token.getType()) + ")", token);
 	return nullptr;
 }
 
@@ -267,6 +154,8 @@ PrintStatementNode *LithiumParser::parsePrintStatement()
 
 	if (token != PRINT)
 	{
+		nextToken();
+		error("expected 'print'", token);
 		return nullptr;
 	}
 
@@ -286,7 +175,7 @@ PrintStatementNode *LithiumParser::parsePrintStatement()
 	ExpressionNode *expression = parseExpression();
 	if (!expression)
 	{
-		error("print expects an expression", currentToken);
+		error("print expects an expression", peekToken());
 		return nullptr;
 	}
 
@@ -296,6 +185,15 @@ PrintStatementNode *LithiumParser::parsePrintStatement()
 	{
 		nextToken();
 		error("expected ')'", token);
+		return nullptr;
+	}
+
+	token = nextToken();
+
+	if (token != ';')
+	{
+		nextToken();
+		error("expected ';'", token);
 		return nullptr;
 	}
 
@@ -335,7 +233,7 @@ AsmStatementNode *LithiumParser::parseAsmStatement()
 		return nullptr;
 	}
 
-	std::string value = text;
+	std::string value = token.getText();
 
 	nextToken();
 
@@ -348,6 +246,15 @@ AsmStatementNode *LithiumParser::parseAsmStatement()
 		return nullptr;
 	}
 
+	token = nextToken();
+
+	if (token != ';')
+	{
+		nextToken();
+		error("expected ';'", token);
+		return nullptr;
+	}
+
 	nextToken();
 
 	return new AsmStatementNode(new StringExpressionNode(value));
@@ -357,7 +264,7 @@ ExpressionNode *LithiumParser::parseExpression()
 {
 	Token token = peekToken();
 
-	if (token == NUMBER || token == '(')
+	if (token == NUMBER || token == '(' || token == '-')
 	{
 		NumericExpressionNode *numericExpression = parseNumericExpression();
 		if (!numericExpression)
@@ -379,6 +286,7 @@ ExpressionNode *LithiumParser::parseExpression()
 		return stringExpression;
 	}
 
+	error("expected a string or numeric expression", token);
 	return nullptr;
 }
 
@@ -402,7 +310,7 @@ StringExpressionNode *LithiumParser::parseStringExpression()
 		return nullptr;
 	}
 
-	std::string value = text;
+	std::string value = token.getText();
 	nextToken();
 
 	StringExpressionNode *stringExpressionPP = parseStringExpressionPP(new StringExpressionNode(value));
@@ -420,20 +328,17 @@ StringExpressionNode *LithiumParser::parseStringExpressionP()
 
 	if (token == STRING)
 	{
-		std::string value = text;
 		nextToken();
-
-		return new StringExpressionNode(value);
+		return new StringExpressionNode(token.getText());
 	}
 
 	if (token == NUMBER)
 	{
-		std::string number = text;
 		nextToken();
-
-		return new StringExpressionNode(number);
+		return new StringExpressionNode(token.getText());
 	}
 
+	nextToken();
 	error("expected string or number after concatenation operator", token);
 	return nullptr;
 }
@@ -467,14 +372,6 @@ StringExpressionNode *LithiumParser::parseStringExpressionPP(StringExpressionNod
 
 NumericExpressionNode *LithiumParser::parseAddit()
 {
-	Token token = peekToken();
-
-	// TODO: add the - operator for unary minus here
-	if (token == '-')
-	{
-		nextToken();
-	}
-
 	NumericExpressionNode *term = parseTerm();
 	if (!term)
 	{
@@ -600,13 +497,13 @@ NumericExpressionNode *LithiumParser::parseTermPP(NumericExpressionNode *lhs)
 
 NumericExpressionNode *LithiumParser::parseExponent()
 {
-	NumericExpressionNode *factorial = parseFactorial();
-	if (!factorial)
+	NumericExpressionNode *fact = parseFact();
+	if (!fact)
 	{
 		return nullptr;
 	}
 
-	NumericExpressionNode *exponentP = parseExponentP(factorial);
+	NumericExpressionNode *exponentP = parseExponentP(fact);
 	if (!exponentP)
 	{
 		return nullptr;
@@ -710,11 +607,40 @@ NumericExpressionNode *LithiumParser::parsePrimary()
 
 	if (token == NUMBER)
 	{
-
-		int value = std::stoi(text);
 		nextToken();
+		int value = std::stoi(token.getText());
 		return new IntExpressionNode(value);
 	}
 
 	return nullptr;
+}
+
+NumericExpressionNode *LithiumParser::parseFact()
+{
+	Token token = peekToken();
+
+	if (token == '-')
+	{
+		nextToken();
+
+		NumericExpressionNode *factorial = parseFactorial();
+		if (!factorial)
+		{
+			return nullptr;
+		}
+
+		return new UnaryExpressionNode(factorial, '-');
+	}
+
+	return parseFactorial();
+}
+
+Token LithiumParser::peekToken()
+{
+	return tokenizer.peekToken();
+}
+
+Token LithiumParser::nextToken()
+{
+	return tokenizer.nextToken();
 }

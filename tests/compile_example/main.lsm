@@ -90,6 +90,7 @@ push  84
 push  25
 printstr
 push 2
+push 2
 push 10
 push 105
 push 72
@@ -97,4 +98,11 @@ push 3
 push 1
 syscall
 print
+push 5
+fact
+neg
+push 6
+add
+print
+pop
 halt

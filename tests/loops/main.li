@@ -1,0 +1,18 @@
+asm("push 0");
+asm("label1:");
+# ------- block -------
+asm("dup");   # print i
+asm("print"); # print i
+#----------------------
+asm("push 1");
+asm("add"); # add: i + 1
+asm("dup"); # duplicate for persistance through comparison
+asm("push 1000000"); # push the end factor
+asm("jl label1"); # jump if i < 10
+asm("pop"); # pop the 10 off the stack
+
+for (i = 0; i < 10; i++)
+{
+    asm("dup");   # print i
+    asm("print"); # print i
+}

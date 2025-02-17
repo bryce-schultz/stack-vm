@@ -205,12 +205,24 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			push(result);
 			break;
 		}
-		case Instruction::FACT:
+		case Instruction::NEG:
 		{
 			uint64_t value = pop();
+			push(-value);
+			break;
+		}
+		case Instruction::FACT:
+		{
+			int64_t value = pop();
+
+			if (value < 0)
+			{
+				throw SVMFactorialOfNegativeException();
+			}
+
 			uint64_t result = 1;
 
-			for (uint64_t i = 1; i <= value; i++)
+			for (int64_t i = 1; i <= value; i++)
 			{
 				result *= i;
 			}
@@ -225,8 +237,7 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		case Instruction::PRINT:
 		{
 			uint64_t value = pop();
-			printf("%lu\n", value);
-			//fflush(stdout);
+			printf("%ld\n", value);
 			break;
 		}
 		case Instruction::PRINTSTR:
@@ -264,7 +275,6 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 				printf("%c", static_cast<char>(value));
 			}
 			printf("\n");
-			//fflush(stdout);
 			break;
 		}
 		case Instruction::CONCAT:
@@ -296,6 +306,105 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			}
 
 			push(result.size());
+			break;
+		}
+		case Instruction::DUP:
+		{
+			uint64_t value = pop();
+			push(value);
+			push(value);
+			break;
+		}
+		case Instruction::JMP:
+		{
+			int64_t offset = fetch();
+			ip += offset;
+			break;
+		}
+		case Instruction::JZ:
+		{
+			int64_t offset = fetch();
+			uint64_t value = pop();
+			if (value == 0)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JNZ:
+		{
+			int64_t offset = fetch();
+			uint64_t value = pop();
+			if (value != 0)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left == right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JNE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left != right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JG:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left > right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JGE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left >= right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JL:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left < right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JLE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left <= right)
+			{
+				ip += offset;
+			}
 			break;
 		}
 		case Instruction::SYSCALL:
@@ -415,9 +524,10 @@ bool SimpleVirtualMachine::syscall()
 
 bool SimpleVirtualMachine::write()
 {
-	uint64_t size = pop();
 	std::string buffer;
-
+	uint64_t size = pop();
+	// avoid reallocations as the string is built off the stack
+	buffer.reserve(size);
 	for (uint64_t i = 0; i < size; i++)
 	{
 		uint64_t value = pop();
@@ -425,14 +535,9 @@ bool SimpleVirtualMachine::write()
 	}
 
 	uint64_t fd = pop();
-
 	ssize_t bytes_written = ::write(fd, buffer.c_str(), size);
-	if (bytes_written == -1)
-	{
-		return false;
-	}
-
 	push(bytes_written);
+
 	return true;
 }
 
@@ -443,10 +548,6 @@ bool SimpleVirtualMachine::read()
 
 	std::string buffer(size, 0);
 	ssize_t bytes_read = ::read(fd, &buffer[0], size);
-	if (bytes_read == -1)
-	{
-		return false;
-	}
 
 	for (ssize_t i = bytes_read - 1; i >= 0; i--)
 	{
@@ -490,6 +591,21 @@ bool SimpleVirtualMachine::close()
 	}
 
 	return true;
+}
+
+std::string SimpleVirtualMachine::readString()
+{
+    std::string buffer;
+	uint64_t size = pop();
+	// avoid reallocations as the string is built off the stack
+	buffer.reserve(size);
+	for (uint64_t i = 0; i < size; i++)
+	{
+		uint64_t value = pop();
+		buffer += static_cast<char>(value);
+	}
+
+	return buffer;
 }
 
 void SimpleVirtualMachine::enableStackCheck(bool enable)

@@ -1,27 +1,25 @@
 #pragma once
+
 #include <string>
+
 #include "Nodes.h"
 #include "Token.h"
+#include "LithiumSymbolTable.h"
+#include "LithiumTokenizer.h"
 
 class LithiumParser
 {
 public:
 	LithiumParser();
-	~LithiumParser();
 
 	Node *parse(const std::string &source);
-
 	std::vector<std::string> getErrors() const;
-
-private:
-	void error(const std::string &message, const Token &token);
-	Node *parseInternal(const std::string &source);
+private: // change back to public after tokenization is perfect.
+	void _error(const std::string &message, const Token &token, const char* file = nullptr, size_t lineno = 0);
+	Node *parseInternal(const std::string &source, const std::string &filename = "");
 
 	Token peekToken();
-	Token getToken();
 	Token nextToken();
-
-	bool isWhitespace(char c) const;
 
 	// statements statement
 	// statement
@@ -29,7 +27,13 @@ private:
 
 	// print_statement
 	// asm_statement
+	// expression
+	// declaration
 	StatementNode *parseStatement();
+
+	DeclNode *parseDeclaration();
+
+	VarDeclNode *parseVarDeclaration();
 
 	// print ( expression )
 	PrintStatementNode *parsePrintStatement();
@@ -74,11 +78,15 @@ private:
 	// nothing
 	NumericExpressionNode *parseTermPP(NumericExpressionNode *lhs);
 
-	// factorial exponentP
+	// fact exponentP
 	NumericExpressionNode *parseExponent();
-	// ^ factorial exponentP
+	// ^ fact exponentP
 	// nothing
 	NumericExpressionNode *parseExponentP(NumericExpressionNode *);
+
+	// - factorial
+	// factorial
+	NumericExpressionNode *parseFact();
 
 	// primary factorialP
 	NumericExpressionNode *parseFactorial();
@@ -89,16 +97,7 @@ private:
 	// ( numeric_expression )
 	// number
 	NumericExpressionNode *parsePrimary();
-
 private:
-	std::string source;
-	size_t index;
-	Token currentToken;
-	std::string text;
-	std::string oldText;
-
-	int colno;
-	int lineno;
+	LithiumTokenizer tokenizer;
 	std::vector<std::string> errors;
-	std::string filename;
 };

@@ -17,4 +17,6 @@ public:
     static std::string getRelativePath(const std::string& path, const std::string& base);
 
     static std::string getAbsolutePath(const std::string& path, const std::string& base);
+
+    static std::string readWholeFile(const std::string& path);
 };

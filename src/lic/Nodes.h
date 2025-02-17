@@ -13,3 +13,5 @@
 #include "StringExpressionNode.h"
 #include "NumericExpressionNode.h"
 #include "ConcatNode.h"
+#include "DeclNode.h"
+#include "VarDeclNode.h"

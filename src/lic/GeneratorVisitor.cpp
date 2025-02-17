@@ -99,6 +99,9 @@ void GeneratorVisitor::visit(UnaryExpressionNode *node)
 	case '!':
 		out("fact");
 		break;
+	case '-':
+		out("neg");
+		break;
 	}
 	out("\n");
 }

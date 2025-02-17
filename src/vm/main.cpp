@@ -3,8 +3,6 @@
 
 #include "SimpleVirtualMachine.h"
 
-#define UNUSED(x) (void)(x)
-
 int main(int argc, char **argv)
 {
 	if (argc != 2)
