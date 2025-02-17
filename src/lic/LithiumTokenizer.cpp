@@ -89,6 +89,21 @@ Token LithiumTokenizer::getToken()
     // calculate token start location
     Location tokenStart = getLocation();
 
+    // parse two character tokens
+    if (c == '=')
+    {
+        char c2 = next();
+        if (c2 == '=')
+        {
+            text = "==";
+            next();
+            return {EQUALS, text, tokenStart};
+        }
+
+        text = c;
+        return {c, text, tokenStart};
+    }
+
     // parse single character tokens
     if (c == ';' ||
         c == '(' ||
@@ -159,6 +174,11 @@ Token LithiumTokenizer::getToken()
         if (text == "asm")
         {
             return {ASM, text, tokenStart};
+        }
+
+        if (text == "for")
+        {
+            return {FOR, text, tokenStart};
         }
 
         return {IDENTIFIER, text, tokenStart};

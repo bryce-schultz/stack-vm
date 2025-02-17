@@ -26,6 +26,11 @@ public:
 		return children[index];
 	}
 
+	int getChildCount() const
+	{
+		return children.size();
+	}
+
 	virtual void visit(IVisitor *visitor) = 0;
 
 	void visitAllChildren(IVisitor *visitor)

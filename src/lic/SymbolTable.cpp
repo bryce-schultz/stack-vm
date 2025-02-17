@@ -1,8 +1,14 @@
 #include "SymbolTable.h"
 
-void Scope::addSymbol(const std::string &name, Symbol *symbol)
+void Scope::addSymbol(Symbol *symbol)
 {
-    symbols[name] = symbol;
+    if (!symbol)
+    {
+        printf("Symbol is null %s:%d\n", __FILE__, __LINE__);
+        return;
+    }
+
+    symbols[symbol->getName()] = symbol;
 }
 
 Symbol *Scope::getSymbol(const std::string &name)
@@ -31,9 +37,9 @@ void SymbolTable::decreaseScope()
     scopes.pop_back();
 }
 
-void SymbolTable::addSymbol(const std::string &name, Symbol *symbol)
+void SymbolTable::addSymbol(Symbol *symbol)
 {
-    scopes.back().addSymbol(name, symbol);
+    scopes.back().addSymbol(symbol);
 }
 
 Symbol *SymbolTable::lookupLocal(const std::string &name)

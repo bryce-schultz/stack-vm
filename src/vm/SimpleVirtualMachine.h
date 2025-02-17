@@ -50,6 +50,8 @@ enum class Instruction : uint64_t
 	JL,
 	JLE,
 	DUP,
+	STORE,
+	LOAD,
 	SYSCALL
 };
 
@@ -82,6 +84,7 @@ private:
 	uint64_t fetch();
 	size_t computeStackSize(size_t programSize, size_t heapSize = 0) const;
 	uint64_t *computeStackStart(size_t programSize, size_t heapSize = 0) const;
+	uint64_t *computeHeapStart(size_t programSize) const;
 
 	bool execute(uint64_t instruction);
 
@@ -149,17 +152,17 @@ private:
 	// strings are defined as a length followed by
 	// the characters and are not null terminated
 	std::string readString();
-
 private:
 	uint64_t *memory; // the entire memory space
 	uint64_t *sp; // stack pointer
 	uint64_t *bp; // base pointer
 	uint64_t *fp; // frame pointer
 	uint64_t *ip; // instruction pointer
+	uint64_t *heap; // heap base pointer
 
 	size_t memorySize;
+	size_t heapSize;
 	size_t stackSize;
-
 private:
 	// track if the stack check is enabled
 	// checks:

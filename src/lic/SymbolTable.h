@@ -7,7 +7,7 @@
 class Scope
 {
 public:
-    void addSymbol(const std::string& name, Symbol *symbol);
+    void addSymbol(Symbol *symbol);
     Symbol* getSymbol(const std::string& name);
 private:
     std::unordered_map<std::string, Symbol*> symbols;
@@ -20,7 +20,7 @@ public:
 
     void increaseScope();
     void decreaseScope();
-    void addSymbol(const std::string& name, Symbol *symbol);
+    void addSymbol(Symbol *symbol);
     Symbol* lookupLocal(const std::string& name);
     Symbol* lookupGlobal(const std::string& name);
 private:

@@ -6,9 +6,8 @@
 class Symbol
 {
 public:
-    Symbol(std::string name, TokenType type):
-        name(name),
-        type(type),
+    Symbol(Token token):
+        token(token),
         decl(nullptr)
     {}
 
@@ -21,8 +20,17 @@ public:
     {
         this->decl = decl;
     }
+
+    Token getToken() const
+    {
+        return token;
+    }
+
+    std::string getName() const
+    {
+        return token.getText();
+    }
 private:
-    std::string name;
-    TokenType type;
+    Token token;
     DeclNode *decl;
 };

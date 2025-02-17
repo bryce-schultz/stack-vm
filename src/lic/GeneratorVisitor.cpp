@@ -152,3 +152,30 @@ void GeneratorVisitor::out(int64_t value)
 {
 	_buffer << " " << value;
 }
+
+void GeneratorVisitor::visit(VarDeclNode *node)
+{
+	auto symbol = node->getSymbol();
+	auto expr = node->getExpression();
+
+	_variables[symbol->getName()] = _variables.size();
+
+	expr->visit(this);
+
+	out("store");
+	out(_variables[symbol->getName()]);
+	out("\n");
+}
+
+void GeneratorVisitor::visit(VariableExpressionNode *node)
+{
+	if (_variables.find(node->getName()) == _variables.end())
+	{
+		printf("error: variable %s not found\n", node->getName().c_str());
+		return;
+	}
+
+	out("load");
+	out(_variables[node->getName()]);
+	out("\n");
+}

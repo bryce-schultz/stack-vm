@@ -126,6 +126,18 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		{
 			result.program.push_back(iconcat);
 		}
+		else if (tokens[i] == "store")
+		{
+			uint64_t address = std::stoull(tokens[++i]);
+			result.program.push_back(istore);
+			result.program.push_back(address);
+		}
+		else if (tokens[i] == "load")
+		{
+			uint64_t address = std::stoull(tokens[++i]);
+			result.program.push_back(iload);
+			result.program.push_back(address);
+		}
 		else if (tokens[i] == "syscall")
 		{
 			result.program.push_back(isyscall);

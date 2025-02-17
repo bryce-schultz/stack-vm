@@ -8,6 +8,7 @@
 #include "Color.h"
 
 #define error(message, token) _error(message, token, __FILE__, __LINE__)
+#define expected(expected, token) error("expected "#expected" but got " + tokenTypeToString(token.getType()), token);
 
 LithiumParser::LithiumParser():
 	tokenizer(),
@@ -62,6 +63,16 @@ void LithiumParser::_error(const std::string &message, const Token &token, const
 	}
 
 	errors.push_back(ss.str());
+}
+
+Token LithiumParser::peekToken()
+{
+	return tokenizer.peekToken();
+}
+
+Token LithiumParser::nextToken()
+{
+	return tokenizer.nextToken();
 }
 
 Node *LithiumParser::parseInternal(const std::string &source, const std::string &filename)
@@ -144,6 +155,17 @@ StatementNode *LithiumParser::parseStatement()
 		return new PrintStatementNode(expression);
 	}
 
+	if (token == IDENTIFIER)
+	{
+		DeclNode *declaration = parseDeclaration();
+		if (!declaration)
+		{
+			return nullptr;
+		}
+
+		return declaration;
+	}
+
 	error("unexpected token: " + token.getText() + " (" + std::to_string(token.getType()) + ")", token);
 	return nullptr;
 }
@@ -171,6 +193,36 @@ PrintStatementNode *LithiumParser::parsePrintStatement()
 	}
 
 	nextToken();
+
+	token = peekToken();
+
+	if (token == IDENTIFIER)
+	{
+		nextToken();
+		VariableExpressionNode *variable = new VariableExpressionNode(token);
+
+		token = peekToken();
+
+		if (token != ')')
+		{
+			nextToken();
+			error("expected ')'", token);
+			return nullptr;
+		}
+
+		token = nextToken();
+
+		if (token != ';')
+		{
+			nextToken();
+			error("expected ';'", token);
+			return nullptr;
+		}
+
+		nextToken();
+
+		return new PrintStatementNode(variable);
+	}
 
 	ExpressionNode *expression = parseExpression();
 	if (!expression)
@@ -286,7 +338,6 @@ ExpressionNode *LithiumParser::parseExpression()
 		return stringExpression;
 	}
 
-	error("expected a string or numeric expression", token);
 	return nullptr;
 }
 
@@ -635,12 +686,55 @@ NumericExpressionNode *LithiumParser::parseFact()
 	return parseFactorial();
 }
 
-Token LithiumParser::peekToken()
+DeclNode *LithiumParser::parseDeclaration()
 {
-	return tokenizer.peekToken();
+	return parseVarDeclaration();
 }
 
-Token LithiumParser::nextToken()
+VarDeclNode *LithiumParser::parseVarDeclaration()
 {
-	return tokenizer.nextToken();
+	Token token = peekToken();
+
+	if (token != IDENTIFIER)
+	{
+		nextToken();
+		error("expected identifier", token);
+		return nullptr;
+	}
+
+	Token identifier = token;
+	nextToken();
+
+	token = peekToken();
+
+	if (token != '=')
+	{
+		nextToken();
+		expected('=', token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	ExpressionNode *expression = parseExpression();
+	if (!expression)
+	{
+		expected("an expression", peekToken());
+		return nullptr;
+	}
+
+	token = peekToken();
+
+	if (token != ';')
+	{
+		nextToken();
+		error("expected ';'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	printf("added a new variable: %s\n", identifier.getText().c_str());
+
+	return new VarDeclNode(new Symbol(identifier), expression);
 }

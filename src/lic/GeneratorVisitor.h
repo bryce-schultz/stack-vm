@@ -2,6 +2,8 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
+#include <cstdint>
 
 #include "IVisitor.h"
 
@@ -21,6 +23,8 @@ public:
 	virtual void visit(AsmStatementNode *node) override;
 	virtual void visit(StringExpressionNode* node) override;
 	virtual void visit(ConcatNode* node) override;
+	virtual void visit(VarDeclNode* node) override;
+	virtual void visit(VariableExpressionNode* node) override;
 
 	std::string getOutput() const;
 private:
@@ -29,4 +33,5 @@ private:
 private:
 	std::string _output_filename;
 	std::stringstream _buffer;
+	std::unordered_map<std::string, uint64_t> _variables;
 };

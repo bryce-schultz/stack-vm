@@ -15,3 +15,4 @@
 #include "ConcatNode.h"
 #include "DeclNode.h"
 #include "VarDeclNode.h"
+#include "VariableExpressionNode.h"

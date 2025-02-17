@@ -14,7 +14,7 @@ public:
 
 	Node *parse(const std::string &source);
 	std::vector<std::string> getErrors() const;
-private: // change back to public after tokenization is perfect.
+private:
 	void _error(const std::string &message, const Token &token, const char* file = nullptr, size_t lineno = 0);
 	Node *parseInternal(const std::string &source, const std::string &filename = "");
 
@@ -29,10 +29,13 @@ private: // change back to public after tokenization is perfect.
 	// asm_statement
 	// expression
 	// declaration
+	// for
 	StatementNode *parseStatement();
 
+	// var_decl
 	DeclNode *parseDeclaration();
 
+	// identifier = expression
 	VarDeclNode *parseVarDeclaration();
 
 	// print ( expression )
@@ -40,6 +43,9 @@ private: // change back to public after tokenization is perfect.
 
 	// asm ( string_expression )
 	AsmStatementNode *parseAsmStatement();
+
+	// for ( var_decl ; expression ; statement ) statement
+	// ForStatementNode *parseForStatement();
 
 	// numeric_expression
 	// string_expression

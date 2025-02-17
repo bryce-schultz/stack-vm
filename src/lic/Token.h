@@ -14,6 +14,7 @@ enum TokenType
 	ASM,
 	END,
     FOR,
+    EQUALS,
 	JUNK
 };
 

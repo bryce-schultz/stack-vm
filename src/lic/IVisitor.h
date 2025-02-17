@@ -13,6 +13,9 @@ class NumericExpressionNode;
 class StringExpressionNode;
 class IntExpressionNode;
 class ConcatNode;
+class DeclNode;
+class VarDeclNode;
+class VariableExpressionNode;
 
 class IVisitor
 {
@@ -30,5 +33,8 @@ public:
 	virtual void visit(StringExpressionNode* node);
 	virtual void visit(IntExpressionNode* node);
 	virtual void visit(ConcatNode* node);
+	virtual void visit(DeclNode* node);
+	virtual void visit(VarDeclNode* node);
+	virtual void visit(VariableExpressionNode* node);
 };
 

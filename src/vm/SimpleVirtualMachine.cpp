@@ -14,7 +14,9 @@ SimpleVirtualMachine::SimpleVirtualMachine(size_t memorySize):
 	bp(memory),
 	fp(memory),
 	ip(memory),
+	heap(memory),
 	memorySize(memorySize / sizeof(uint64_t)),
+	heapSize(0),
 	stackSize(0),
 	isStackCheckEnabled(false)
 {
@@ -41,9 +43,15 @@ bool SimpleVirtualMachine::load(const uint64_t *program, size_t programSize)
 
 	// set the canary value
 	memory[programSize] = canary;
+	float remainingMemory = memorySize - programSize - 1;
+
+	float heapPercent = 0.80;
+	heapSize = remainingMemory * heapPercent;
+	stackSize = computeStackSize(programSize, heapSize);
 
 	ip = memory;
-	sp = computeStackStart(programSize + 1);
+	heap = computeHeapStart(programSize);
+	sp = computeStackStart(programSize, heapSize);
 	bp = sp;
 	fp = sp;
 
@@ -126,7 +134,7 @@ size_t SimpleVirtualMachine::computeStackSize(size_t programSize, size_t heapSiz
 
 uint64_t *SimpleVirtualMachine::computeStackStart(size_t programSize, size_t heapSize) const
 {
-	return memory + programSize + heapSize;
+	return memory + programSize + 1 + heapSize;
 }
 
 bool SimpleVirtualMachine::execute(uint64_t instruction)
@@ -407,6 +415,13 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			}
 			break;
 		}
+		case Instruction::STORE:
+		{
+			uint64_t address = pop();
+			uint64_t value = pop();
+			*(heap + address) = value;
+			break;
+		}
 		case Instruction::SYSCALL:
 		{
 			// peek the syscall id and if its EXIT then return false
@@ -611,4 +626,9 @@ std::string SimpleVirtualMachine::readString()
 void SimpleVirtualMachine::enableStackCheck(bool enable)
 {
 	isStackCheckEnabled = enable;
+}
+
+uint64_t *SimpleVirtualMachine::computeHeapStart(size_t programSize) const
+{
+	return memory + programSize + 1;
 }
