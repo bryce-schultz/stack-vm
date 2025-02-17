@@ -1,5 +1,0 @@
-push 0
-store 1
-load 1
-print
-halt
