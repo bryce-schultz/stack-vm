@@ -4,6 +4,7 @@ VM=../../src/vm/vm
 all: run
 
 compile: main.li
+	../../build
 	$(LIC) main.li
 
 run: compile

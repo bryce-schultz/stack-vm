@@ -1,11 +1,5 @@
 push 0
-label1:
-dup
+store 1
+load 1
 print
-push 1
-add
-dup
-push 1000000
-jl label1
-pop
 halt
