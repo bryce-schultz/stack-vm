@@ -32,5 +32,10 @@ bool LithiumCompiler::compile(const std::string &filename)
 
 	delete root;
 
+	if (generator.hasError())
+	{
+		return false;
+	}
+
 	return true;
 }

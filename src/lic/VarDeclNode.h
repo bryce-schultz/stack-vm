@@ -7,9 +7,9 @@
 class VarDeclNode : public DeclNode
 {
 public:
-    VarDeclNode(Symbol *symbol, ExpressionNode *expression):
-        symbol(symbol)
+    VarDeclNode(const Token &token, ExpressionNode *expression)
     {
+        symbol = new Symbol(token);
         addChild(expression);
         // add the symbol to the symbol table
         symbol->setDecl(this);

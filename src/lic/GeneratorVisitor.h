@@ -6,11 +6,12 @@
 #include <cstdint>
 
 #include "IVisitor.h"
+#include "Symbol.h"
 
 class GeneratorVisitor : public IVisitor
 {
 public:
-	GeneratorVisitor(const std::string &output_filename = "");
+	GeneratorVisitor(const std::string &outputFilename = "");
 	~GeneratorVisitor();
 
 	virtual void visitAllChildren(Node* node) override;
@@ -25,13 +26,16 @@ public:
 	virtual void visit(ConcatNode* node) override;
 	virtual void visit(VarDeclNode* node) override;
 	virtual void visit(VariableExpressionNode* node) override;
+	virtual void visit(AssignNode* node) override;
 
 	std::string getOutput() const;
+	bool hasError() const;
 private:
 	void out(const std::string& text);
 	void out(int64_t value);
 private:
-	std::string _output_filename;
+	std::string _outputFilename;
 	std::stringstream _buffer;
-	std::unordered_map<std::string, uint64_t> _variables;
+	std::unordered_map<Symbol *, uint64_t> _variables;
+	bool hadError = false;
 };

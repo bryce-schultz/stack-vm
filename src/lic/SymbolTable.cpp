@@ -37,9 +37,11 @@ void SymbolTable::decreaseScope()
     scopes.pop_back();
 }
 
-void SymbolTable::addSymbol(Symbol *symbol)
+Symbol *SymbolTable::addSymbol(Symbol *symbol)
 {
     scopes.back().addSymbol(symbol);
+
+    return symbol;
 }
 
 Symbol *SymbolTable::lookupLocal(const std::string &name)

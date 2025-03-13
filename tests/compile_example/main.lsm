@@ -105,4 +105,20 @@ push 6
 add
 print
 pop
+push 20
+store 0
+push 100
+store 1
+load 0
+load 1
+add
+store 2
+load 2
+print
+push 10
+load 0
+push 5
+mul
+add
+print
 halt

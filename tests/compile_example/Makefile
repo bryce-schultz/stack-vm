@@ -1,4 +1,4 @@
-LIC=../../src/lic/lic
+LIC=../../src/lic/main
 VM=../../src/vm/vm
 
 all: run

@@ -75,3 +75,8 @@ void IVisitor::visit(VariableExpressionNode *node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(AssignNode *node)
+{
+	node->visitAllChildren(this);
+}

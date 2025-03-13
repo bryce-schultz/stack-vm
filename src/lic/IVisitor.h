@@ -16,6 +16,7 @@ class ConcatNode;
 class DeclNode;
 class VarDeclNode;
 class VariableExpressionNode;
+class AssignNode;
 
 class IVisitor
 {
@@ -36,5 +37,6 @@ public:
 	virtual void visit(DeclNode* node);
 	virtual void visit(VarDeclNode* node);
 	virtual void visit(VariableExpressionNode* node);
+	virtual void visit(AssignNode* node);
 };
 

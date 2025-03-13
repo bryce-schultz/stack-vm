@@ -85,16 +85,15 @@ ProgramNode *LithiumParser::parseProgram()
 {
 	ProgramNode *program = new ProgramNode();
 
-	while (!tokenizer.eof())
+	while (true)
 	{
 		Token token = peekToken();
 		if (token == END)
 		{
-			return program;
+			break;
 		}
 
 		StatementNode *statement = parseStatement();
-
 		if (statement == nullptr)
 		{
 			delete program;
@@ -157,13 +156,8 @@ StatementNode *LithiumParser::parseStatement()
 
 	if (token == IDENTIFIER)
 	{
-		DeclNode *declaration = parseDeclaration();
-		if (!declaration)
-		{
-			return nullptr;
-		}
-
-		return declaration;
+		nextToken();
+		return parseStatementP(token);
 	}
 
 	error("unexpected token: " + token.getText() + " (" + std::to_string(token.getType()) + ")", token);
@@ -193,36 +187,6 @@ PrintStatementNode *LithiumParser::parsePrintStatement()
 	}
 
 	nextToken();
-
-	token = peekToken();
-
-	if (token == IDENTIFIER)
-	{
-		nextToken();
-		VariableExpressionNode *variable = new VariableExpressionNode(token);
-
-		token = peekToken();
-
-		if (token != ')')
-		{
-			nextToken();
-			error("expected ')'", token);
-			return nullptr;
-		}
-
-		token = nextToken();
-
-		if (token != ';')
-		{
-			nextToken();
-			error("expected ';'", token);
-			return nullptr;
-		}
-
-		nextToken();
-
-		return new PrintStatementNode(variable);
-	}
 
 	ExpressionNode *expression = parseExpression();
 	if (!expression)
@@ -316,7 +280,7 @@ ExpressionNode *LithiumParser::parseExpression()
 {
 	Token token = peekToken();
 
-	if (token == NUMBER || token == '(' || token == '-')
+	if (token == NUMBER || token == '(' || token == '-' || token == IDENTIFIER)
 	{
 		NumericExpressionNode *numericExpression = parseNumericExpression();
 		if (!numericExpression)
@@ -663,6 +627,12 @@ NumericExpressionNode *LithiumParser::parsePrimary()
 		return new IntExpressionNode(value);
 	}
 
+	if (token == IDENTIFIER)
+	{
+		nextToken();
+		return new VariableExpressionNode(token);
+	}
+
 	return nullptr;
 }
 
@@ -719,7 +689,6 @@ VarDeclNode *LithiumParser::parseVarDeclaration()
 	ExpressionNode *expression = parseExpression();
 	if (!expression)
 	{
-		expected("an expression", peekToken());
 		return nullptr;
 	}
 
@@ -734,7 +703,93 @@ VarDeclNode *LithiumParser::parseVarDeclaration()
 
 	nextToken();
 
-	printf("added a new variable: %s\n", identifier.getText().c_str());
+	return new VarDeclNode(identifier, expression);
+}
 
-	return new VarDeclNode(new Symbol(identifier), expression);
+StatementNode *LithiumParser::parseStatementP(const Token &identifier)
+{
+	Token token = peekToken();
+
+	if (token == ';')
+	{
+		nextToken();
+		return new VarDeclNode(identifier, new IntExpressionNode(0));
+	}
+
+	if (token == '(')
+	{
+		nextToken();
+
+		std::vector<ExpressionNode *> expressions;
+
+		while (true)
+		{
+			ExpressionNode *expression = parseExpression();
+			if (!expression)
+			{
+				return nullptr;
+			}
+
+			expressions.push_back(expression);
+
+			token = peekToken();
+			if (token == ')')
+			{
+				break;
+			}
+
+			if (token != ',')
+			{
+				nextToken();
+				error("expected ','", token);
+				return nullptr;
+			}
+
+			nextToken();
+		}
+
+		nextToken();
+
+		token = peekToken();
+
+		if (token != ';')
+		{
+			nextToken();
+			error("expected ';'", token);
+			return nullptr;
+		}
+
+		nextToken();
+
+		//return new FuncCallNode(identifier, expressions);
+		return nullptr;
+	}
+
+	if (token == '=')
+	{
+		nextToken();
+
+		ExpressionNode *expression = parseExpression();
+		if (!expression)
+		{
+			return nullptr;
+		}
+
+		token = peekToken();
+
+		if (token != ';')
+		{
+			nextToken();
+			error("expected ';'", token);
+			return nullptr;
+		}
+
+		nextToken();
+
+		return new AssignNode(identifier, expression);
+	}
+
+	nextToken();
+	expected("';', '=', or '('", token);
+	return nullptr;
 }

@@ -28,7 +28,7 @@ private:
 	// print_statement
 	// asm_statement
 	// expression
-	// declaration
+	// IDENTIFIER statementP
 	// for
 	StatementNode *parseStatement();
 
@@ -56,6 +56,11 @@ private:
 
 	// STRING string_expressionPP
 	StringExpressionNode *parseStringExpression();
+
+	// ;
+	// ( expression_list ) ;
+	// = expression ;
+	StatementNode *parseStatementP(const Token &identifier);
 
 	// STRING
 	// NUMBER

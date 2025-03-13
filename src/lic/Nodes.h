@@ -16,3 +16,5 @@
 #include "DeclNode.h"
 #include "VarDeclNode.h"
 #include "VariableExpressionNode.h"
+#include "AssignNode.h"
+#include "Symbol.h"

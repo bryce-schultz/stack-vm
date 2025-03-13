@@ -20,9 +20,9 @@ public:
 
     void increaseScope();
     void decreaseScope();
-    void addSymbol(Symbol *symbol);
-    Symbol* lookupLocal(const std::string& name);
-    Symbol* lookupGlobal(const std::string& name);
+    Symbol *addSymbol(Symbol *symbol);
+    Symbol *lookupLocal(const std::string &name);
+    Symbol *lookupGlobal(const std::string &name);
 private:
     std::vector<Scope> scopes;
 };

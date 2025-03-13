@@ -42,8 +42,8 @@ bool SimpleVirtualMachine::load(const uint64_t *program, size_t programSize)
 	memcpy(memory, program, programSize * sizeof(uint64_t));
 
 	// set the canary value
-	memory[programSize] = canary;
-	float remainingMemory = memorySize - programSize - 1;
+	memory[programSize++] = canary;
+	float remainingMemory = memorySize - programSize;
 
 	float heapPercent = 0.80;
 	heapSize = remainingMemory * heapPercent;
@@ -54,6 +54,18 @@ bool SimpleVirtualMachine::load(const uint64_t *program, size_t programSize)
 	sp = computeStackStart(programSize, heapSize);
 	bp = sp;
 	fp = sp;
+
+	/* good for debugging memory layout issues
+	printf("bp: %ld\n", bp - memory);
+	printf("sp: %ld\n", sp - memory);
+	printf("fp: %ld\n", fp - memory);
+	printf("ip: %ld\n", ip - memory);
+	printf("heap: %ld\n", heap - memory);
+	printf("stack size: %ld\n", stackSize);
+	printf("heap size: %ld\n", heapSize);
+	printf("program size: %ld\n", programSize);
+	printf("memory size: %ld\n", memorySize);
+	*/
 
 	return true;
 }
@@ -134,7 +146,7 @@ size_t SimpleVirtualMachine::computeStackSize(size_t programSize, size_t heapSiz
 
 uint64_t *SimpleVirtualMachine::computeStackStart(size_t programSize, size_t heapSize) const
 {
-	return memory + programSize + 1 + heapSize;
+	return memory + programSize + heapSize;
 }
 
 bool SimpleVirtualMachine::execute(uint64_t instruction)
@@ -417,9 +429,24 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		}
 		case Instruction::STORE:
 		{
-			uint64_t address = pop();
+			uint64_t address = fetch();
 			uint64_t value = pop();
 			*(heap + address) = value;
+			break;
+		}
+		case Instruction::LOAD:
+		{
+			uint64_t address = fetch();
+
+			// check if the address is within the heap
+			if (address >= heapSize)
+			{
+				throw SVMInvalidMemoryAccessException(address);
+			}
+
+			// memory access
+			uint64_t value = *(heap + address);
+			push(value);
 			break;
 		}
 		case Instruction::SYSCALL:
@@ -630,5 +657,5 @@ void SimpleVirtualMachine::enableStackCheck(bool enable)
 
 uint64_t *SimpleVirtualMachine::computeHeapStart(size_t programSize) const
 {
-	return memory + programSize + 1;
+	return memory + programSize;
 }

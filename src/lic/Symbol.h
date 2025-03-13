@@ -6,7 +6,7 @@
 class Symbol
 {
 public:
-    Symbol(Token token):
+    Symbol(const Token &token):
         token(token),
         decl(nullptr)
     {}

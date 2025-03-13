@@ -2,7 +2,7 @@
 #include "Nodes.h"
 
 GeneratorVisitor::GeneratorVisitor(const std::string &output_filename):
-	_output_filename(output_filename)
+	_outputFilename(output_filename)
 {
 }
 
@@ -14,14 +14,19 @@ void GeneratorVisitor::visitAllChildren(Node *node)
 {
 	node->visit(this);
 
-	std::ofstream file(_output_filename);
+	if (hadError)
+	{
+		return;
+	}
+
+	std::ofstream file(_outputFilename);
 
 	if (file.is_open())
 	{
 		file << _buffer.str();
 		file.close();
 
-		printf("-> %s\n", _output_filename.c_str());
+		printf("-> %s\n", _outputFilename.c_str());
 	}
 }
 
@@ -158,24 +163,49 @@ void GeneratorVisitor::visit(VarDeclNode *node)
 	auto symbol = node->getSymbol();
 	auto expr = node->getExpression();
 
-	_variables[symbol->getName()] = _variables.size();
+	if (expr->isNumeric())
+	{
+		_variables[symbol] = _variables.size();
 
-	expr->visit(this);
+		expr->visit(this);
 
-	out("store");
-	out(_variables[symbol->getName()]);
-	out("\n");
+		out("store");
+		out(_variables[symbol]);
+		out("\n");
+	}
 }
 
 void GeneratorVisitor::visit(VariableExpressionNode *node)
 {
-	if (_variables.find(node->getName()) == _variables.end())
+	if (_variables.find(node->getSymbol()) == _variables.end())
 	{
-		printf("error: variable %s not found\n", node->getName().c_str());
-		return;
+		printf("error: variable %s not defined\n", node->getName().c_str());
+		hadError = true;
 	}
 
 	out("load");
-	out(_variables[node->getName()]);
+	out(_variables[node->getSymbol()]);
 	out("\n");
+}
+
+bool GeneratorVisitor::hasError() const
+{
+	return hadError;
+}
+
+void GeneratorVisitor::visit(AssignNode *node)
+{
+	auto symbol = node->getSymbol();
+	auto expr = node->getExpression();
+
+	if (expr->isNumeric())
+	{
+		_variables[symbol] = _variables.size();
+
+		expr->visit(this);
+
+		out("store");
+		out(_variables[symbol]);
+		out("\n");
+	}
 }

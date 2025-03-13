@@ -50,3 +50,12 @@ asm("print");
 
 print(-5! + 6);
 asm("pop");
+
+a = 20;
+b = 100;
+
+c = a + b;
+
+print(c);
+
+10 + a * 5;
