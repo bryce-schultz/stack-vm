@@ -1,5 +1,7 @@
 *.lsm
 *.o
+*.correct
+*.output
 vm
 lic
 li
