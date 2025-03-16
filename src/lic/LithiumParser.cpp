@@ -147,6 +147,11 @@ StatementNode *LithiumParser::parseStatement()
 		return parseForStatement();
 	}
 
+	if (token == WHILE)
+	{
+		return parseWhileStatement();
+	}
+
 	if (token == '{')
 	{
 		BlockNode *block = parseBlock();
@@ -970,4 +975,54 @@ AssignNode *LithiumParser::parseAssignment()
 	}
 
 	return new AssignNode(identifier, expression);
+}
+
+WhileStatementNode *LithiumParser::parseWhileStatement()
+{
+	Token token = peekToken();
+
+	if (token != WHILE)
+	{
+		nextToken();
+		error("expected 'while'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	token = peekToken();
+
+	if (token != '(')
+	{
+		nextToken();
+		error("expected '('", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	ExpressionNode *condition = parseExpression();
+	if (!condition)
+	{
+		return nullptr;
+	}
+
+	token = peekToken();
+
+	if (token != ')')
+	{
+		nextToken();
+		error("expected ')'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	BlockNode *block = parseBlock();
+	if (!block)
+	{
+		return nullptr;
+	}
+
+	return new WhileStatementNode(condition, block);
 }

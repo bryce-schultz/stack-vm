@@ -19,6 +19,7 @@ class VariableExpressionNode;
 class AssignNode;
 class StatementsNode;
 class ForStatementNode;
+class WhileStatementNode;
 class BlockNode;
 
 class IVisitor
@@ -43,6 +44,7 @@ public:
 	virtual void visit(AssignNode* node);
 	virtual void visit(StatementsNode* node);
 	virtual void visit(ForStatementNode* node);
+	virtual void visit(WhileStatementNode* node);
 	virtual void visit(BlockNode* node);
 };
 

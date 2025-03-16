@@ -28,6 +28,7 @@ public:
     virtual void visit(VariableExpressionNode* node) override;
     virtual void visit(AssignNode* node) override;
     virtual void visit(ForStatementNode* node) override;
+    virtual void visit(WhileStatementNode* node) override;
 
     std::string getOutput() const;
     bool hasError() const;

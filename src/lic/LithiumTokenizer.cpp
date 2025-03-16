@@ -189,6 +189,11 @@ Token LithiumTokenizer::getToken()
             return {FOR, text, tokenStart};
         }
 
+        if (text == "while")
+        {
+            return {WHILE, text, tokenStart};
+        }
+
         return {IDENTIFIER, text, tokenStart};
     }
 

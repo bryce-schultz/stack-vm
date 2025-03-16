@@ -17,7 +17,6 @@ public:
         }
         else
         {
-            printf("Declaring variable %s\n", token.getText().c_str());
             symbol = new Symbol(token);
             symbol->setDecl(this);
             global::symbolTable.addSymbol(symbol);

@@ -21,3 +21,4 @@
 #include "ForStatementNode.h"
 #include "BlockNode.h"
 #include "StatementsNode.h"
+#include "WhileStatementNode.h"

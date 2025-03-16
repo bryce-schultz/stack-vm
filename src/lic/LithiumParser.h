@@ -51,7 +51,11 @@ private:
 	// asm ( string_expression )
 	AsmStatementNode *parseAsmStatement();
 
+	// for ( var_decl ; expression ; statement ) block
 	ForStatementNode *parseForStatement();
+
+	// while ( expression ) block
+	WhileStatementNode *parseWhileStatement();
 
 	// for ( var_decl ; expression ; statement ) block
 	// ForStatementNode *parseForStatement();

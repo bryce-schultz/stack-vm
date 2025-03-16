@@ -229,12 +229,25 @@ void GeneratorVisitor::visit(ForStatementNode *node)
 {
     static int forCount = 1;
     int forId = forCount++;
+    out("for" + std::to_string(forId) + "start:\n");
     node->getInit()->visit(this);
-    out("for" + std::to_string(forId) + ":\n");
+    out("for" + std::to_string(forId) + "loop:\n");
     node->getCondition()->visit(this);
     out("jz for" + std::to_string(forId) + "end\n");
     node->getBlock()->visit(this);
     node->getIncrement()->visit(this);
-    out("jmp for" + std::to_string(forId) + "\n");
+    out("jmp for" + std::to_string(forId) + "loop\n");
     out("for" + std::to_string(forId) + "end:\n");
+}
+
+void GeneratorVisitor::visit(WhileStatementNode *node)
+{
+    static int whileCount = 1;
+    int whileId = whileCount++;
+    out("while" + std::to_string(whileId) + "loop:\n");
+    node->getCondition()->visit(this);
+    out("jz while" + std::to_string(whileId) + "end\n");
+    node->getBody()->visit(this);
+    out("jmp while" + std::to_string(whileId) + "loop\n");
+    out("while" + std::to_string(whileId) + "end:\n");
 }
