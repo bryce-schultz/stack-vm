@@ -20,10 +20,32 @@ success()
     echo -e "👉 ${green}${msg}${nc}"
 }
 
+test_passed()
+{
+    name=$1
+    echo -e "👍 ${green}test suite ${name} passed${nc}"
+}
+
+test_failed()
+{
+    name=$1
+    echo -e "👎 ${red}test suite ${name} failed${nc}"
+}
+
 failure()
 {
     msg=$1
     echo -e "🤏 ${red}${strike}${msg}${nc}"
+}
+
+print_build_header()
+{
+    echo -e "${blue}Building${nc}"
+}
+
+print_test_header()
+{
+    echo -e "\n${blue}Running Tests${nc}"
 }
 
 build_target()
@@ -42,5 +64,24 @@ build_target()
     cd $DIR
 }
 
+run_test()
+{
+    target=$1
+    cd tests/$target
+    make
+
+    if [ $? -eq 0 ]; then
+        test_passed $target
+    else
+        test_failed $target
+    fi
+
+    cd $DIR
+}
+
+print_build_header
 build_target lic
 build_target vm
+
+print_test_header
+run_test loops
