@@ -17,8 +17,10 @@ run: compile
 test: run
 	diff for.output for.correct
 	diff while.output while.correct
+	rm -f main.lsm for.lsm while.lsm
 	rm -f for.output while.output
 	@echo "\033[0;32mAll tests passed!\033[0m"
 
 clean:
 	rm -f main.lsm for.lsm while.lsm
+	rm -f for.output while.output
