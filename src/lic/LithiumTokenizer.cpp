@@ -98,7 +98,7 @@ Token LithiumTokenizer::getToken()
         {
             text = "==";
             next();
-            return {EQUALS, text, tokenStart};
+            return {EQUAL, text, tokenStart};
         }
 
         text = c;
@@ -113,6 +113,7 @@ Token LithiumTokenizer::getToken()
         c == '}' ||
         c == '*' ||
         c == '/' ||
+        c == '%' ||
         c == '^' ||
         c == '<' ||
         c == '>' ||

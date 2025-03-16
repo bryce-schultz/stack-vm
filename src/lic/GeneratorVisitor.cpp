@@ -68,8 +68,11 @@ void GeneratorVisitor::visit(BinaryExpressionNode *node)
     case '>':
         out("gt");
         break;
-    case EQUALS:
+    case EQUAL:
         out("eq");
+        break;
+    case NOT_EQUAL:
+        out("ne");
         break;
     }
     out("\n");

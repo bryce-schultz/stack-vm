@@ -416,7 +416,7 @@ NumericExpressionNode *LithiumParser::parseAdditP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
 
-	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUALS)
+	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUAL)
 	{
 		int op = token;
 		nextToken();
@@ -438,7 +438,7 @@ NumericExpressionNode *LithiumParser::parseAdditPP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
 
-	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUALS)
+	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUAL)
 	{
 		NumericExpressionNode *additP = parseAdditP(lhs);
 		if (!additP)
@@ -1089,7 +1089,7 @@ IfStatementNode *LithiumParser::parseIfStatement()
 	if (token != ')')
 	{
 		nextToken();
-		error("expected ')'", token);
+		expected("')'", token);
 		return nullptr;
 	}
 

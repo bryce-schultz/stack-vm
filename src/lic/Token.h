@@ -17,7 +17,10 @@ enum TokenType
     WHILE,
     IF,
     ELSE,
-    EQUALS,
+    EQUAL,
+    NOT_EQUAL,
+    LESS_OR_EQUAL,
+    GREATER_OR_EQUAL,
     INCREMENT,
     DECREMENT,
 	JUNK

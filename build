@@ -104,6 +104,7 @@ do_tests()
     run_test loops
     run_test math
     run_test if
+    run_test complex
 }
 
 main()
