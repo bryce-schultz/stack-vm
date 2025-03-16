@@ -10,6 +10,9 @@
   "engines": {
     "vscode": "^1.98.0"
   },
+  "scripts": {
+    "package": "vsce package --out ../build"
+  },
   "categories": [
     "Programming Languages"
   ],
