@@ -17,7 +17,7 @@
     "vscode": "^1.98.0"
   },
   "scripts": {
-    "package": "vsce package --out ../build/lithium-language-support.vsix"
+    "package": "vsce package --out build/lithium-language-support.vsix"
   },
   "categories": [
     "Programming Languages"
@@ -33,7 +33,7 @@
         "extensions": [
           ".li"
         ],
-        "configuration": "./configurations/lithium-configuration.json"
+        "configuration": "lithium-configuration.json"
       },
       {
         "id": "lithium-asm",
@@ -44,7 +44,7 @@
         "extensions": [
           ".lsm"
         ],
-        "configuration": "./configurations/lithium-asm-configuration.json"
+        "configuration": "lithium-asm-configuration.json"
       }
     ],
     "grammars": [

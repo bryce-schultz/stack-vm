@@ -75,20 +75,6 @@ build_target()
     cd $DIR
 }
 
-build_extension()
-{
-    cd extension/src
-    make
-
-    if [ $? -eq 0 ]; then
-        success extension
-    else
-        failure extension
-    fi
-
-    cd $DIR
-}
-
 run_test()
 {
     target=$1
@@ -107,7 +93,7 @@ run_test()
 print_build_header
 build_target lic
 build_target vm
-build_extension
+build_target extension
 
 if contains_clean; then
     exit 0

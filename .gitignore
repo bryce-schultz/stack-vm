@@ -11,6 +11,4 @@ tokenizer_tester
 
 # directories
 node_modules/
-
-# files
-package-lock.json
+build/

@@ -1,9 +1,9 @@
-# this test checks the functionality of 
+# This test checks the functionality of for loops
 
 acc;
-for (i; i < 1000; i = i + 1)
+for (i; i < 1000; i++)
 {
-    for (j; j < 1000; j = j + 1)
+    for (j; j < 1000; j++)
     {
         acc = acc + i * j;
     }

@@ -15,6 +15,10 @@
       "match": "\\b(if|else|elif)\\b"
     },
     {
+      "name": "comment.line.number-sign.lithium",
+      "match": "#.*$"
+    },
+    {
       "name": "variable.other.lithium",
       "match": "\\b[a-zA-Z_][a-zA-Z0-9_]*\\b"
     },
