@@ -1,4 +1,4 @@
-# this test should print 
+# this test checks the functionality of 
 
 acc;
 for (i; i < 1000; i = i + 1)
