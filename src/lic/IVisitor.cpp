@@ -80,3 +80,18 @@ void IVisitor::visit(AssignNode *node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(StatementsNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(ForStatementNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(BlockNode *node)
+{
+	node->visitAllChildren(this);
+}

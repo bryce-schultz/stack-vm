@@ -190,6 +190,14 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 			result.program.push_back(ijl);
 			result.program.push_back(offset);
 		}
+		else if (tokens[i] == "gt")
+		{
+			result.program.push_back(igt);
+		}
+		else if (tokens[i] == "lt")
+		{
+			result.program.push_back(ilt);
+		}
 		else if (tokens[i] == "jle")
 		{
 			int64_t offset = getOffset(tokens, i);

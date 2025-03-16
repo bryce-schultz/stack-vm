@@ -1,10 +1,10 @@
-LIC=../../src/lic/lic
-VM=../../src/vm/vm
+LIC=../../src/lic/main
+VM=../../src/vm/main
 
 all: run
 
 compile: main.li
-	../../build
+	../../build -j 32
 	$(LIC) main.li
 
 run: compile

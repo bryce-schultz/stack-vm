@@ -2,6 +2,7 @@
 #include <cstdint>
 
 #include "LithiumCompiler.h"
+#include "Error.h"
 
 constexpr uint8_t requiredArgCount = 2;
 

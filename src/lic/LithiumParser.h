@@ -15,14 +15,12 @@ public:
 	Node *parse(const std::string &source);
 	std::vector<std::string> getErrors() const;
 private:
-	void _error(const std::string &message, const Token &token, const char* file = nullptr, size_t lineno = 0);
 	Node *parseInternal(const std::string &source, const std::string &filename = "");
 
 	Token peekToken();
 	Token nextToken();
 
-	// statements statement
-	// statement
+	// statements
 	ProgramNode *parseProgram();
 
 	// print_statement
@@ -32,8 +30,17 @@ private:
 	// for
 	StatementNode *parseStatement();
 
+	// statements statement
+	// statement
+	StatementsNode *parseStatements();
+
+	// { statements }
+	BlockNode *parseBlock();
+
 	// var_decl
 	DeclNode *parseDeclaration();
+
+	AssignNode *parseAssignment();
 
 	// identifier = expression
 	VarDeclNode *parseVarDeclaration();
@@ -44,7 +51,9 @@ private:
 	// asm ( string_expression )
 	AsmStatementNode *parseAsmStatement();
 
-	// for ( var_decl ; expression ; statement ) statement
+	ForStatementNode *parseForStatement();
+
+	// for ( var_decl ; expression ; statement ) block
 	// ForStatementNode *parseForStatement();
 
 	// numeric_expression

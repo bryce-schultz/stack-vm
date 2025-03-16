@@ -2,6 +2,7 @@
 #include "LithiumParser.h"
 #include "GeneratorVisitor.h"
 #include "Util.h"
+#include "Error.h"
 
 bool LithiumCompiler::compile(const std::string &filename)
 {
@@ -22,6 +23,11 @@ bool LithiumCompiler::compile(const std::string &filename)
 			printf("error: failed to parse the source\n");
 		}
 
+		return false;
+	}
+
+	if (global::hadError)
+	{
 		return false;
 	}
 

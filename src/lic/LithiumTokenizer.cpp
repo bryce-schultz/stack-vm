@@ -1,4 +1,5 @@
 #include "LithiumTokenizer.h"
+#include "Error.h"
 
 LithiumTokenizer::LithiumTokenizer():
     source(""),
@@ -108,11 +109,15 @@ Token LithiumTokenizer::getToken()
     if (c == ';' ||
         c == '(' ||
         c == ')' ||
+        c == '{' ||
+        c == '}' ||
         c == '+' ||
         c == '-' ||
         c == '*' ||
         c == '/' ||
         c == '^' ||
+        c == '<' ||
+        c == '>' ||
         c == '!')
     {
         text = c;
@@ -121,10 +126,11 @@ Token LithiumTokenizer::getToken()
     }
 
     // parse strings
-    if (c == '"')
+    if (c == '"' || c == '\'')
     {
+        char quote = c;
         c = next();
-        while (c != '"' && c != '\0')
+        while (c != quote && c != '\0')
         {
             text += c;
             c = next();
@@ -132,6 +138,8 @@ Token LithiumTokenizer::getToken()
 
         if (c == '\0')
         {
+            Token junk(JUNK, text, tokenStart);
+            error("unterminated string", junk);
             return {JUNK, text, tokenStart};
         }
 

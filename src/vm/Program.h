@@ -29,7 +29,11 @@ typedef std::vector<uint64_t> Program;
 #define ijg         (uint64_t)Instruction::JG
 #define ijge        (uint64_t)Instruction::JGE
 #define ijl         (uint64_t)Instruction::JL
+#define igt         (uint64_t)Instruction::GT
+#define ilt         (uint64_t)Instruction::LT
 #define ijle        (uint64_t)Instruction::JLE
 #define istore      (uint64_t)Instruction::STORE
 #define iload       (uint64_t)Instruction::LOAD
+#define istostr     (uint64_t)Instruction::STOSTR
+#define iloadstr    (uint64_t)Instruction::LOADSTR
 #define isyscall    (uint64_t)Instruction::SYSCALL

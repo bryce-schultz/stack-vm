@@ -48,10 +48,14 @@ enum class Instruction : uint64_t
 	JG,
 	JGE,
 	JL,
+	GT,
+	LT,
 	JLE,
 	DUP,
 	STORE,
 	LOAD,
+	STOSTR,
+	LOADSTR,
 	SYSCALL
 };
 

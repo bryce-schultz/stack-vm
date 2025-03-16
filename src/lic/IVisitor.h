@@ -17,6 +17,9 @@ class DeclNode;
 class VarDeclNode;
 class VariableExpressionNode;
 class AssignNode;
+class StatementsNode;
+class ForStatementNode;
+class BlockNode;
 
 class IVisitor
 {
@@ -38,5 +41,8 @@ public:
 	virtual void visit(VarDeclNode* node);
 	virtual void visit(VariableExpressionNode* node);
 	virtual void visit(AssignNode* node);
+	virtual void visit(StatementsNode* node);
+	virtual void visit(ForStatementNode* node);
+	virtual void visit(BlockNode* node);
 };
 

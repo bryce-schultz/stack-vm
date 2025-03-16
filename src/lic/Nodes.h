@@ -18,3 +18,6 @@
 #include "VariableExpressionNode.h"
 #include "AssignNode.h"
 #include "Symbol.h"
+#include "ForStatementNode.h"
+#include "BlockNode.h"
+#include "StatementsNode.h"

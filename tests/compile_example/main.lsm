@@ -1,3 +1,5 @@
+push  110
+push  92
 push  33
 push  100
 push  108
@@ -10,7 +12,7 @@ push  108
 push  108
 push  101
 push  72
-push  12
+push  14
 printstr
 push  111
 push  108
@@ -28,8 +30,10 @@ push  111
 push  87
 push  5
 concat
+push  110
+push  92
 push  33
-push  1
+push  3
 concat
 printstr
 push  110
@@ -38,6 +42,10 @@ push  98
 push  3
 push  48
 push  49
+push  2
+concat
+push  110
+push  92
 push  2
 concat
 printstr
@@ -51,6 +59,10 @@ concat
 push  48
 push  1
 concat
+push  110
+push  92
+push  2
+concat
 printstr
 push 10
 print
@@ -62,6 +74,8 @@ push 1
 sub
 mul
 print
+push  110
+push  92
 push  117
 push  111
 push  121
@@ -87,7 +101,9 @@ push  115
 push  105
 push  104
 push  84
-push  25
+push  110
+push  92
+push  29
 printstr
 push 2
 push 2
@@ -98,12 +114,20 @@ push 3
 push 1
 syscall
 print
+push  110
+push  92
+push  2
+printstr
 push 5
 fact
 neg
 push 6
 add
 print
+push  110
+push  92
+push  2
+printstr
 pop
 push 20
 store 0
@@ -115,10 +139,18 @@ add
 store 2
 load 2
 print
+push  110
+push  92
+push  2
+printstr
 push 10
 load 0
 push 5
 mul
 add
 print
+push  110
+push  92
+push  2
+printstr
 halt

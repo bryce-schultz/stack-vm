@@ -11,6 +11,11 @@ public:
         decl(nullptr)
     {}
 
+    /*bool operator==(const Symbol &other) const
+    {
+        return token == other.token;
+    }*/
+
     DeclNode *getDecl() const
     {
         return decl;

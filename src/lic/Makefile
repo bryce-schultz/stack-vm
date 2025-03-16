@@ -10,6 +10,8 @@ CPPFLAGS = -Wall -Wextra -Wpedantic
 LDFLAGS = -lm
 
 # Options from .mk file:
+CPPFLAGS += -g
+
 # Object Files:
 MAIN_OBJS = main.o \
  LithiumCompiler.o \
@@ -20,12 +22,14 @@ MAIN_OBJS = main.o \
  LithiumSymbolTable.o \
  SymbolTable.o \
  LithiumTokenizer.o \
+ Error.o \
  GeneratorVisitor.o \
  Util.o
 TOKENIZER_TESTER_OBJS = tokenizer_tester.o \
  LithiumTokenizer.o \
  Token.o \
  Location.o \
+ Error.o \
  Util.o
 
 # Phony Targets:
@@ -59,7 +63,8 @@ IVisitor.o: IVisitor.cpp IVisitor.h Nodes.h Node.h ProgramNode.h \
  UnaryExpressionNode.h PrintStatementNode.h AsmStatementNode.h \
  StringExpressionNode.h ConcatNode.h DeclNode.h VarDeclNode.h Symbol.h \
  Token.h Location.h LithiumSymbolTable.h SymbolTable.h \
- VariableExpressionNode.h AssignNode.h
+ VariableExpressionNode.h AssignNode.h ForStatementNode.h BlockNode.h \
+ StatementsNode.h
 Token.o: Token.cpp Token.h Location.h
 GeneratorVisitor.o: GeneratorVisitor.cpp GeneratorVisitor.h IVisitor.h \
  Symbol.h Token.h Location.h DeclNode.h StatementNode.h Node.h Nodes.h \
@@ -67,25 +72,28 @@ GeneratorVisitor.o: GeneratorVisitor.cpp GeneratorVisitor.h IVisitor.h \
  NumericExpressionNode.h OperatorNode.h IntExpressionNode.h \
  UnaryExpressionNode.h PrintStatementNode.h AsmStatementNode.h \
  StringExpressionNode.h ConcatNode.h VarDeclNode.h LithiumSymbolTable.h \
- SymbolTable.h VariableExpressionNode.h AssignNode.h
+ SymbolTable.h VariableExpressionNode.h AssignNode.h ForStatementNode.h \
+ BlockNode.h StatementsNode.h Error.h
+Error.o: Error.cpp Error.h Token.h Location.h Color.h
 LithiumParser.o: LithiumParser.cpp LithiumParser.h Nodes.h Node.h \
  IVisitor.h ProgramNode.h StatementNode.h ExpressionNode.h \
  BinaryExpressionNode.h NumericExpressionNode.h OperatorNode.h \
  IntExpressionNode.h UnaryExpressionNode.h PrintStatementNode.h \
  AsmStatementNode.h StringExpressionNode.h ConcatNode.h DeclNode.h \
  VarDeclNode.h Symbol.h Token.h Location.h LithiumSymbolTable.h \
- SymbolTable.h VariableExpressionNode.h AssignNode.h LithiumTokenizer.h \
- Color.h
+ SymbolTable.h VariableExpressionNode.h AssignNode.h ForStatementNode.h \
+ BlockNode.h StatementsNode.h LithiumTokenizer.h Error.h Color.h
 LithiumTokenizer.o: LithiumTokenizer.cpp LithiumTokenizer.h Token.h \
- Location.h
+ Location.h Error.h
 LithiumCompiler.o: LithiumCompiler.cpp LithiumCompiler.h LithiumParser.h \
  Nodes.h Node.h IVisitor.h ProgramNode.h StatementNode.h ExpressionNode.h \
  BinaryExpressionNode.h NumericExpressionNode.h OperatorNode.h \
  IntExpressionNode.h UnaryExpressionNode.h PrintStatementNode.h \
  AsmStatementNode.h StringExpressionNode.h ConcatNode.h DeclNode.h \
  VarDeclNode.h Symbol.h Token.h Location.h LithiumSymbolTable.h \
- SymbolTable.h VariableExpressionNode.h AssignNode.h LithiumTokenizer.h \
- GeneratorVisitor.h Util.h
+ SymbolTable.h VariableExpressionNode.h AssignNode.h ForStatementNode.h \
+ BlockNode.h StatementsNode.h LithiumTokenizer.h GeneratorVisitor.h \
+ Util.h Error.h
 LithiumSymbolTable.o: LithiumSymbolTable.cpp LithiumSymbolTable.h \
  SymbolTable.h Symbol.h Token.h Location.h DeclNode.h StatementNode.h \
  Node.h IVisitor.h
@@ -98,8 +106,9 @@ main.o: main.cpp LithiumCompiler.h LithiumParser.h Nodes.h Node.h \
  IntExpressionNode.h UnaryExpressionNode.h PrintStatementNode.h \
  AsmStatementNode.h StringExpressionNode.h ConcatNode.h DeclNode.h \
  VarDeclNode.h Symbol.h Token.h Location.h LithiumSymbolTable.h \
- SymbolTable.h VariableExpressionNode.h AssignNode.h LithiumTokenizer.h \
- GeneratorVisitor.h
+ SymbolTable.h VariableExpressionNode.h AssignNode.h ForStatementNode.h \
+ BlockNode.h StatementsNode.h LithiumTokenizer.h GeneratorVisitor.h \
+ Error.h
 Util.o: Util.cpp Util.h
 tokenizer_tester.o: tokenizer_tester.cpp LithiumTokenizer.h Token.h \
  Location.h Util.h

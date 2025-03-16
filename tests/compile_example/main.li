@@ -1,16 +1,16 @@
 # print a string
-print("Hello World!");
+print("Hello World!\n");
 
 # print a string with concatination
-print("Hello" + " " + "World" + "!");
+print("Hello" + " " + "World" + "!\n");
 
 # print a string with numerical concatination
-print("ben" + 10);
+print("ben" + 10 + "\n");
 
 # print a string with numerical concatination twice
 # probably not what is wanted, I need to fix the
 # grammar or something, this is what javascript does 🤮
-print("ben" + 1 + 0);
+print("ben" + 1 + 0 + "\n");
 
 # inline assembly
 asm("push 10");
@@ -20,7 +20,7 @@ asm("print");
 100 / 50 * (3 - 1);
 
 # it has emoji support, it's (insert current year here) why wouldn't it
-"This string ❤️ 's you";
+"\nThis string ❤️ 's you\n";
 
 # write syscall example, write to stderr "Hi"
 # write(fd, data, size)
@@ -47,8 +47,10 @@ asm("push 3"); # -> should be pushed back on stack after syscall
 asm("push 1");
 asm("syscall");
 asm("print");
+print("\n");
 
 print(-5! + 6);
+print("\n");
 asm("pop");
 
 a = 20;
@@ -57,5 +59,7 @@ b = 100;
 c = a + b;
 
 print(c);
+print("\n");
 
 10 + a * 5;
+print("\n");

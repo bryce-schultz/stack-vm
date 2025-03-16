@@ -5,10 +5,8 @@
 #include <sstream>
 
 #include "LithiumParser.h"
+#include "Error.h"
 #include "Color.h"
-
-#define error(message, token) _error(message, token, __FILE__, __LINE__)
-#define expected(expected, token) error("expected "#expected" but got " + tokenTypeToString(token.getType()), token);
 
 LithiumParser::LithiumParser():
 	tokenizer(),
@@ -43,28 +41,6 @@ std::vector<std::string> LithiumParser::getErrors() const
 	return errors;
 }
 
-void LithiumParser::_error(const std::string &message, const Token &token, const char* file, size_t lineno)
-{
-	const std::string &filename = token.getLocation().getFilename();
-	const std::string line = std::to_string(token.getLocation().getLine());
-	const std::string column = std::to_string(token.getLocation().getColumn());
-
-	bool showLocation = true;
-
-	std::stringstream ss;
-
-	if (file != nullptr && showLocation)
-	{
-		ss << red << "error " << reset << filename << ":" << line << ":" << column << ":\n|  " << message << "\n|  @ " << file << ":" << lineno;
-	}
-	else
-	{
-		ss << red << "error " << filename << ":" << line << ":" << column << ":\n|  " << message << reset;
-	}
-
-	errors.push_back(ss.str());
-}
-
 Token LithiumParser::peekToken()
 {
 	return tokenizer.peekToken();
@@ -85,22 +61,17 @@ ProgramNode *LithiumParser::parseProgram()
 {
 	ProgramNode *program = new ProgramNode();
 
-	while (true)
+	auto statements = parseStatements();
+	if (!statements)
 	{
-		Token token = peekToken();
-		if (token == END)
-		{
-			break;
-		}
+		return nullptr;
+	}
 
-		StatementNode *statement = parseStatement();
-		if (statement == nullptr)
-		{
-			delete program;
-			return nullptr;
-		}
+	program->addChild(statements);
 
-		program->addChild(statement);
+	if (errors.size() > 0)
+	{
+		return nullptr;
 	}
 
 	return program;
@@ -109,6 +80,17 @@ ProgramNode *LithiumParser::parseProgram()
 StatementNode *LithiumParser::parseStatement()
 {
 	Token token = peekToken();
+
+	if (token == END)
+	{
+		error("unexpected end of file", token);
+		return nullptr;
+	}
+
+	if (token == '}' || token == ')') // end of block
+	{
+		return nullptr;
+	}
 
 	if (token == PRINT)
 	{
@@ -158,6 +140,22 @@ StatementNode *LithiumParser::parseStatement()
 	{
 		nextToken();
 		return parseStatementP(token);
+	}
+
+	if (token == FOR)
+	{
+		return parseForStatement();
+	}
+
+	if (token == '{')
+	{
+		BlockNode *block = parseBlock();
+		if (!block)
+		{
+			return nullptr;
+		}
+
+		return block;
 	}
 
 	error("unexpected token: " + token.getText() + " (" + std::to_string(token.getType()) + ")", token);
@@ -393,6 +391,8 @@ NumericExpressionNode *LithiumParser::parseAddit()
 		return nullptr;
 	}
 
+	Token token = peekToken();
+
 	NumericExpressionNode *additPP = parseAdditPP(term);
 	if (!additPP)
 	{
@@ -406,7 +406,7 @@ NumericExpressionNode *LithiumParser::parseAdditP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
 
-	if (token == '+' || token == '-')
+	if (token == '+' || token == '-' || token == '<' || token == '>')
 	{
 		char op = token;
 		nextToken();
@@ -428,7 +428,7 @@ NumericExpressionNode *LithiumParser::parseAdditPP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
 
-	if (token == '+' || token == '-')
+	if (token == '+' || token == '-' || token == '<' || token == '>')
 	{
 		NumericExpressionNode *additP = parseAdditP(lhs);
 		if (!additP)
@@ -677,6 +677,11 @@ VarDeclNode *LithiumParser::parseVarDeclaration()
 
 	token = peekToken();
 
+	if (token == ';')
+	{
+		return new VarDeclNode(identifier, new IntExpressionNode(0));
+	}
+
 	if (token != '=')
 	{
 		nextToken();
@@ -691,17 +696,6 @@ VarDeclNode *LithiumParser::parseVarDeclaration()
 	{
 		return nullptr;
 	}
-
-	token = peekToken();
-
-	if (token != ';')
-	{
-		nextToken();
-		error("expected ';'", token);
-		return nullptr;
-	}
-
-	nextToken();
 
 	return new VarDeclNode(identifier, expression);
 }
@@ -777,14 +771,10 @@ StatementNode *LithiumParser::parseStatementP(const Token &identifier)
 
 		token = peekToken();
 
-		if (token != ';')
+		if (token == ';')
 		{
 			nextToken();
-			error("expected ';'", token);
-			return nullptr;
 		}
-
-		nextToken();
 
 		return new AssignNode(identifier, expression);
 	}
@@ -792,4 +782,192 @@ StatementNode *LithiumParser::parseStatementP(const Token &identifier)
 	nextToken();
 	expected("';', '=', or '('", token);
 	return nullptr;
+}
+
+StatementsNode *LithiumParser::parseStatements()
+{
+	StatementsNode *statements = new StatementsNode();
+
+    while (true)
+	{
+		Token token = peekToken();
+		if (token == END)
+		{
+			break;
+		}
+
+		StatementNode *statement = parseStatement();
+		if (statement == nullptr)
+		{
+			return statements;
+		}
+
+		statements->addChild(statement);
+	}
+
+	return statements;
+}
+
+ForStatementNode *LithiumParser::parseForStatement()
+{
+	Token token = peekToken();
+
+	if (token != FOR)
+	{
+		nextToken();
+		error("expected 'for'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	token = peekToken();
+
+	if (token != '(')
+	{
+		nextToken();
+		error("expected '('", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	global::symbolTable.increaseScope();
+
+	StatementNode *init = parseAssignment();
+	if (!init)
+	{
+		return nullptr;
+	}
+
+	token = peekToken();
+
+	if (token != ';')
+	{
+		nextToken();
+		error("expected ';'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	ExpressionNode *condition = parseExpression();
+	if (!condition)
+	{
+		return nullptr;
+	}
+
+	token = peekToken();
+
+	if (token != ';')
+	{
+		nextToken();
+		error("expected ';'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	StatementNode *increment = parseStatement();
+	if (!increment)
+	{
+		return nullptr;
+	}
+
+	token = peekToken();
+
+	if (token != ')')
+	{
+		nextToken();
+		error("expected ')'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	BlockNode *block = parseBlock();
+	if (!block)
+	{
+		return nullptr;
+	}
+
+	global::symbolTable.decreaseScope();
+
+	return new ForStatementNode(init, condition, increment, block);
+}
+
+BlockNode *LithiumParser::parseBlock()
+{
+	Token token = peekToken();
+
+	if (token != '{')
+	{
+		nextToken();
+		error("expected '{'", token);
+		return nullptr;
+	}
+
+	global::symbolTable.increaseScope();
+
+	nextToken();
+
+	StatementsNode *statements = parseStatements();
+	if (!statements)
+	{
+		return nullptr;
+	}
+
+	token = peekToken();
+
+	if (token != '}')
+	{
+		nextToken();
+		error("expected '}'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	global::symbolTable.decreaseScope();
+
+	return new BlockNode(statements);
+}
+
+AssignNode *LithiumParser::parseAssignment()
+{
+	Token token = peekToken();
+
+	if (token != IDENTIFIER)
+	{
+		nextToken();
+		error("expected identifier", token);
+		return nullptr;
+	}
+
+	Token identifier = token;
+	nextToken();
+
+	token = peekToken();
+
+	if (token == ';')
+	{
+		return new AssignNode(identifier, new IntExpressionNode(0));
+	}
+
+	if (token != '=')
+	{
+		nextToken();
+		error("expected '='", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	ExpressionNode *expression = parseExpression();
+	if (!expression)
+	{
+		return nullptr;
+	}
+
+	return new AssignNode(identifier, expression);
 }

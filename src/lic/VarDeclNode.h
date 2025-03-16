@@ -3,17 +3,27 @@
 #include "DeclNode.h"
 #include "Symbol.h"
 #include "LithiumSymbolTable.h"
+#include "Error.h"
 
 class VarDeclNode : public DeclNode
 {
 public:
     VarDeclNode(const Token &token, ExpressionNode *expression)
     {
-        symbol = new Symbol(token);
+        if (global::symbolTable.lookupLocal(token.getText()))
+        {
+            // if the variable is already declared in the current scope reassing the symbol
+            symbol = global::symbolTable.lookupLocal(token.getText());
+        }
+        else
+        {
+            printf("Declaring variable %s\n", token.getText().c_str());
+            symbol = new Symbol(token);
+            symbol->setDecl(this);
+            global::symbolTable.addSymbol(symbol);
+        }
+
         addChild(expression);
-        // add the symbol to the symbol table
-        symbol->setDecl(this);
-        global::symbolTable.addSymbol(symbol);
     }
 
     virtual void visit(IVisitor *visitor) override
