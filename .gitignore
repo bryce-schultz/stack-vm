@@ -1,7 +1,6 @@
 # file types
 *.lsm
 *.o
-*.correct
 *.output
 *.log
 
