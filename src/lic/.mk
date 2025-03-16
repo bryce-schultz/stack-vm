@@ -1,1 +1,2 @@
 CPPFLAGS += -g
+MAIN_EXE = lic

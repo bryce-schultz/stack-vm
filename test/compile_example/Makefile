@@ -1,5 +1,5 @@
-LIC=../../src/lic/main
-VM=../../src/vm/main
+LIC=../../src/lic/lic
+VM=../../src/vm/vm
 
 all: run
 

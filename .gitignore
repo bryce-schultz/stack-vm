@@ -5,10 +5,6 @@
 *.log
 *.vsix
 
-# exes
-main
-tokenizer_tester
-
 # directories
 node_modules/
 build/
