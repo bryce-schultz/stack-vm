@@ -44,4 +44,3 @@ build_target()
 
 build_target lic
 build_target vm
-#build_target interpreter

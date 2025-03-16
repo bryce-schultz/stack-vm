@@ -1,7 +1,11 @@
+# file types
 *.lsm
 *.o
 *.correct
 *.output
+*.log
+
+# exes
 vm
 lic
 li
