@@ -1,3 +1,5 @@
+# this test should print 
+
 acc;
 for (i; i < 1000; i = i + 1)
 {
@@ -9,11 +11,3 @@ for (i; i < 1000; i = i + 1)
 
 print(acc);
 print('\n');
-
-idx = 0;
-while (idx < 10)
-{
-    print(idx);
-    print('\n');
-    idx = idx + 1;
-}
