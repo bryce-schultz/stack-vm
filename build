@@ -9,6 +9,17 @@ nc='\033[0m'
 
 build_args=$@
 
+contains_clean()
+{
+    for arg in $build_args; do
+        if [ $arg == "clean" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 # get the path of this file
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
@@ -82,6 +93,10 @@ run_test()
 print_build_header
 build_target lic
 build_target vm
+
+if contains_clean; then
+    exit 0
+fi
 
 print_test_header
 run_test loops
