@@ -9,6 +9,11 @@ nc='\033[0m'
 
 build_args=$@
 
+# get the path of this file
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+cd $DIR
+
 success()
 {
     msg=$1
@@ -34,9 +39,9 @@ build_target()
         failure $target
     fi
 
-    cd ../..
+    cd $DIR
 }
 
 build_target lic
 build_target vm
-build_target interpreter
+#build_target interpreter

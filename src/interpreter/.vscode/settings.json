@@ -1,0 +1,9 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/bryce/projects/stack-vm/src/interpreter",
+            "binaryPath": "/home/bryce/projects/stack-vm/src/interpreter/li",
+            "binaryArgs": []
+        }
+    ]
+}

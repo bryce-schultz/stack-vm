@@ -1,3 +1,5 @@
+#include <fstream>
+
 #include "Util.h"
 
 std::string Util::getFileName(const std::string &path)
@@ -57,4 +59,23 @@ std::string Util::getAbsolutePath(const std::string &path, const std::string &ba
 {
     size_t pos = base.find_last_of("/\\");
     return path.substr(pos + 1);
+}
+
+std::string Util::readWholeFile(const std::string &path)
+{
+    std::ifstream file(path);
+    if (!file.is_open())
+    {
+        return "";
+    }
+
+    std::string result;
+    std::string line;
+    while (std::getline(file, line))
+    {
+        result += line + '\n';
+    }
+
+    file.close();
+    return result;
 }

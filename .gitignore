@@ -1,3 +1,5 @@
-*.svasm
-
-build/
+*.lsm
+*.o
+vm
+lic
+li

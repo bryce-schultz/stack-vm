@@ -3,43 +3,53 @@ PRINT = 'print'
 STRING = ".*"
 NUMBER = [0-9]+\.?[0-9]*
 
-program: statements
+program -> statements
 
-statements: statements statement
-          | statement
+statements -> statements statement
+            | statement
 
-statement: asm_statement
-         | print_statement
-         | expression
+statement -> asm_statement ;
+           | print_statement ;
+           | expression ;
+           | declaration ;
 
-asm_statement: ASM ( string_expression )
+asm_statement -> ASM ( string_expression )
 
-print_statement: PRINT ( expression )
+print_statement -> PRINT ( expression )
 
-expression: numeric_expression
-          | string_expression
+expression -> numeric_expression
+            | string_expression
 
-string_expression: string_expression + STRING
-                 | string_expression + NUMBER
-                 | STRING
+declaration -> var_decl
 
-numeric_expression: addit
+var_decl -> IDENTIFIER = expression
 
-addit: addit + term
-     | addit - term
-     | - term
-     | term
+string_expression -> string_expression + STRING
+                   | string_expression + NUMBER
+                   | STRING
 
-term: term * exponent
-    | term / exponent
-    | exponent
+numeric_expression -> addit
 
-exponent: exponent ^ factorial
-        | factorial
+addit -> addit + term
+       | addit - term
+       | term
 
-factorial: factorial !
-         | fact
+term -> term * exponent
+      | term / exponent
+      | exponent
 
-primary: ( numeric_expression )
-       | NUMBER
+exponent -> exponent ^ fact
+          | fact
+
+fact -> - factorial
+      | factorial
+
+factorial -> factorial !
+           | primary
+
+primary -> ( numeric_expression )
+         | NUMBER
+         | var_expr
+
+var_expr -> IDENTIFIER
 

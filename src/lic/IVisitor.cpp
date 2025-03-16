@@ -60,3 +60,38 @@ void IVisitor::visit(NumericExpressionNode *node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(DeclNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(VarDeclNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(VariableExpressionNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(AssignNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(StatementsNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(ForStatementNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(BlockNode *node)
+{
+	node->visitAllChildren(this);
+}

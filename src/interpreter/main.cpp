@@ -117,6 +117,11 @@ bool runInterpreter()
         GeneratorVisitor generator;
         generator.visitAllChildren(root);
 
+        if (generator.hasError())
+        {
+            continue;
+        }
+
         SVASMParser asmParser;
         SVASMParserResult result = asmParser.parse(generator.getOutput());
 

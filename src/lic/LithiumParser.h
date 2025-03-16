@@ -1,41 +1,60 @@
 #pragma once
+
 #include <string>
+
 #include "Nodes.h"
 #include "Token.h"
+#include "LithiumSymbolTable.h"
+#include "LithiumTokenizer.h"
 
 class LithiumParser
 {
 public:
 	LithiumParser();
-	~LithiumParser();
 
 	Node *parse(const std::string &source);
-
 	std::vector<std::string> getErrors() const;
-
 private:
-	void error(const std::string &message, const Token &token);
-	Node *parseInternal(const std::string &source);
+	Node *parseInternal(const std::string &source, const std::string &filename = "");
 
 	Token peekToken();
-	Token getToken();
 	Token nextToken();
 
-	bool isWhitespace(char c) const;
-
-	// statements statement
-	// statement
+	// statements
 	ProgramNode *parseProgram();
 
 	// print_statement
 	// asm_statement
+	// expression
+	// IDENTIFIER statementP
+	// for
 	StatementNode *parseStatement();
+
+	// statements statement
+	// statement
+	StatementsNode *parseStatements();
+
+	// { statements }
+	BlockNode *parseBlock();
+
+	// var_decl
+	DeclNode *parseDeclaration();
+
+	AssignNode *parseAssignment();
+
+	// identifier = expression
+	VarDeclNode *parseVarDeclaration();
 
 	// print ( expression )
 	PrintStatementNode *parsePrintStatement();
 
 	// asm ( string_expression )
 	AsmStatementNode *parseAsmStatement();
+
+	ForStatementNode *parseForStatement();
+
+	// for ( var_decl ; expression ; statement ) block
+	// ForStatementNode *parseForStatement();
 
 	// numeric_expression
 	// string_expression
@@ -46,6 +65,11 @@ private:
 
 	// STRING string_expressionPP
 	StringExpressionNode *parseStringExpression();
+
+	// ;
+	// ( expression_list ) ;
+	// = expression ;
+	StatementNode *parseStatementP(const Token &identifier);
 
 	// STRING
 	// NUMBER
@@ -74,11 +98,15 @@ private:
 	// nothing
 	NumericExpressionNode *parseTermPP(NumericExpressionNode *lhs);
 
-	// factorial exponentP
+	// fact exponentP
 	NumericExpressionNode *parseExponent();
-	// ^ factorial exponentP
+	// ^ fact exponentP
 	// nothing
 	NumericExpressionNode *parseExponentP(NumericExpressionNode *);
+
+	// - factorial
+	// factorial
+	NumericExpressionNode *parseFact();
 
 	// primary factorialP
 	NumericExpressionNode *parseFactorial();
@@ -89,16 +117,7 @@ private:
 	// ( numeric_expression )
 	// number
 	NumericExpressionNode *parsePrimary();
-
 private:
-	std::string source;
-	size_t index;
-	Token currentToken;
-	std::string text;
-	std::string oldText;
-
-	int colno;
-	int lineno;
+	LithiumTokenizer tokenizer;
 	std::vector<std::string> errors;
-	std::string filename;
 };

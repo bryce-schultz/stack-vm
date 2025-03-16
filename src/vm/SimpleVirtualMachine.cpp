@@ -14,7 +14,9 @@ SimpleVirtualMachine::SimpleVirtualMachine(size_t memorySize):
 	bp(memory),
 	fp(memory),
 	ip(memory),
+	heap(memory),
 	memorySize(memorySize / sizeof(uint64_t)),
+	heapSize(0),
 	stackSize(0),
 	isStackCheckEnabled(false)
 {
@@ -40,12 +42,30 @@ bool SimpleVirtualMachine::load(const uint64_t *program, size_t programSize)
 	memcpy(memory, program, programSize * sizeof(uint64_t));
 
 	// set the canary value
-	memory[programSize] = canary;
+	memory[programSize++] = canary;
+	float remainingMemory = memorySize - programSize;
+
+	float heapPercent = 0.80;
+	heapSize = remainingMemory * heapPercent;
+	stackSize = computeStackSize(programSize, heapSize);
 
 	ip = memory;
-	sp = computeStackStart(programSize + 1);
+	heap = computeHeapStart(programSize);
+	sp = computeStackStart(programSize, heapSize);
 	bp = sp;
 	fp = sp;
+
+	/* good for debugging memory layout issues
+	printf("bp: %ld\n", bp - memory);
+	printf("sp: %ld\n", sp - memory);
+	printf("fp: %ld\n", fp - memory);
+	printf("ip: %ld\n", ip - memory);
+	printf("heap: %ld\n", heap - memory);
+	printf("stack size: %ld\n", stackSize);
+	printf("heap size: %ld\n", heapSize);
+	printf("program size: %ld\n", programSize);
+	printf("memory size: %ld\n", memorySize);
+	*/
 
 	return true;
 }
@@ -205,12 +225,24 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			push(result);
 			break;
 		}
-		case Instruction::FACT:
+		case Instruction::NEG:
 		{
 			uint64_t value = pop();
+			push(-value);
+			break;
+		}
+		case Instruction::FACT:
+		{
+			int64_t value = pop();
+
+			if (value < 0)
+			{
+				throw SVMFactorialOfNegativeException();
+			}
+
 			uint64_t result = 1;
 
-			for (uint64_t i = 1; i <= value; i++)
+			for (int64_t i = 1; i <= value; i++)
 			{
 				result *= i;
 			}
@@ -225,8 +257,8 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		case Instruction::PRINT:
 		{
 			uint64_t value = pop();
-			printf("%lu\n", value);
-			//fflush(stdout);
+			printf("%ld", value);
+			fflush(stdout);
 			break;
 		}
 		case Instruction::PRINTSTR:
@@ -263,8 +295,7 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 
 				printf("%c", static_cast<char>(value));
 			}
-			printf("\n");
-			//fflush(stdout);
+			fflush(stdout);
 			break;
 		}
 		case Instruction::CONCAT:
@@ -296,6 +327,141 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			}
 
 			push(result.size());
+			break;
+		}
+		case Instruction::DUP:
+		{
+			uint64_t value = pop();
+			push(value);
+			push(value);
+			break;
+		}
+		case Instruction::JMP:
+		{
+			int64_t offset = fetch();
+			ip += offset;
+			break;
+		}
+		case Instruction::JZ:
+		{
+			int64_t offset = fetch();
+			uint64_t value = pop();
+			if (value == 0)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JNZ:
+		{
+			int64_t offset = fetch();
+			uint64_t value = pop();
+			if (value != 0)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left == right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JNE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left != right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JG:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left > right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JGE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left >= right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JL:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left < right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::JLE:
+		{
+			int64_t offset = fetch();
+			uint64_t right = pop();
+			uint64_t left = pop();
+			if (left <= right)
+			{
+				ip += offset;
+			}
+			break;
+		}
+		case Instruction::GT:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left > right);
+			break;
+		}
+		case Instruction::LT:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left < right);
+			break;
+		}
+		case Instruction::STORE:
+		{
+			uint64_t address = fetch();
+			uint64_t value = pop();
+			*(heap + address) = value;
+			break;
+		}
+		case Instruction::LOAD:
+		{
+			uint64_t address = fetch();
+
+			// check if the address is within the heap
+			if (address >= heapSize)
+			{
+				throw SVMInvalidMemoryAccessException(address);
+			}
+
+			// memory access
+			uint64_t value = *(heap + address);
+			push(value);
 			break;
 		}
 		case Instruction::SYSCALL:
@@ -415,9 +581,10 @@ bool SimpleVirtualMachine::syscall()
 
 bool SimpleVirtualMachine::write()
 {
-	uint64_t size = pop();
 	std::string buffer;
-
+	uint64_t size = pop();
+	// avoid reallocations as the string is built off the stack
+	buffer.reserve(size);
 	for (uint64_t i = 0; i < size; i++)
 	{
 		uint64_t value = pop();
@@ -425,14 +592,9 @@ bool SimpleVirtualMachine::write()
 	}
 
 	uint64_t fd = pop();
-
 	ssize_t bytes_written = ::write(fd, buffer.c_str(), size);
-	if (bytes_written == -1)
-	{
-		return false;
-	}
-
 	push(bytes_written);
+
 	return true;
 }
 
@@ -443,10 +605,6 @@ bool SimpleVirtualMachine::read()
 
 	std::string buffer(size, 0);
 	ssize_t bytes_read = ::read(fd, &buffer[0], size);
-	if (bytes_read == -1)
-	{
-		return false;
-	}
 
 	for (ssize_t i = bytes_read - 1; i >= 0; i--)
 	{
@@ -492,7 +650,27 @@ bool SimpleVirtualMachine::close()
 	return true;
 }
 
+std::string SimpleVirtualMachine::readString()
+{
+    std::string buffer;
+	uint64_t size = pop();
+	// avoid reallocations as the string is built off the stack
+	buffer.reserve(size);
+	for (uint64_t i = 0; i < size; i++)
+	{
+		uint64_t value = pop();
+		buffer += static_cast<char>(value);
+	}
+
+	return buffer;
+}
+
 void SimpleVirtualMachine::enableStackCheck(bool enable)
 {
 	isStackCheckEnabled = enable;
+}
+
+uint64_t *SimpleVirtualMachine::computeHeapStart(size_t programSize) const
+{
+	return memory + programSize;
 }

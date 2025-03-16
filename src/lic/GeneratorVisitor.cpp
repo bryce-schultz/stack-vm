@@ -1,8 +1,9 @@
 #include "GeneratorVisitor.h"
 #include "Nodes.h"
+#include "Error.h"
 
 GeneratorVisitor::GeneratorVisitor(const std::string &output_filename):
-	_output_filename(output_filename)
+    _outputFilename(output_filename)
 {
 }
 
@@ -12,140 +13,228 @@ GeneratorVisitor::~GeneratorVisitor()
 
 void GeneratorVisitor::visitAllChildren(Node *node)
 {
-	node->visit(this);
+    node->visit(this);
 
-	std::ofstream file(_output_filename);
+    if (hadError)
+    {
+        return;
+    }
 
-	if (file.is_open())
-	{
-		file << _buffer.str();
-		file.close();
+    std::ofstream file(_outputFilename);
 
-		printf("-> %s\n", _output_filename.c_str());
-	}
+    if (file.is_open())
+    {
+        file << _buffer.str();
+        file.close();
+
+        printf("-> %s\n", _outputFilename.c_str());
+    }
 }
 
 void GeneratorVisitor::visit(ProgramNode *node)
 {
-	node->visitAllChildren(this);
-	out("halt\n");
+    node->visitAllChildren(this);
+    out("halt\n");
 }
 
 void GeneratorVisitor::visit(BinaryExpressionNode *node)
 {
-	node->getLeft()->visit(this);
-	node->getRight()->visit(this);
+    node->getLeft()->visit(this);
+    node->getRight()->visit(this);
 
-	switch (node->getOperator())
-	{
-	case '+':
-		out("add");
-		break;
-	case '-':
-		out("sub");
-		break;
-	case '*':
-		out("mul");
-		break;
-	case '/':
-		out("div");
-		break;
-	case '%':
-		out("mod");
-		break;
-	case '^':
-		out("pow");
-		break;
-	}
-	out("\n");
+    switch (node->getOperator())
+    {
+    case '+':
+        out("add");
+        break;
+    case '-':
+        out("sub");
+        break;
+    case '*':
+        out("mul");
+        break;
+    case '/':
+        out("div");
+        break;
+    case '%':
+        out("mod");
+        break;
+    case '^':
+        out("pow");
+        break;
+    case '<':
+        out("lt");
+        break;
+    case '>':
+        out("gt");
+        break;
+    }
+    out("\n");
 }
 
 void GeneratorVisitor::visit(IntExpressionNode *node)
 {
-	out("push");
-	out(node->getValue());
-	out("\n");
+    out("push");
+    out(node->getValue());
+    out("\n");
 }
 
 void GeneratorVisitor::visit(PrintStatementNode *node)
 {
-	auto expression = node->getExpression();
+    auto expression = node->getExpression();
 
-	if (!expression)
-	{
-		return;
-	}
+    if (!expression)
+    {
+        return;
+    }
 
-	expression->visit(this);
+    expression->visit(this);
 
-	if (expression->isString())
-	{
-		out("printstr");
-	}
-	else
-	{
-		out("print");
-	}
+    if (expression->isString())
+    {
+        out("printstr");
+    }
+    else
+    {
+        out("print");
+    }
 
-	out("\n");
+    out("\n");
 }
 
 void GeneratorVisitor::visit(UnaryExpressionNode *node)
 {
-	node->getExpr()->visit(this);
+    node->getExpr()->visit(this);
 
-	switch (node->getOperator())
-	{
-	case '!':
-		out("fact");
-		break;
-	}
-	out("\n");
+    switch (node->getOperator())
+    {
+    case '!':
+        out("fact");
+        break;
+    case '-':
+        out("neg");
+        break;
+    }
+    out("\n");
 }
 
 void GeneratorVisitor::visit(AsmStatementNode *node)
 {
-	std::string asm_ = node->getStringExpression()->getValue();
-	out(asm_);
-	out("\n");
+    std::string asm_ = node->getStringExpression()->getValue();
+    out(asm_);
+    out("\n");
 }
 
 void GeneratorVisitor::visit(StringExpressionNode *node)
 {
-	std::string str = node->getValue();
+    std::string str = node->getValue();
 
-	// loop backwards through the string
-	for (int i = str.size() - 1; i >= 0; i--)
-	{
-		out("push ");
-		out(str[i]);
-		out("\n");
-	}
+    // loop backwards through the string
+    for (int i = str.size() - 1; i >= 0; i--)
+    {
+        out("push ");
+        out(str[i]);
+        out("\n");
+    }
 
-	out("push ");
-	out(str.size());
-	out("\n");
+    out("push ");
+    out(str.size());
+    out("\n");
 }
 
 void GeneratorVisitor::visit(ConcatNode *node)
 {
-	node->getLeft()->visit(this);
-	node->getRight()->visit(this);
+    node->getLeft()->visit(this);
+    node->getRight()->visit(this);
 
-	out("concat\n");
+    out("concat\n");
 }
 
 std::string GeneratorVisitor::getOutput() const
 {
-	return _buffer.str();
+    return _buffer.str();
 }
 
 void GeneratorVisitor::out(const std::string &text)
 {
-	_buffer << text;
+    _buffer << text;
 }
 
 void GeneratorVisitor::out(int64_t value)
 {
-	_buffer << " " << value;
+    _buffer << " " << value;
+}
+
+void GeneratorVisitor::visit(VarDeclNode *node)
+{
+    auto symbol = node->getSymbol();
+    auto expr = node->getExpression();
+
+    if (expr->isNumeric())
+    {
+        _variables[symbol] = _variables.size();
+
+        expr->visit(this);
+
+        out("store");
+        out(_variables[symbol]);
+        out("\n");
+    }
+}
+
+void GeneratorVisitor::visit(VariableExpressionNode *node)
+{
+    if (_variables.find(node->getSymbol()) == _variables.end())
+    {
+        error("variable " + node->getName() + " is not defined", node->getToken());
+        hadError = true;
+    }
+
+    out("load");
+    out(_variables[node->getSymbol()]);
+    out("\n");
+}
+
+bool GeneratorVisitor::hasError() const
+{
+    return hadError;
+}
+
+void GeneratorVisitor::visit(AssignNode *node)
+{
+    auto symbol = node->getSymbol();
+    auto expr = node->getExpression();
+
+    if (expr->isNumeric())
+    {
+        int id = _variables.size();
+        if (_variables.find(symbol) != _variables.end())
+        {
+            id = _variables[symbol];
+        }
+        else
+        {
+            _variables[symbol] = id;
+        }
+
+        expr->visit(this);
+
+        out("store");
+        out(_variables[symbol]);
+        out("\n");
+    }
+}
+
+void GeneratorVisitor::visit(ForStatementNode *node)
+{
+    static int forCount = 1;
+    int forId = forCount++;
+    node->getInit()->visit(this);
+    out("for" + std::to_string(forId) + ":\n");
+    node->getCondition()->visit(this);
+    out("jz for" + std::to_string(forId) + "end\n");
+    node->getBlock()->visit(this);
+    node->getIncrement()->visit(this);
+    out("jmp for" + std::to_string(forId) + "\n");
+    out("for" + std::to_string(forId) + "end:\n");
 }

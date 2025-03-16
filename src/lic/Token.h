@@ -13,8 +13,12 @@ enum TokenType
 	STRING,
 	ASM,
 	END,
+    FOR,
+    EQUALS,
 	JUNK
 };
+
+std::string tokenTypeToString(int type);
 
 class Token
 {
@@ -32,6 +36,7 @@ public:
     operator char() const;
 
     int getType() const;
+    size_t getLength() const;
     const std::string &getText() const;
     const Location &getLocation() const;
 private:
@@ -40,3 +45,5 @@ private:
 
     Location location;
 };
+
+#define TOKEN_NONE { NONE, "", {0, 0, ""} }

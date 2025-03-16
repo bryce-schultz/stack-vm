@@ -59,3 +59,9 @@ class SVMStackCorruptionException : public SVMException
 public:
 	SVMStackCorruptionException() : SVMException("stack corruption") {}
 };
+
+class SVMFactorialOfNegativeException : public SVMException
+{
+public:
+	SVMFactorialOfNegativeException() : SVMException("factorial of negative number") {}
+};
