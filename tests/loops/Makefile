@@ -3,9 +3,6 @@ VM=../../src/vm/main
 
 all: clean
 
-build: ../../src/**/*.hpp ../../src/**/*.cpp ../../src/**/*.h ../../src/**/*.c
-	../../build -j 32
-
 compile: for.li while.li
 	@$(LIC) for.li > /dev/null
 	@$(LIC) while.li > /dev/null
