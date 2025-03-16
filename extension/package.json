@@ -1,0 +1,41 @@
+{
+  "name": "lithium-language-support",
+  "displayName": "lithium-language-support",
+  "description": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bryce-schultz/stack-vm"
+  },
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.98.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "lithium",
+        "aliases": [
+          "Lithium",
+          "lithium"
+        ],
+        "extensions": [
+          ".li"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lithium",
+        "scopeName": "source.lithium",
+        "path": "./syntaxes/lithium.tmLanguage.json"
+      }
+    ]
+  },
+  "dependencies": {
+    "punycode": "^2.3.1"
+  }
+}

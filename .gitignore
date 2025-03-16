@@ -3,6 +3,7 @@
 *.o
 *.output
 *.log
+*.vsix
 
 # exes
 vm
