@@ -1,0 +1,244 @@
+#include "LithiumTokenizer.h"
+#include "Error.h"
+
+LithiumTokenizer::LithiumTokenizer():
+    source(""),
+    filename(""),
+    currentToken(TOKEN_NONE),
+    index(0)
+{
+}
+
+LithiumTokenizer::LithiumTokenizer(const std::string &source, const std::string &filename):
+    source(source),
+    filename(filename),
+    currentToken(TOKEN_NONE),
+    index(0)
+{
+}
+
+Token LithiumTokenizer::peekToken()
+{
+    if (currentToken == NONE)
+    {
+        currentToken = getToken();
+    }
+
+    return currentToken;
+}
+
+Token LithiumTokenizer::nextToken()
+{
+    currentToken = getToken();
+    return currentToken;
+}
+
+bool LithiumTokenizer::eof()
+{
+    skipWhitespace();
+    return index >= source.size();
+}
+
+bool LithiumTokenizer::isWhitespace(char c) const
+{
+    return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+}
+
+void LithiumTokenizer::skipWhitespace()
+{
+    char c = peek();
+
+    while(isWhitespace(c))
+    {
+        c = next();
+    }
+}
+
+void LithiumTokenizer::skipComments()
+{
+    char c = peek();
+
+    if (c == '#')
+    {
+        while (c != '\n' && c != '\0')
+        {
+            c = next();
+        }
+    }
+}
+
+Token LithiumTokenizer::getToken()
+{
+    text.clear();
+
+    char c = peek();
+
+    // skip whitespace and comments
+    while (isWhitespace(c) || c == '#')
+    {
+        skipComments();
+        skipWhitespace();
+        c = peek();
+    }
+
+    // check for end of file
+    if (c == '\0')
+    {
+        return {END, "", getLocation()};
+    }
+
+    // calculate token start location
+    Location tokenStart = getLocation();
+
+    // parse two character tokens
+    if (c == '=')
+    {
+        char c2 = next();
+        if (c2 == '=')
+        {
+            text = "==";
+            next();
+            return {EQUALS, text, tokenStart};
+        }
+
+        text = c;
+        return {c, text, tokenStart};
+    }
+
+    // parse single character tokens
+    if (c == ';' ||
+        c == '(' ||
+        c == ')' ||
+        c == '{' ||
+        c == '}' ||
+        c == '+' ||
+        c == '-' ||
+        c == '*' ||
+        c == '/' ||
+        c == '^' ||
+        c == '<' ||
+        c == '>' ||
+        c == '!')
+    {
+        text = c;
+        next();
+        return {c, text, tokenStart};
+    }
+
+    // parse strings
+    if (c == '"' || c == '\'')
+    {
+        char quote = c;
+        c = next();
+        while (c != quote && c != '\0')
+        {
+            text += c;
+            c = next();
+        }
+
+        if (c == '\0')
+        {
+            Token junk(JUNK, text, tokenStart);
+            error("unterminated string", junk);
+            return {JUNK, text, tokenStart};
+        }
+
+        next();
+        return {STRING, text, tokenStart};
+    }
+
+    // parse numbers
+    if (isdigit(c))
+    {
+        bool hasDot = false;
+        while (isdigit(c) || (c == '.' && !hasDot))
+        {
+            if (c == '.')
+            {
+                hasDot = true;
+            }
+
+            text += c;
+            c = next();
+        }
+
+        return {NUMBER, text, tokenStart};
+    }
+
+    // parse identifiers
+    if (isalpha(c))
+    {
+        while (isalnum(c))
+        {
+            text += c;
+            c = next();
+        }
+
+        if (text == "print")
+        {
+            return {PRINT, text, tokenStart};
+        }
+
+        if (text == "asm")
+        {
+            return {ASM, text, tokenStart};
+        }
+
+        if (text == "for")
+        {
+            return {FOR, text, tokenStart};
+        }
+
+        if (text == "while")
+        {
+            return {WHILE, text, tokenStart};
+        }
+
+        return {IDENTIFIER, text, tokenStart};
+    }
+
+    // consume junk token
+    text = c;
+    next();
+    return {JUNK, text, tokenStart};
+}
+
+char LithiumTokenizer::peek() const
+{
+    if (index >= source.size())
+    {
+        return '\0';
+    }
+
+    return source[index];
+}
+
+char LithiumTokenizer::next()
+{
+    if (index >= source.size())
+    {
+        return '\0';
+    }
+
+    return source[++index];
+}
+
+Location LithiumTokenizer::getLocation() const
+{
+    Location result(1, 1, filename);
+
+    for (size_t i = 0; i < index; i++)
+    {
+        if (source[i] == '\n')
+        {
+            result.incrementLine();
+            result.setColumn(1);
+        }
+        else
+        {
+            result.incrementColumn();
+        }
+    }
+
+    return result;
+}
