@@ -50,6 +50,8 @@ enum class Instruction : uint64_t
 	JL,
 	GT,
 	LT,
+	EQ,
+	NE,
 	JLE,
 	DUP,
 	STORE,

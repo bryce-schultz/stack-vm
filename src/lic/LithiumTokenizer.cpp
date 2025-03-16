@@ -220,6 +220,16 @@ Token LithiumTokenizer::getToken()
             return {WHILE, text, tokenStart};
         }
 
+        if (text == "if")
+        {
+            return {IF, text, tokenStart};
+        }
+
+        if (text == "else")
+        {
+            return {ELSE, text, tokenStart};
+        }
+
         return {IDENTIFIER, text, tokenStart};
     }
 

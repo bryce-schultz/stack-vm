@@ -42,7 +42,7 @@ void GeneratorVisitor::visit(BinaryExpressionNode *node)
     node->getLeft()->visit(this);
     node->getRight()->visit(this);
 
-    switch (node->getOperator())
+    switch ((int)node->getOperator())
     {
     case '+':
         out("add");
@@ -67,6 +67,9 @@ void GeneratorVisitor::visit(BinaryExpressionNode *node)
         break;
     case '>':
         out("gt");
+        break;
+    case EQUALS:
+        out("eq");
         break;
     }
     out("\n");
@@ -250,4 +253,33 @@ void GeneratorVisitor::visit(WhileStatementNode *node)
     node->getBody()->visit(this);
     out("jmp while" + std::to_string(whileId) + "loop\n");
     out("while" + std::to_string(whileId) + "end:\n");
+}
+
+void GeneratorVisitor::visit(IfStatementNode *node)
+{
+    static int ifCount = 1;
+    int ifId = ifCount++;
+    node->getCondition()->visit(this);
+    StatementNode *elseStatement = node->getElseStatement();
+
+    if (elseStatement)
+    {
+        out("jz if" + std::to_string(ifId) + "else\n");
+    }
+    else
+    {
+        out("jz if" + std::to_string(ifId) + "end\n");
+    }
+
+    node->getStatement()->visit(this);
+
+    out("jmp if" + std::to_string(ifId) + "end\n");
+    
+    if (elseStatement)
+    {
+        out("if" + std::to_string(ifId) + "else:\n");
+        elseStatement->visit(this);
+    }
+
+    out("if" + std::to_string(ifId) + "end:\n");
 }

@@ -6,7 +6,7 @@
 class BinaryExpressionNode : public NumericExpressionNode
 {
 public:
-	BinaryExpressionNode(NumericExpressionNode *left, char op, NumericExpressionNode *right)
+	BinaryExpressionNode(NumericExpressionNode *left, int op, NumericExpressionNode *right)
 	{
 		addChild(left);
 		addChild(new OperatorNode(op));
@@ -23,7 +23,7 @@ public:
 		return dynamic_cast<NumericExpressionNode *>(getChild(2));
 	}
 
-	char getOperator() const
+	int getOperator() const
 	{
 		return dynamic_cast<OperatorNode*>(getChild(1))->getOperator();
 	}

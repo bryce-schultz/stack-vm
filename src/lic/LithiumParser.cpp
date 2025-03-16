@@ -152,6 +152,11 @@ StatementNode *LithiumParser::parseStatement()
 		return parseWhileStatement();
 	}
 
+	if (token == IF)
+	{
+		return parseIfStatement();
+	}
+
 	if (token == '{')
 	{
 		BlockNode *block = parseBlock();
@@ -411,9 +416,9 @@ NumericExpressionNode *LithiumParser::parseAdditP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
 
-	if (token == '+' || token == '-' || token == '<' || token == '>')
+	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUALS)
 	{
-		char op = token;
+		int op = token;
 		nextToken();
 
 		NumericExpressionNode *term = parseTerm();
@@ -433,7 +438,7 @@ NumericExpressionNode *LithiumParser::parseAdditPP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
 
-	if (token == '+' || token == '-' || token == '<' || token == '>')
+	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUALS)
 	{
 		NumericExpressionNode *additP = parseAdditP(lhs);
 		if (!additP)
@@ -1046,4 +1051,71 @@ WhileStatementNode *LithiumParser::parseWhileStatement()
 	}
 
 	return new WhileStatementNode(condition, block);
+}
+
+// IF ( numeric_expression ) block ifStatementP
+IfStatementNode *LithiumParser::parseIfStatement()
+{
+	Token token = peekToken();
+
+	if (token != IF)
+	{
+		nextToken();
+		error("expected 'if'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	token = peekToken();
+
+	if (token != '(')
+	{
+		nextToken();
+		error("expected '('", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	NumericExpressionNode *condition = parseNumericExpression();
+	if (!condition)
+	{
+		return nullptr;
+	}
+
+	token = peekToken();
+
+	if (token != ')')
+	{
+		nextToken();
+		error("expected ')'", token);
+		return nullptr;
+	}
+
+	nextToken();
+
+	StatementNode *statement = parseStatement();
+	if (!statement)
+	{
+		return nullptr;
+	}
+
+	StatementNode *ifStatementP = parseIfStatementP();
+
+	return new IfStatementNode(condition, statement, ifStatementP);
+}
+
+StatementNode *LithiumParser::parseIfStatementP()
+{
+	Token token = peekToken();
+
+	if (token != ELSE)
+	{
+		return nullptr;
+	}
+
+	nextToken();
+
+	return parseStatement();
 }

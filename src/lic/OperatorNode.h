@@ -6,14 +6,14 @@
 class OperatorNode : public Node
 {
 public:
-	OperatorNode(char op) : op(op) {}
-	char getOperator() const { return op; }
+	OperatorNode(int op) : op(op) {}
+	int getOperator() const { return op; }
 
 	virtual void visit(IVisitor *visitor) override
 	{
 		visitor->visit(this);
 	}
 private:
-	char op;
+	int op;
 };
 

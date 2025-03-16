@@ -51,14 +51,18 @@ private:
 	// asm ( string_expression )
 	AsmStatementNode *parseAsmStatement();
 
-	// for ( var_decl ; expression ; statement ) block
+	// FOR ( var_decl ; expression ; statement ) block
 	ForStatementNode *parseForStatement();
 
-	// while ( expression ) block
+	// WHILE ( expression ) block
 	WhileStatementNode *parseWhileStatement();
 
-	// for ( var_decl ; expression ; statement ) block
-	// ForStatementNode *parseForStatement();
+	// IF ( numeric_expression ) block ifStatementP
+	IfStatementNode *parseIfStatement();
+
+	// ELSE block
+	// nothing
+	StatementNode *parseIfStatementP();
 
 	// numeric_expression
 	// string_expression
@@ -119,7 +123,7 @@ private:
 	NumericExpressionNode *parseFactorialP(NumericExpressionNode *lhs);
 
 	// ( numeric_expression )
-	// number
+	// NUMBER
 	NumericExpressionNode *parsePrimary();
 private:
 	LithiumTokenizer tokenizer;

@@ -12,6 +12,19 @@ statement -> asm_statement ;
            | print_statement ;
            | expression ;
            | declaration ;
+           | if_statement
+           | while_statement 
+           | for_statement
+           | block
+
+while_statement -> WHILE ( numeric_expression ) block
+
+for_statement -> FOR ( var_decl ; numeric_expression ; statement ) block
+
+if_statement -> IF ( numeric_expression ) block
+              | IF ( numeric_expression ) block ELSE block
+
+block -> { statements }
 
 asm_statement -> ASM ( string_expression )
 

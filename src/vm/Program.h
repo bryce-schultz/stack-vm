@@ -31,6 +31,8 @@ typedef std::vector<uint64_t> Program;
 #define ijl         (uint64_t)Instruction::JL
 #define igt         (uint64_t)Instruction::GT
 #define ilt         (uint64_t)Instruction::LT
+#define ieq         (uint64_t)Instruction::EQ
+#define ine         (uint64_t)Instruction::NE
 #define ijle        (uint64_t)Instruction::JLE
 #define istore      (uint64_t)Instruction::STORE
 #define iload       (uint64_t)Instruction::LOAD

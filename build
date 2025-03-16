@@ -103,6 +103,7 @@ do_tests()
     print_test_header
     run_test loops
     run_test math
+    run_test if
 }
 
 main()

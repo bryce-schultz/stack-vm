@@ -417,6 +417,20 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			}
 			break;
 		}
+		case Instruction::EQ:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left == right);
+			break;
+		}
+		case Instruction::NE:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left != right);
+			break;
+		}
 		case Instruction::JLE:
 		{
 			int64_t offset = fetch();

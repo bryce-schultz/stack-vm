@@ -198,6 +198,14 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		{
 			result.program.push_back(ilt);
 		}
+		else if (tokens[i] == "eq")
+		{
+			result.program.push_back(ieq);
+		}
+		else if (tokens[i] == "ne")
+		{
+			result.program.push_back(ine);
+		}
 		else if (tokens[i] == "jle")
 		{
 			int64_t offset = getOffset(tokens, i);

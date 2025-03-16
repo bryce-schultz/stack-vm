@@ -37,7 +37,7 @@ bool Token::operator!=(char type) const
     return !(*this == type);
 }
 
-Token::operator char() const
+Token::operator int() const
 {
     return type;
 }

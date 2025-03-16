@@ -15,6 +15,8 @@ enum TokenType
 	END,
     FOR,
     WHILE,
+    IF,
+    ELSE,
     EQUALS,
     INCREMENT,
     DECREMENT,
@@ -36,7 +38,7 @@ public:
     bool operator!=(int type) const;
     bool operator!=(char type) const;
 
-    operator char() const;
+    operator int() const;
 
     int getType() const;
     size_t getLength() const;

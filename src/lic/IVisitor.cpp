@@ -100,3 +100,8 @@ void IVisitor::visit(WhileStatementNode *node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(IfStatementNode *node)
+{
+	node->visitAllChildren(this);
+}
