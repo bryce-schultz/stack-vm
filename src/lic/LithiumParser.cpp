@@ -784,6 +784,27 @@ StatementNode *LithiumParser::parseStatementP(const Token &identifier)
 		return new AssignNode(identifier, expression);
 	}
 
+	if (token == INCREMENT)
+	{
+		nextToken();
+
+		token = peekToken();
+
+		if (token == ';' || token == ')')
+		{
+			if (token == ';') nextToken();
+			BinaryExpressionNode *add = new BinaryExpressionNode(new VariableExpressionNode(identifier), '+', new IntExpressionNode(1));
+			AssignNode *assign = new AssignNode(identifier, add);
+
+			return assign;
+		}
+
+		nextToken();
+
+		error("expected ';'", token);
+		return nullptr;
+	}
+
 	nextToken();
 	expected("';', '=', or '('", token);
 	return nullptr;

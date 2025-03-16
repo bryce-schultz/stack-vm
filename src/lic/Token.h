@@ -16,6 +16,8 @@ enum TokenType
     FOR,
     WHILE,
     EQUALS,
+    INCREMENT,
+    DECREMENT,
 	JUNK
 };
 

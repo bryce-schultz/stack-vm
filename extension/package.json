@@ -1,0 +1,48 @@
+{
+  "name": "your-extension-name",
+  "displayName": "Your Extension Display Name",
+  "description": "Your extension description",
+  "version": "0.0.1",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "lithium",
+        "aliases": ["Lithium", "lithium"],
+        "extensions": [".lit"],
+        "configuration": "./src/configurations/lithium-asm-configuration.json"
+      },
+      {
+        "id": "anotherLanguage",
+        "aliases": ["Another Language", "anotherLanguage"],
+        "extensions": [".another"],
+        "configuration": "./src/configurations/another-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "lithium",
+        "scopeName": "source.lithium",
+        "path": "./src/syntaxes/lithium-asm.tmLanguage.json"
+      },
+      {
+        "language": "anotherLanguage",
+        "scopeName": "source.anotherLanguage",
+        "path": "./src/syntaxes/another-language.tmLanguage.json"
+      }
+    ]
+  },
+  "scripts": {
+    "package": "vsce package --out extension/build"
+  },
+  "devDependencies": {
+    "vsce": "^1.100.0"
+  }
+}

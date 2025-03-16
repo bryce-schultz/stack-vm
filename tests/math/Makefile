@@ -1,18 +1,16 @@
-LIC=../../src/lic/lic
-VM=../../src/vm/vm
+LIC=../../src/lic/main
+VM=../../src/vm/main
 
-all: run
+all: clean
 
-compile: main.li
-	$(LIC) main.li
+compile: math.li
+	@$(LIC) math.li > /dev/null
 
 run: compile
-	$(VM) main.lsm
+	@$(VM) math.lsm > math.output
 
-clean:
-	rm -f main.lsm
-	rm -f output
+test: run
+	@diff math.output math.correct || (echo "\033[0;31mMath test failed!\033[0m" && exit 1)
 
-test: compile
-	$(VM) main.lsm > output
-	diff -qZ output expected
+clean: test
+	@rm -f math.lsm math.output

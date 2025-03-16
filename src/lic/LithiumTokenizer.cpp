@@ -111,8 +111,6 @@ Token LithiumTokenizer::getToken()
         c == ')' ||
         c == '{' ||
         c == '}' ||
-        c == '+' ||
-        c == '-' ||
         c == '*' ||
         c == '/' ||
         c == '^' ||
@@ -123,6 +121,34 @@ Token LithiumTokenizer::getToken()
         text = c;
         next();
         return {c, text, tokenStart};
+    }
+
+    if (c == '+')
+    {
+        text = c;
+        c = next();
+        if (c == '+')
+        {
+            text += c;
+            next();
+            return {INCREMENT, text, tokenStart};
+        }
+
+        return {'+', text, tokenStart};
+    }
+
+    if (c == '-')
+    {
+        text = c;
+        c = next();
+        if (c == '-')
+        {
+            text += c;
+            next();
+            return {DECREMENT, text, tokenStart};
+        }
+
+        return {'-', text, tokenStart};
     }
 
     // parse strings
