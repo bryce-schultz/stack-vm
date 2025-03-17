@@ -15,7 +15,7 @@ void GeneratorVisitor::visitAllChildren(Node *node)
 {
     node->visit(this);
 
-    if (hadError)
+    if (global::hadError)
     {
         return;
     }
@@ -138,12 +138,12 @@ void GeneratorVisitor::visit(StringExpressionNode *node)
     // loop backwards through the string
     for (int i = str.size() - 1; i >= 0; i--)
     {
-        out("push ");
+        out("push");
         out(str[i]);
         out("\n");
     }
 
-    out("push ");
+    out("push");
     out(str.size());
     out("\n");
 }
@@ -193,17 +193,11 @@ void GeneratorVisitor::visit(VariableExpressionNode *node)
     if (_variables.find(node->getSymbol()) == _variables.end())
     {
         error("variable " + node->getName() + " is not defined", node->getToken());
-        hadError = true;
     }
 
     out("load");
     out(_variables[node->getSymbol()]);
     out("\n");
-}
-
-bool GeneratorVisitor::hasError() const
-{
-    return hadError;
 }
 
 void GeneratorVisitor::visit(AssignNode *node)

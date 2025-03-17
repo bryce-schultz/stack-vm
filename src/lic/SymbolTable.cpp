@@ -27,6 +27,14 @@ SymbolTable::SymbolTable()
     increaseScope();
 }
 
+SymbolTable::~SymbolTable()
+{
+    for (Symbol *symbol : allSymbols)
+    {
+        delete symbol;
+    }
+}
+
 void SymbolTable::increaseScope()
 {
     scopes.push_back(Scope());
@@ -40,6 +48,7 @@ void SymbolTable::decreaseScope()
 Symbol *SymbolTable::addSymbol(Symbol *symbol)
 {
     scopes.back().addSymbol(symbol);
+    allSymbols.push_back(symbol);
 
     return symbol;
 }

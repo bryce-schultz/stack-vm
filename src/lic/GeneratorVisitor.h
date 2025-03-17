@@ -32,7 +32,6 @@ public:
     virtual void visit(IfStatementNode* node) override;
 
     std::string getOutput() const;
-    bool hasError() const;
 private:
     void out(const std::string& text);
     void out(int64_t value);
@@ -40,5 +39,4 @@ private:
     std::string _outputFilename;
     std::stringstream _buffer;
     std::unordered_map<Symbol *, uint64_t> _variables;
-    bool hadError = false;
 };

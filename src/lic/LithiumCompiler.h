@@ -3,7 +3,7 @@
 #include "LithiumParser.h"
 #include "GeneratorVisitor.h"
 
-constexpr const char* const outputExtension = ".lsm";
+constexpr const char* const OUTPUT_EXTENSION = ".lsm";
 
 class LithiumCompiler
 {

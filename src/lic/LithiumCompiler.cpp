@@ -6,39 +6,29 @@
 
 bool LithiumCompiler::compile(const std::string &filename)
 {
-    LithiumParser li_parser;
-
-	Node *root = li_parser.parse(filename);
-
-	if (root == nullptr)
-	{
-		const auto &errors = li_parser.getErrors();
-		for (const auto &error : errors)
-		{
-			printf("%s\n", error.c_str());
-		}
-
-		if (errors.empty())
-		{
-			printf("error: failed to parse the source\n");
-		}
-
-		return false;
-	}
-
-	if (global::hadError)
-	{
-		return false;
-	}
-
-	std::string outputFilename = Util::getFileNameWithoutExtension(filename) + outputExtension;
-
+    LithiumParser parser;
+	const std::string outputFilename = Util::getFileNameWithoutExtension(filename) + OUTPUT_EXTENSION;
 	GeneratorVisitor generator(outputFilename);
+
+	Node *root = parser.parse(filename);
+
+	if (!root)
+	{
+		return false;
+	}
+
+	if ( global::hadError)
+	{
+		delete root;
+		return false;
+	}
+	
 	generator.visitAllChildren(root);
 
+	// done with the AST, clean it up
 	delete root;
 
-	if (generator.hasError())
+	if (global::hadError)
 	{
 		return false;
 	}
