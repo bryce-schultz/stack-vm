@@ -8,22 +8,22 @@ program -> statements
 statements -> statement statements
             | nothing
 
-statement -> single_statement ;     
-           | block   
-           | if_statement    
-           | while_statement            
-           | for_statement        
-          
+statement -> single_statement ;
+           | block
+           | if_statement
+           | while_statement
+           | for_statement
+
 statement_list -> single_statement statement_list'
 
 statement_list' -> , statement_list
                  | nothing
 
-single_statement -> expression           
-                  | print_statement      
+single_statement -> expression
+                  | print_statement
                   | asm_statement
 
-block -> { statements } 
+block -> { statements }
 
 if_statement -> IF ( numeric_expression ) statement if_statement'
 
@@ -38,8 +38,8 @@ asm_statement -> ASM ( string_expression )
 
 print_statement -> PRINT ( expression )
 
-expression -> numeric_expression            
-            | string_expression             
+expression -> numeric_expression
+            | string_expression
 
 string_expression -> STRING string_expression'
 
@@ -71,11 +71,11 @@ equality' -> == comparison equality'
 
 comparison -> addit comparison'
 
-comparison' -> < addit comparison' 
-             | > addit comparison' 
-             | >= addit comparison' 
-             | <= addit comparison' 
-             | nothing 
+comparison' -> < addit comparison'
+             | > addit comparison'
+             | >= addit comparison'
+             | <= addit comparison'
+             | nothing
 
 addit -> term addit'
 
@@ -95,8 +95,8 @@ exponent -> fact exponent'
 exponent' -> ^ fact exponent'
            | nothing
 
-fact -> - factorial      
-      | factorial        
+fact -> - factorial
+      | factorial
 
 factorial -> modifier factorial'
 
