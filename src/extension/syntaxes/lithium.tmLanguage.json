@@ -8,11 +8,11 @@
     },
     {
       "name": "keyword.control.lithium",
-      "match": "\\b(for|while|print)\\b"
+      "match": "\\b(for|while|print|asm)\\b"
     },
     {
       "name": "keyword.control.conditional.lithium",
-      "match": "\\b(if|else|elif)\\b"
+      "match": "\\b(if|else)\\b"
     },
     {
       "name": "comment.line.number-sign.lithium",
@@ -28,7 +28,7 @@
     },
     {
       "name": "keyword.operator.lithium",
-      "match": "\\+|\\-|\\*|\\/|=|<|>"
+      "match": "\\+|\\-|\\*|\\/|=|<|>|<=|>=|==|!=|&&|\\|\\|"
     },
     {
       "name": "punctuation.separator.lithium",

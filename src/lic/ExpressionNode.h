@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Node.h"
+#include "StatementNode.h"
 
-class ExpressionNode : public Node
+class ExpressionNode : public StatementNode
 {
 public:
     virtual void visit(IVisitor* visitor) override
@@ -16,6 +16,11 @@ public:
     }
 
     virtual bool isString() const
+    {
+        return false;
+    }
+
+    virtual bool isVariable() const
     {
         return false;
     }

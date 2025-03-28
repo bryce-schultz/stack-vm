@@ -5,8 +5,7 @@
 class ConcatNode : public StringExpressionNode
 {
 public:
-    ConcatNode(StringExpressionNode *left, StringExpressionNode *right):
-        StringExpressionNode(left->getValue() + right->getValue())
+    ConcatNode(StringExpressionNode *left, ExpressionNode *right)
     {
         addChild(left);
         addChild(right);
@@ -17,9 +16,9 @@ public:
         return dynamic_cast<StringExpressionNode *>(getChild(0));
     }
 
-    StringExpressionNode *getRight() const
+    ExpressionNode *getRight() const
     {
-        return dynamic_cast<StringExpressionNode *>(getChild(1));
+        return dynamic_cast<ExpressionNode *>(getChild(1));
     }
 
     virtual void visit(IVisitor *visitor) override

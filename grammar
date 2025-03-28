@@ -8,14 +8,18 @@ program -> statements
 statements -> statements statement
             | statement
 
-statement -> asm_statement ;
-           | print_statement ;
-           | expression ;
-           | declaration ;
-           | if_statement
-           | while_statement 
-           | for_statement
+statement -> single_statement ;
            | block
+           | for_statement
+           | while_statement
+           | if_statement
+
+single_statement -> expression
+                  | print_statement
+                  | asm_statement
+
+statement_list -> single_statement , statement_list
+                | nothing
 
 while_statement -> WHILE ( numeric_expression ) block
 
@@ -41,7 +45,26 @@ string_expression -> string_expression + STRING
                    | string_expression + NUMBER
                    | STRING
 
-numeric_expression -> addit
+numeric_expression -> assignment
+
+assignment -> assignment = optional
+            | optional
+
+optional -> optional || compound
+          | compound
+
+compound -> compound && equality
+          | equality
+
+equality -> equality == comparison
+          | equality != comparison
+          | comparison
+
+comparison -> comparison < addit
+            | comparison > addit
+            | comparison >= addit
+            | comparison <= addit
+            | addit
 
 addit -> addit + term
        | addit - term
@@ -49,6 +72,7 @@ addit -> addit + term
 
 term -> term * exponent
       | term / exponent
+      | term % exponent
       | exponent
 
 exponent -> exponent ^ fact
@@ -58,7 +82,11 @@ fact -> - factorial
       | factorial
 
 factorial -> factorial !
-           | primary
+           | modifier
+      
+modifier -> var_expr ++
+          | var_expr --
+          | primary
 
 primary -> ( numeric_expression )
          | NUMBER

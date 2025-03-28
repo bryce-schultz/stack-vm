@@ -4,6 +4,7 @@
 *.output
 *.log
 *.vsix
+*.tmp
 
 # directories
 node_modules/

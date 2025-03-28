@@ -21,6 +21,8 @@ enum TokenType
     NOT_EQUAL,
     LESS_OR_EQUAL,
     GREATER_OR_EQUAL,
+    OR,
+    AND,
     INCREMENT,
     DECREMENT,
 	JUNK

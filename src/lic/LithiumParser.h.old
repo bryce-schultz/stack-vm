@@ -1,0 +1,187 @@
+#pragma once
+
+#include <string>
+
+#include "Nodes.h"
+#include "Token.h"
+#include "LithiumSymbolTable.h"
+#include "LithiumTokenizer.h"
+
+class LithiumParser
+{
+public:
+	LithiumParser();
+
+	Node *parse(const std::string &source);
+	std::vector<std::string> getErrors() const;
+private:
+	Node *parseInternal(const std::string &source, const std::string &filename = "");
+
+	Token peekToken();
+	Token nextToken();
+
+	// program: statements
+	ProgramNode *parseProgram();
+
+	// statement: single_statement ;
+	//          | block
+	//          | for_statement
+	//          | while_statement
+	//          | if_statement
+	StatementNode *parseStatement();
+
+	// single_statement: IDENTIFIER single_statement'
+	//                 | print_statement
+	//                 | asm_statement
+	StatementNode *parseSingleStatement();
+
+	// single_statement': = expression
+	//                  | expression
+	//                  | nothing
+	StatementNode *parseSingleStatementP(const Token &identifier);
+	
+
+	// statements: statement statements
+	//           | nothing
+	StatementsNode *parseStatements();
+
+	// block: { statements }
+	BlockNode *parseBlock();
+
+	// decl: var_decl
+	DeclNode *parseDeclaration();
+
+	// assignment: IDENTIFIER = expression
+	AssignNode *parseAssignment();
+
+	// var_decl: identifier = expression
+	VarDeclNode *parseVarDeclaration();
+
+	// print_statement: print ( expression )
+	PrintStatementNode *parsePrintStatement();
+
+	// asm_statement: asm ( string_expression )
+	AsmStatementNode *parseAsmStatement();
+
+	// for: FOR ( assignment ; expression ; statement_list ) statement
+	ForStatementNode *parseForStatement();
+
+	// statement_list: statement, statement_list
+	//               | nothing
+	StatementListNode *parseStatementList();
+
+	// while_statement: WHILE ( expression ) block
+	WhileStatementNode *parseWhileStatement();
+
+	// IF ( numeric_expression ) block ifStatementP
+	IfStatementNode *parseIfStatement();
+
+	// ELSE block
+	// nothing
+	StatementNode *parseIfStatementP();
+
+	// numeric_expression
+	// string_expression
+	ExpressionNode *parseExpression();
+
+	// optional
+	NumericExpressionNode *parseNumericExpression();
+
+	// compound optionalP
+	NumericExpressionNode *parseOptional();
+
+	// || compound optionalP
+	NumericExpressionNode *parseOptionalP(NumericExpressionNode *lhs);
+
+	// equality compoundP
+	NumericExpressionNode *parseCompound();
+
+	// && equality compoundP
+	NumericExpressionNode *parseCompoundP(NumericExpressionNode *lhs);
+
+	// comparison equalityPP 
+	NumericExpressionNode *parseEquality();
+
+	// == comparison
+	// != comparison
+	NumericExpressionNode *parseEqualityP(NumericExpressionNode *lhs);
+
+	// equalityP equalityPP
+	// nothing
+	NumericExpressionNode *parseEqualityPP(NumericExpressionNode *lhs);
+
+	// addit comparisonPP
+	NumericExpressionNode *parseComparison();
+
+	// < addit
+	// > addit
+	// <= addit
+	// >= addit
+	NumericExpressionNode *parseComparisonP(NumericExpressionNode *lhs);
+
+	// comparisonP comparisonPP
+	// nothing
+	NumericExpressionNode *parseComparisonPP(NumericExpressionNode *lhs);
+
+	// term additPP
+	NumericExpressionNode *parseAddit();
+
+	// + term
+	// - term
+	NumericExpressionNode *parseAdditP(NumericExpressionNode *lhs);
+
+	// additP additPP
+	// nothing
+	NumericExpressionNode *parseAdditPP(NumericExpressionNode *lhs);
+
+	// exponent termPP
+	NumericExpressionNode *parseTerm();
+
+	// * exponent
+	// / exponent
+	// % exponent
+	NumericExpressionNode *parseTermP(NumericExpressionNode *lhs);
+
+	// termP termPP
+	// nothing
+	NumericExpressionNode *parseTermPP(NumericExpressionNode *lhs);
+
+	// fact exponentP
+	NumericExpressionNode *parseExponent();
+	// ^ fact exponentP
+	// nothing
+	NumericExpressionNode *parseExponentP(NumericExpressionNode *);
+
+	// - factorial
+	// factorial
+	NumericExpressionNode *parseFact();
+
+	// primary factorialP
+	NumericExpressionNode *parseFactorial();
+	// ! factorialP
+	// nothing
+	NumericExpressionNode *parseFactorialP(NumericExpressionNode *lhs);
+
+	// ( numeric_expression )
+	// NUMBER
+	NumericExpressionNode *parsePrimary();
+
+	// STRING string_expressionPP
+	StringExpressionNode *parseStringExpression();
+
+	// ;
+	// ( expression_list ) ;
+	// = expression ;
+	StatementNode *parseStatementP(const Token &identifier);
+
+	// STRING
+	// NUMBER
+	StringExpressionNode *parseStringExpressionP();
+
+	// + string_expressionP string_expressionPP
+	// nothing
+	StringExpressionNode *parseStringExpressionPP(StringExpressionNode *lhs);
+private:
+	LithiumTokenizer tokenizer;
+	std::vector<std::string> errors;
+};

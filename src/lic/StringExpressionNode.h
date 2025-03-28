@@ -7,7 +7,7 @@
 class StringExpressionNode : public ExpressionNode
 {
 public:
-    StringExpressionNode(const std::string &value) : value(value)
+    StringExpressionNode(const std::string &value = "") : value(value)
     {
     }
 

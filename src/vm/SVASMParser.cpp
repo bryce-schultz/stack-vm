@@ -110,6 +110,14 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		{
 			result.program.push_back(ifact);
 		}
+		else if (tokens[i] == "inc")
+		{
+			result.program.push_back(iinc);
+		}
+		else if (tokens[i] == "dec")
+		{
+			result.program.push_back(idec);
+		}
 		else if (tokens[i] == "nop")
 		{
 			result.program.push_back(inop);
@@ -211,6 +219,14 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 			int64_t offset = getOffset(tokens, i);
 			result.program.push_back(ijle);
 			result.program.push_back(offset);
+		}
+		else if (tokens[i] == "and")
+		{
+			result.program.push_back(iand);
+		}
+		else if (tokens[i] == "or")
+		{
+			result.program.push_back(ior);
 		}
 		else if (tokens[i] == "dup")
 		{

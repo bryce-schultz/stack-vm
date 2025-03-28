@@ -10,8 +10,9 @@ int main(int argc, char **argv)
 {
 	if (argc != requiredArgCount)
 	{
-		printf("usage: %s <source>\n", argv[0]);
-		return EXIT_FAILURE;
+		argv[1] = "test.li";
+		//printf("usage: %s <source>\n", argv[0]);
+		//return EXIT_FAILURE;
 	}
 
 	LithiumCompiler compiler;

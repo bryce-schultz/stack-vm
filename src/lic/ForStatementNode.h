@@ -2,22 +2,22 @@
 
 #include "StatementNode.h"
 #include "ExpressionNode.h"
-#include "BlockNode.h"
+#include "StatementListNode.h"
 
 class ForStatementNode : public StatementNode
 {
 public:
-    ForStatementNode(StatementNode *init, ExpressionNode *condition, StatementNode *increment, BlockNode *block)
+    ForStatementNode(StatementListNode *init, ExpressionNode *condition, StatementListNode *increment, StatementNode *statement)
     {
         addChild(init);
         addChild(condition);
         addChild(increment);
-        addChild(block);
+        addChild(statement);
     }
 
-    StatementNode *getInit() const
+    StatementListNode *getInit() const
     {
-        return dynamic_cast<StatementNode *>(getChild(0));
+        return dynamic_cast<StatementListNode *>(getChild(0));
     }
 
     ExpressionNode *getCondition() const
@@ -25,14 +25,14 @@ public:
         return dynamic_cast<ExpressionNode *>(getChild(1));
     }
 
-    StatementNode *getIncrement() const
+    StatementListNode *getIncrement() const
     {
-        return dynamic_cast<StatementNode *>(getChild(2));
+        return dynamic_cast<StatementListNode *>(getChild(2));
     }
 
-    BlockNode *getBlock() const
+    StatementNode *getStatement() const
     {
-        return dynamic_cast<BlockNode *>(getChild(3));
+        return dynamic_cast<StatementNode *>(getChild(3));
     }
 
     virtual void visit(IVisitor *visitor) override

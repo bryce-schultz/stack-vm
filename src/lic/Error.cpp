@@ -12,7 +12,7 @@ namespace global
 
 std::string getSquiggles(const Token &token)
 {
-    const int length = token.getText().length();
+    const int length = token.getType() == STRING ? token.getText().length() + 2 : token.getText().length();
     const int start = token.getLocation().getColumn() - 1;
     std::string squiggles = "";
 

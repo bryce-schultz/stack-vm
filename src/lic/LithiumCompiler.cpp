@@ -10,23 +10,23 @@ bool LithiumCompiler::compile(const std::string &filename)
 	const std::string outputFilename = Util::getFileNameWithoutExtension(filename) + OUTPUT_EXTENSION;
 	GeneratorVisitor generator(outputFilename);
 
-	Node *root = parser.parse(filename);
+	auto root = parser.parse(filename);
 
-	if (!root)
+	if (!root.isValid())
 	{
 		return false;
 	}
 
 	if ( global::hadError)
 	{
-		delete root;
+		delete root.getNode();
 		return false;
 	}
 	
-	generator.visitAllChildren(root);
+	generator.visitAllChildren(root.getNode());
 
 	// done with the AST, clean it up
-	delete root;
+	delete root.getNode();
 
 	if (global::hadError)
 	{

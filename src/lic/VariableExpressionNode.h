@@ -18,6 +18,11 @@ public:
         visitor->visit(this);
     }
 
+    virtual bool isVariable() const override
+    {
+        return true;
+    }
+
     const std::string getName() const
     {
         return token.getText();
@@ -26,6 +31,11 @@ public:
     Token getToken() const
     {
         return token;
+    }
+
+    void setSymbol(Symbol *symbol)
+    {
+        this->symbol = symbol;
     }
 
     Symbol *getSymbol() const

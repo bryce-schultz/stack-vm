@@ -96,6 +96,11 @@ void IVisitor::visit(BlockNode *node)
 	node->visitAllChildren(this);
 }
 
+void IVisitor::visit(StatementListNode *node)
+{
+	node->visitAllChildren(this);
+}
+
 void IVisitor::visit(WhileStatementNode *node)
 {
 	node->visitAllChildren(this);

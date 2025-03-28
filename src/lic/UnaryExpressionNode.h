@@ -6,7 +6,7 @@
 class UnaryExpressionNode : public NumericExpressionNode
 {
 public:
-	UnaryExpressionNode(NumericExpressionNode *expr, char op)
+	UnaryExpressionNode(NumericExpressionNode *expr, int op)
 	{
 		addChild(expr);
 		addChild(new OperatorNode(op));
@@ -17,7 +17,7 @@ public:
 		return dynamic_cast<NumericExpressionNode *>(getChild(0));
 	}
 
-	char getOperator() const
+	int getOperator() const
 	{
 		return dynamic_cast<OperatorNode *>(getChild(1))->getOperator();
 	}

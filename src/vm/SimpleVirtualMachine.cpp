@@ -250,6 +250,18 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			push(result);
 			break;
 		}
+		case Instruction::INC:
+		{
+			uint64_t value = pop();
+			push(value + 1);
+			break;
+		}
+		case Instruction::DEC:
+		{
+			uint64_t value = pop();
+			push(value - 1);
+			break;
+		}
 		case Instruction::NOP:
 		{
 			break;
@@ -454,6 +466,20 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			uint64_t right = pop();
 			uint64_t left = pop();
 			push(left < right);
+			break;
+		}
+		case Instruction::AND:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left && right);
+			break;
+		}
+		case Instruction::OR:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left || right);
 			break;
 		}
 		case Instruction::STORE:

@@ -4,16 +4,22 @@
 #include "ExpressionNode.h"
 #include "Token.h"
 #include "LithiumSymbolTable.h"
+#include "IVisitor.h"
+#include "NumericExpressionNode.h"
 
-class AssignNode : public StatementNode
+class AssignNode : public NumericExpressionNode
 {
 public:
-    AssignNode(const Token &token, ExpressionNode *expression)
+    AssignNode(VariableExpressionNode *variable, ExpressionNode *expression)
     {
-        symbol = global::symbolTable.lookupGlobal(token.getText());
+        symbol = global::symbolTable.lookupGlobal(variable->getToken().getText());
         if (!symbol)
         {
-            symbol = global::symbolTable.addSymbol(new Symbol(token));
+            symbol = global::symbolTable.addSymbol(new Symbol(variable->getToken()));
+            if (!variable->getSymbol())
+            {
+                variable->setSymbol(symbol);
+            }
         }
         addChild(expression);
     }

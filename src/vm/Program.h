@@ -15,6 +15,8 @@ typedef std::vector<uint64_t> Program;
 #define ipow        (uint64_t)Instruction::POW
 #define ineg        (uint64_t)Instruction::NEG
 #define ifact       (uint64_t)Instruction::FACT
+#define iinc        (uint64_t)Instruction::INC
+#define idec        (uint64_t)Instruction::DEC
 #define inop        (uint64_t)Instruction::NOP
 #define iprint      (uint64_t)Instruction::PRINT
 #define iprintstr   (uint64_t)Instruction::PRINTSTR
@@ -34,6 +36,8 @@ typedef std::vector<uint64_t> Program;
 #define ieq         (uint64_t)Instruction::EQ
 #define ine         (uint64_t)Instruction::NE
 #define ijle        (uint64_t)Instruction::JLE
+#define iand        (uint64_t)Instruction::AND
+#define ior         (uint64_t)Instruction::OR
 #define istore      (uint64_t)Instruction::STORE
 #define iload       (uint64_t)Instruction::LOAD
 #define istostr     (uint64_t)Instruction::STOSTR

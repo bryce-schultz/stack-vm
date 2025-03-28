@@ -22,6 +22,7 @@ class ForStatementNode;
 class WhileStatementNode;
 class IfStatementNode;
 class BlockNode;
+class StatementListNode;
 
 class IVisitor
 {
@@ -48,5 +49,6 @@ public:
 	virtual void visit(WhileStatementNode* node);
 	virtual void visit(IfStatementNode* node);
 	virtual void visit(BlockNode* node);
+	virtual void visit(StatementListNode* node);
 };
 

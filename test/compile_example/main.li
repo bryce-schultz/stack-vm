@@ -4,23 +4,11 @@ print("Hello World!\n");
 # print a string with concatination
 print("Hello" + " " + "World" + "!\n");
 
-# print a string with numerical concatination
-print("ben" + 10 + "\n");
-
-# print a string with numerical concatination twice
-# probably not what is wanted, I need to fix the
-# grammar or something, this is what javascript does 🤮
-print("ben" + 1 + 0 + "\n");
-
 # inline assembly
 asm("push 10");
 asm("print");
 
-# print isn't necessary, expressions are treated as print statements
-100 / 50 * (3 - 1);
-
-# it has emoji support, it's (insert current year here) why wouldn't it
-"\nThis string ❤️ 's you\n";
+print("\nThis string ❤️ 's you\n");
 
 # write syscall example, write to stderr "Hi"
 # write(fd, data, size)
@@ -61,5 +49,5 @@ c = a + b;
 print(c);
 print("\n");
 
-10 + a * 5;
+print(10 + a * 5);
 print("\n");

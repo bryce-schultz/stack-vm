@@ -1,11 +1,11 @@
 #pragma once
 
-#include "StatementNode.h"
+#include "Node.h"
 
-class StatementsNode : public Node
+class StatementListNode : public Node
 {
 public:
-    StatementsNode(StatementNode *statement = nullptr)
+    StatementListNode(StatementNode *statement = nullptr)
     {
         if (statement)
         {
@@ -15,10 +15,7 @@ public:
 
     void addStatement(StatementNode *statement)
     {
-        if (statement)
-        {
-            addChild(statement);
-        }
+        addChild(statement);
     }
 
     virtual void visit(IVisitor *visitor) override

@@ -105,6 +105,20 @@ Token LithiumTokenizer::getToken()
         return {c, text, tokenStart};
     }
 
+    if (c == '!')
+    {
+        char c2 = next();
+        if (c2 == '=')
+        {
+            text = "!=";
+            next();
+            return {NOT_EQUAL, text, tokenStart};
+        }
+
+        text = c;
+        return {c, text, tokenStart};
+    }
+
     // parse single character tokens
     if (c == ';' ||
         c == '(' ||
@@ -116,8 +130,7 @@ Token LithiumTokenizer::getToken()
         c == '%' ||
         c == '^' ||
         c == '<' ||
-        c == '>' ||
-        c == '!')
+        c == '>')
     {
         text = c;
         next();
@@ -150,6 +163,34 @@ Token LithiumTokenizer::getToken()
         }
 
         return {'-', text, tokenStart};
+    }
+
+    if (c == '|')
+    {
+        text = c;
+        c = next();
+        if (c == '|')
+        {
+            text += c;
+            next();
+            return {OR, text, tokenStart};
+        }
+
+        return {JUNK, text, tokenStart};
+    }
+
+    if (c == '&')
+    {
+        text = c;
+        c = next();
+        if (c == '&')
+        {
+            text += c;
+            next();
+            return {AND, text, tokenStart};
+        }
+
+        return {JUNK, text, tokenStart};
     }
 
     // parse strings

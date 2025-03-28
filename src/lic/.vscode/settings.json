@@ -4,6 +4,11 @@
             "cwd": "/home/bryce/projects/stack-vm/src/lic",
             "binaryPath": "/home/bryce/projects/stack-vm/src/lic/tokenizer_tester",
             "binaryArgs": []
+        },
+        {
+            "cwd": "/home/milk/projects/stack-vm/src/lic",
+            "binaryPath": "/home/milk/projects/stack-vm/src/lic/lic",
+            "binaryArgs": []
         }
     ],
     "files.associations": {
@@ -52,6 +57,7 @@
         "sstream": "cpp",
         "stdexcept": "cpp",
         "streambuf": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "iostream": "cpp"
     }
 }

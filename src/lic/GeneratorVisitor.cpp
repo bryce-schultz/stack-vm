@@ -74,6 +74,18 @@ void GeneratorVisitor::visit(BinaryExpressionNode *node)
     case NOT_EQUAL:
         out("ne");
         break;
+    case LESS_OR_EQUAL:
+        out("le");
+        break;
+    case GREATER_OR_EQUAL:
+        out("ge");
+        break;
+    case OR:
+        out("or");
+        break;
+    case AND:
+        out("and");
+        break;
     }
     out("\n");
 }
@@ -120,8 +132,23 @@ void GeneratorVisitor::visit(UnaryExpressionNode *node)
     case '-':
         out("neg");
         break;
+    case INCREMENT:
+        out("inc");
+        break;
+    case DECREMENT:
+        out("dec");
+        break;
     }
     out("\n");
+
+    // if our expression was a variable, we need to store the result back into the variable
+    if (node->getExpr()->isVariable())
+    {
+        auto var = dynamic_cast<VariableExpressionNode *>(node->getExpr());
+        out("store");
+        out(_variables[var->getSymbol()]);
+        out("\n");
+    }
 }
 
 void GeneratorVisitor::visit(AsmStatementNode *node)
@@ -234,7 +261,7 @@ void GeneratorVisitor::visit(ForStatementNode *node)
     out("for" + std::to_string(forId) + "loop:\n");
     node->getCondition()->visit(this);
     out("jz for" + std::to_string(forId) + "end\n");
-    node->getBlock()->visit(this);
+    node->getStatement()->visit(this);
     node->getIncrement()->visit(this);
     out("jmp for" + std::to_string(forId) + "loop\n");
     out("for" + std::to_string(forId) + "end:\n");

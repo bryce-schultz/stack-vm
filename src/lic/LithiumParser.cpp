@@ -8,13 +8,25 @@
 #include "Error.h"
 #include "Color.h"
 
+#define ret(x) \
+{ \
+	auto node = x; \
+	if (!node.isValid()) \
+	{ \
+		return {false}; \
+	} \
+	return {true, node.getNode()}; \
+}
+
+#define fail() return {false}
+
 LithiumParser::LithiumParser():
 	tokenizer(),
 	errors()
 {
 }
 
-Node *LithiumParser::parse(const std::string &source)
+ParseResult<Node> LithiumParser::parse(const std::string &source)
 {
 	std::ifstream file(source);
 	// if the file is not open, treat the source as a string
@@ -51,1071 +63,1097 @@ Token LithiumParser::nextToken()
 	return tokenizer.nextToken();
 }
 
-Node *LithiumParser::parseInternal(const std::string &source, const std::string &filename)
+ParseResult<Node> LithiumParser::parseInternal(const std::string &source, const std::string &filename)
 {
 	tokenizer = LithiumTokenizer(source, filename);
-	return parseProgram();
+
+	auto result = parseProgram();
+	if (!result.isValid())
+	{
+		return {false};
+	}
+
+	return {true, result.getNode()};
 }
 
-ProgramNode *LithiumParser::parseProgram()
+// program -> statements
+ParseResult<ProgramNode> LithiumParser::parseProgram()
 {
-	ProgramNode *program = new ProgramNode();
-
 	auto statements = parseStatements();
-	if (!statements)
+	if (!statements.isValid())
 	{
-		return nullptr;
+		return {false};
 	}
 
-	program->addChild(statements);
-
-	if (errors.size() > 0)
-	{
-		return nullptr;
-	}
-
-	return program;
+	return {true, new ProgramNode(statements.getNode())};
 }
 
-StatementNode *LithiumParser::parseStatement()
+// statements -> statement statements
+//             | nothing
+ParseResult<StatementsNode> LithiumParser::parseStatements()
 {
+	StatementsNode *statements = new StatementsNode();
+
+	while (true)
+	{
+		auto statement = parseStatement();
+		Token token = peekToken();
+
+		if (!statement.isValid())
+		{
+			if (token == END || token == '}')
+			{
+				break;
+			}
+		}
+
+		statements->addStatement(statement.getNode());
+	}
+
+	return {true, statements};
+}
+
+// statement -> single_statement ;
+//            | block
+//            | for_statement
+//            | while_statement
+//            | if_statement
+ParseResult<StatementNode> LithiumParser::parseStatement()
+{
+	static int blockDepth = 0;
 	Token token = peekToken();
 
 	if (token == END)
 	{
-		error("unexpected end of file", token);
-		return nullptr;
+		return false;
 	}
 
-	if (token == '}' || token == ')') // end of block
+	if (blockDepth > 0 && token == '}')
 	{
-		return nullptr;
-	}
-
-	if (token == PRINT)
-	{
-		PrintStatementNode *printStatement = parsePrintStatement();
-		if (!printStatement)
-		{
-			return nullptr;
-		}
-
-		return printStatement;
-	}
-
-	if (token == ASM)
-	{
-		AsmStatementNode *asmStatement = parseAsmStatement();
-		if (!asmStatement)
-		{
-			return nullptr;
-		}
-
-		return asmStatement;
-	}
-
-	if (token == NUMBER || token == STRING || token == '(' || token == '-')
-	{
-		ExpressionNode *expression = parseExpression();
-		if (!expression)
-		{
-			return nullptr;
-		}
-
-		token = peekToken();
-
-		if (token != ';')
-		{
-			nextToken();
-			error("expected ';'", token);
-			return nullptr;
-		}
-
-		nextToken();
-
-		return new PrintStatementNode(expression);
-	}
-
-	if (token == IDENTIFIER)
-	{
-		nextToken();
-		return parseStatementP(token);
-	}
-
-	if (token == FOR)
-	{
-		return parseForStatement();
-	}
-
-	if (token == WHILE)
-	{
-		return parseWhileStatement();
-	}
-
-	if (token == IF)
-	{
-		return parseIfStatement();
+		return false;
 	}
 
 	if (token == '{')
 	{
-		BlockNode *block = parseBlock();
-		if (!block)
-		{
-			return nullptr;
+		blockDepth++;
+
+		auto block = parseBlock(); 
+		if (!block.isValid()) 
+		{ 
+			blockDepth--;
+			return false; 
 		}
 
-		return block;
+		blockDepth--;
+		return {true, block.getNode()};
+	}
+	else if (token == FOR)
+	{
+		ret(parseForStatement())
+	}
+	else if (token == WHILE)
+	{
+		ret(parseWhileStatement());
+	}
+	else if (token == IF)
+	{
+		ret(parseIfStatement());
 	}
 
-	error("unexpected token: " + token.getText() + " (" + std::to_string(token.getType()) + ")", token);
-	return nullptr;
-}
-
-PrintStatementNode *LithiumParser::parsePrintStatement()
-{
-	Token token = peekToken();
-
-	if (token != PRINT)
+	auto statement = parseSingleStatement();
+	if (!statement.isValid())
 	{
-		nextToken();
-		error("expected 'print'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	token = peekToken();
-
-	if (token != '(')
-	{
-		nextToken();
-		error("expected '('", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	ExpressionNode *expression = parseExpression();
-	if (!expression)
-	{
-		error("print expects an expression", peekToken());
-		return nullptr;
+		return {false};
 	}
 
 	token = peekToken();
-
-	if (token != ')')
-	{
-		nextToken();
-		error("expected ')'", token);
-		return nullptr;
-	}
-
-	token = nextToken();
 
 	if (token != ';')
 	{
-		nextToken();
-		error("expected ';'", token);
-		return nullptr;
+		expected("';'", token);
+		return {false};
 	}
 
 	nextToken();
 
-	return new PrintStatementNode(expression);
+	return {true, statement.getNode()};
 }
 
-AsmStatementNode *LithiumParser::parseAsmStatement()
+// statement_list -> single_statement statement_list'
+ParseResult<StatementListNode> LithiumParser::parseStatementList()
+{
+	auto statement = parseSingleStatement();
+	if (!statement.isValid())
+	{
+		fail();
+	}
+
+	auto statementListP = parseStatementListP(statement.getNode());
+	if (!statementListP.isValid())
+	{
+		fail();
+	}
+	
+	return {true, statementListP.getNode()};
+}
+
+// statement_list' -> , single_statement statement_list'
+//                  | nothing
+ParseResult<StatementListNode> LithiumParser::parseStatementListP(StatementNode *lhs)
+{
+	Token token = peekToken();
+	if (token != ',')
+	{
+		return {true, new StatementListNode(lhs)};
+	}
+
+	nextToken();
+
+	auto statement = parseSingleStatement();
+	if (!statement.isValid())
+	{
+		fail();
+	}
+
+	auto statementListP = parseStatementListP(statement.getNode());
+	if (!statementListP.isValid())
+	{
+		fail();
+	}
+
+	return {true, statementListP.getNode()};
+}
+
+// single_statement -> expression
+//                   | print_statement
+//                   | asm_statement
+ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 {
 	Token token = peekToken();
 
+	if (token == PRINT)
+	{
+		ret(parsePrintStatement());
+	}
+	else if (token == ASM)
+	{
+		ret(parseAsmStatement());
+	}
+
+	ret(parseExpression());
+}
+
+// block -> { statements }
+ParseResult<BlockNode> LithiumParser::parseBlock()
+{
+	Token token = peekToken();
+	if (token != '{')
+	{
+		expected("'{'", token);
+		fail();
+	}
+
+	depth++;
+
+	nextToken();
+
+	auto statements = parseStatements();
+	if (!statements.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != '}')
+	{
+		expected("'}'", token);
+		fail();
+	}
+
+	depth--;
+
+	nextToken();
+
+	return {true, new BlockNode(statements.getNode())};
+}
+
+// if_statement -> IF ( numeric_expression ) statement if_statement'
+ParseResult<IfStatementNode> LithiumParser::parseIfStatement()
+{
+	Token token = peekToken();
+	if (token != IF)
+	{
+		expected("IF", token);
+		fail();
+	}
+
+	nextToken();
+
+	token = peekToken();
+	if (token != '(')
+	{
+		expected("'('", token);
+		fail();
+	}
+
+	nextToken();
+
+	auto condition = parseNumericExpression();
+	if (!condition.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != ')')
+	{
+		expected("')'", token);
+		fail();
+	}
+
+	nextToken();
+
+	auto statement = parseStatement();
+	if (!statement.isValid())
+	{
+		fail();
+	}
+
+	auto ifStatementP = parseIfStatementP();
+	if (!ifStatementP.isValid())
+	{
+		fail();
+	}
+
+	return {true, new IfStatementNode(condition.getNode(), statement.getNode(), ifStatementP.getNode())};
+}
+
+// if_statement' -> ELSE statement
+//                | nothing
+ParseResult<StatementNode> LithiumParser::parseIfStatementP()
+{
+	Token token = peekToken();
+	if (token != ELSE)
+	{
+		return {true};
+	}
+
+	nextToken();
+
+	auto statement = parseStatement();
+	if (!statement.isValid())
+	{
+		fail();
+	}
+
+	return {true, statement.getNode()};
+}
+
+// while_statement -> WHILE ( numeric_expression ) statement
+ParseResult<WhileStatementNode> LithiumParser::parseWhileStatement()
+{
+	Token token = peekToken();
+	if (token != WHILE)
+	{
+		expected("'while'", token);
+		fail();
+	}
+
+	nextToken();
+
+	token = peekToken();
+	if (token != '(')
+	{
+		expected("'('", token);
+		fail();
+	}
+
+	nextToken();
+
+	auto condition = parseNumericExpression();
+	if (!condition.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != ')')
+	{
+		expected("')'", token);
+		fail();
+	}
+
+	nextToken();
+
+	auto statement = parseStatement();
+	if (!statement.isValid())
+	{
+		fail();
+	}
+
+	return {true, new WhileStatementNode(condition.getNode(), statement.getNode())};
+}
+
+// for -> FOR ( statement_list ; numeric_expression ; statement_list ) statement
+ParseResult<ForStatementNode> LithiumParser::parseForStatement()
+{
+	Token token = peekToken();
+	if (token != FOR)
+	{
+		expected("'for'", token);
+		dropStatement();
+		fail();
+	}
+
+	nextToken();
+
+	token = peekToken();
+	if (token != '(')
+	{
+		expected("'('", token);
+		dropStatement();
+		fail();
+	}
+
+	nextToken();
+
+	auto init = parseStatementList();
+	if (!init.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != ';')
+	{
+		expected("';'", token);
+		dropStatement();
+		fail();
+	}
+
+	nextToken();
+
+	auto condition = parseNumericExpression();
+	if (!condition.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != ';')
+	{
+		expected("';'", token);
+		dropStatement();
+		fail();
+	}
+
+	nextToken();
+
+	auto increment = parseStatementList();
+	if (!increment.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != ')')
+	{
+		expected("')'", token);
+		dropStatement();
+		fail();
+	}
+
+	nextToken();
+
+	auto statement = parseStatement();
+	if (!statement.isValid())
+	{
+		fail();
+	}
+
+	return {true, new ForStatementNode(init.getNode(), condition.getNode(), increment.getNode(), statement.getNode())};
+}
+
+// asm_statement -> ASM ( string_expression )
+ParseResult<AsmStatementNode> LithiumParser::parseAsmStatement()
+{
+	Token token = peekToken();
 	if (token != ASM)
 	{
-		return nullptr;
+		expected("'asm'", token);
+		dropStatement();
+		fail();
 	}
 
 	nextToken();
 
 	token = peekToken();
-
 	if (token != '(')
 	{
-		nextToken();
-		error("expected '('", token);
-		return nullptr;
+		expected("'('", token);
+		dropStatement();
+		fail();
 	}
 
 	nextToken();
 
-	token = peekToken();
-
-	if (token != STRING)
+	auto stringExpression = parseStringExpression();
+	if (!stringExpression.isValid())
 	{
-		nextToken();
-		error("expected string", token);
-		return nullptr;
+		fail();
 	}
 
-	std::string value = token.getText();
-
-	nextToken();
-
 	token = peekToken();
-
 	if (token != ')')
 	{
-		nextToken();
-		error("expected ')'", token);
-		return nullptr;
-	}
-
-	token = nextToken();
-
-	if (token != ';')
-	{
-		nextToken();
-		error("expected ';'", token);
-		return nullptr;
+		expected("')'", token);
+		dropStatement();
+		fail();
 	}
 
 	nextToken();
 
-	return new AsmStatementNode(new StringExpressionNode(value));
+	return {true, new AsmStatementNode(stringExpression.getNode())};
 }
 
-ExpressionNode *LithiumParser::parseExpression()
+// print_statement -> PRINT ( expression )
+ParseResult<PrintStatementNode> LithiumParser::parsePrintStatement()
 {
 	Token token = peekToken();
-
-	if (token == NUMBER || token == '(' || token == '-' || token == IDENTIFIER)
+	if (token != PRINT)
 	{
-		NumericExpressionNode *numericExpression = parseNumericExpression();
-		if (!numericExpression)
-		{
-			return nullptr;
-		}
-
-		return numericExpression;
+		expected("'print'", token);
+		dropStatement();
+		fail();
 	}
+
+	nextToken();
+
+	token = peekToken();
+	if (token != '(')
+	{
+		expected("'('", token);
+		dropStatement();
+		fail();
+	}
+
+	nextToken();
+
+	auto expression = parseExpression();
+	if (!expression.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != ')')
+	{
+		expected("')'", token);
+		dropStatement();
+		fail();
+	}
+
+	nextToken();
+
+	return {true, new PrintStatementNode(expression.getNode())};
+}
+
+// expression -> numeric_expression
+// 			   | string_expression
+ParseResult<ExpressionNode> LithiumParser::parseExpression()
+{
+	Token token = peekToken();
 
 	if (token == STRING)
 	{
-		StringExpressionNode *stringExpression = parseStringExpression();
-		if (!stringExpression)
-		{
-			return nullptr;
-		}
-
-		return stringExpression;
+		ret(parseStringExpression());
 	}
 
-	return nullptr;
+	ret(parseNumericExpression()); // TODO: look into if this should check the first sets
 }
 
-NumericExpressionNode *LithiumParser::parseNumericExpression()
-{
-	NumericExpressionNode *addit = parseAddit();
-	if (!addit)
-	{
-		return nullptr;
-	}
-
-	return addit;
-}
-
-StringExpressionNode *LithiumParser::parseStringExpression()
+// string_expression -> STRING string_expression'
+ParseResult<StringExpressionNode> LithiumParser::parseStringExpression()
 {
 	Token token = peekToken();
-
 	if (token != STRING)
 	{
-		return nullptr;
-	}
-
-	std::string value = token.getText();
-	nextToken();
-
-	StringExpressionNode *stringExpressionPP = parseStringExpressionPP(new StringExpressionNode(value));
-	if (!stringExpressionPP)
-	{
-		return nullptr;
-	}
-
-	return stringExpressionPP;
-}
-
-StringExpressionNode *LithiumParser::parseStringExpressionP()
-{
-	Token token = peekToken();
-
-	if (token == STRING)
-	{
-		nextToken();
-		return new StringExpressionNode(token.getText());
-	}
-
-	if (token == NUMBER)
-	{
-		nextToken();
-		return new StringExpressionNode(token.getText());
+		expected("a string", token);
+		dropStatement();
+		fail();
 	}
 
 	nextToken();
-	error("expected string or number after concatenation operator", token);
-	return nullptr;
+
+	auto stringExpressionP = parseStringExpressionP(new StringExpressionNode(token.getText()));
+	if (!stringExpressionP.isValid())
+	{
+		fail();
+	}
+
+	return {true, stringExpressionP.getNode()};
 }
 
-StringExpressionNode *LithiumParser::parseStringExpressionPP(StringExpressionNode *lhs)
+// string_expression' -> + expression string_expression'
+//                     | nothing
+ParseResult<StringExpressionNode> LithiumParser::parseStringExpressionP(StringExpressionNode *lhs)
 {
 	Token token = peekToken();
+	if (token != '+')
+	{
+		return {true, lhs};
+	}
 
-	if (token == '+')
+	nextToken();
+
+	auto expression = parseExpression();
+	if (!expression.isValid())
+	{
+		fail();
+	}
+
+	auto stringExpressionP = parseStringExpressionP(new ConcatNode(lhs, expression.getNode()));
+	if (!stringExpressionP.isValid())
+	{
+		fail();
+	}
+
+	return {true, stringExpressionP.getNode()};
+}
+
+// numeric_expression -> assignment
+ParseResult<NumericExpressionNode> LithiumParser::parseNumericExpression()
+{
+	ret(parseAssignment());
+}
+
+// assignment -> optional assignment'
+ParseResult<NumericExpressionNode> LithiumParser::parseAssignment()
+{
+	auto optional = parseOptional();
+	if (!optional.isValid())
+	{
+		fail();
+	}
+
+	if (!optional.getNode()->isVariable())
+	{
+		return {true, optional.getNode()};
+	}
+
+	VariableExpressionNode *lhs = dynamic_cast<VariableExpressionNode*>(optional.getNode());
+
+	auto assignmentP = parseAssignmentP(lhs);
+	if (!assignmentP.isValid())
+	{
+		fail();
+	}
+
+	return {true, assignmentP.getNode()};
+}
+
+// assignment' -> = expression
+//              | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseAssignmentP(VariableExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != '=')
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto expression = parseExpression();
+	if (!expression.isValid())
+	{
+		fail();
+	}
+
+	return {true, new AssignNode(lhs, expression.getNode())};
+	
+}
+
+// optional -> compound optional'
+ParseResult<NumericExpressionNode> LithiumParser::parseOptional()
+{
+	auto compound = parseCompound();
+	if (!compound.isValid())
+	{
+		fail();
+	}
+
+	auto optionalP = parseOptionalP(compound.getNode());
+	if (!optionalP.isValid())
+	{
+		fail();
+	}
+
+	return {true, optionalP.getNode()};
+}
+
+// optional' -> || compound optional'
+// 			  | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseOptionalP(NumericExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != OR)
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto compound = parseCompound();
+	if (!compound.isValid())
+	{
+		fail();
+	}
+
+	auto optionalP = parseOptionalP(new BinaryExpressionNode(lhs, OR, compound.getNode()));
+	if (!optionalP.isValid())
+	{
+		fail();
+	}
+
+	return {true, optionalP.getNode()};
+}
+
+// compound -> equality compound'
+ParseResult<NumericExpressionNode> LithiumParser::parseCompound()
+{
+	auto equality = parseEquality();
+	if (!equality.isValid())
+	{
+		fail();
+	}
+
+	auto compoundP = parseCompoundP(equality.getNode());
+	if (!compoundP.isValid())
+	{
+		fail();
+	}
+
+	return {true, compoundP.getNode()};
+}
+
+// compound' -> && equality compound'
+//			  | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseCompoundP(NumericExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != AND)
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto equality = parseEquality();
+	if (!equality.isValid())
+	{
+		fail();
+	}
+
+	auto compoundP = parseCompoundP(new BinaryExpressionNode(lhs, AND, equality.getNode()));
+	if (!compoundP.isValid())
+	{
+		fail();
+	}
+
+	return {true, compoundP.getNode()};
+}
+
+// equality -> comparison equality'
+ParseResult<NumericExpressionNode> LithiumParser::parseEquality()
+{
+	auto comparison = parseComparison();
+	if (!comparison.isValid())
+	{
+		fail();
+	}
+
+	auto equalityP = parseEqualityP(comparison.getNode());
+	if (!equalityP.isValid())
+	{
+		fail();
+	}
+
+	return {true, equalityP.getNode()};
+}
+
+// equality' -> == comparison equality'
+//            | != comparison equality'
+//            | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseEqualityP(NumericExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != EQUAL && token != NOT_EQUAL)
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto comparison = parseComparison();
+	if (!comparison.isValid())
+	{
+		fail();
+	}
+
+	auto equalityP = parseEqualityP(new BinaryExpressionNode(lhs, token, comparison.getNode()));
+	if (!equalityP.isValid())
+	{
+		fail();
+	}
+
+	return {true, equalityP.getNode()};
+}
+
+// comparison -> addit comparison'
+ParseResult<NumericExpressionNode> LithiumParser::parseComparison()
+{
+	auto addit = parseAddit();
+	if (!addit.isValid())
+	{
+		fail();
+	}
+
+	auto comparisonP = parseComparisonP(addit.getNode());
+	if (!comparisonP.isValid())
+	{
+		fail();
+	}
+
+	return {true, comparisonP.getNode()};
+}
+
+// comparison' -> < addit comparison'
+// 				| > addit comparison'
+// 				| <= addit comparison'
+// 				| >= addit comparison'
+ParseResult<NumericExpressionNode> LithiumParser::parseComparisonP(NumericExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != '<' && token != '>' && token != LESS_OR_EQUAL && token != GREATER_OR_EQUAL)
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto addit = parseAddit();
+	if (!addit.isValid())
+	{
+		fail();
+	}
+
+	auto comparisonP = parseComparisonP(new BinaryExpressionNode(lhs, token, addit.getNode()));
+	if (!comparisonP.isValid())
+	{
+		fail();
+	}
+
+	return {true, comparisonP.getNode()};
+}
+
+// addit -> term addit'
+ParseResult<NumericExpressionNode> LithiumParser::parseAddit()
+{
+	auto term = parseTerm();
+	if (!term.isValid())
+	{
+		fail();
+	}
+
+	auto additP = parseAdditP(term.getNode());
+	if (!additP.isValid())
+	{
+		fail();
+	}
+
+	return {true, additP.getNode()};
+}
+
+// addit' -> + term addit'
+//         | - term addit'
+//         | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseAdditP(NumericExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != '+' && token != '-')
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto term = parseTerm();
+	if (!term.isValid())
+	{
+		fail();
+	}
+
+	auto additP = parseAdditP(new BinaryExpressionNode(lhs, token, term.getNode()));
+	if (!additP.isValid())
+	{
+		fail();
+	}
+
+	return {true, additP.getNode()};
+}
+
+
+// term -> exponent term'
+ParseResult<NumericExpressionNode> LithiumParser::parseTerm()
+{
+	auto exponent = parseExponent();
+	if (!exponent.isValid())
+	{
+		fail();
+	}
+
+	auto termP = parseTermP(exponent.getNode());
+	if (!termP.isValid())
+	{
+		fail();
+	}
+
+	return {true, termP.getNode()};
+}
+
+// term' -> * exponent
+//        | / exponent
+//        | % exponent
+//        | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseTermP(NumericExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != '*' && token != '/' && token != '%')
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto exponent = parseExponent();
+	if (!exponent.isValid())
+	{
+		fail();
+	}
+
+	auto termP = parseTermP(new BinaryExpressionNode(lhs, token, exponent.getNode()));
+	if (!termP.isValid())
+	{
+		fail();
+	}
+
+	return {true, termP.getNode()};
+}
+
+// exponent -> fact exponent'
+ParseResult<NumericExpressionNode>  LithiumParser::parseExponent()
+{
+	auto fact = parseFact();
+	if (!fact.isValid())
+	{
+		fail();
+	}
+
+	auto exponentP = parseExponentP(fact.getNode());
+	if (!exponentP.isValid())
+	{
+		fail();
+	}
+
+	return {true, exponentP.getNode()};
+}
+
+// exponent' -> ^ fact exponent'
+// 			  | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseExponentP(NumericExpressionNode *lhs)
+{
+	Token token = peekToken();
+	if (token != '^')
+	{
+		return {true, lhs};
+	}
+
+	nextToken();
+
+	auto fact = parseFact();
+	if (!fact.isValid())
+	{
+		fail();
+	}
+
+	auto exponentP = parseExponentP(new BinaryExpressionNode(lhs, '^', fact.getNode()));
+	if (!exponentP.isValid())
+	{
+		fail();
+	}
+
+	return {true, exponentP.getNode()};
+}
+
+// fact -> - factorial
+//       | factorial
+ParseResult<NumericExpressionNode> LithiumParser::parseFact()
+{
+	Token token = peekToken();
+	if (token == '-')
 	{
 		nextToken();
-		StringExpressionNode *stringExpressionP = parseStringExpressionP();
-		if (!stringExpressionP)
+
+		auto factorial = parseFactorial();
+		if (!factorial.isValid())
 		{
-			return nullptr;
+			fail();
 		}
 
-		auto concat = new ConcatNode(lhs, stringExpressionP);
-
-		StringExpressionNode *stringExpressionPP = parseStringExpressionPP(concat);
-		if (!stringExpressionPP)
-		{
-			return nullptr;
-		}
-
-		return stringExpressionPP;
+		return {true, new UnaryExpressionNode(factorial.getNode(), '-')};
 	}
 
-	return lhs;
+	ret(parseFactorial());
 }
 
-NumericExpressionNode *LithiumParser::parseAddit()
+// factorial -> modifier factorial'
+ParseResult<NumericExpressionNode> LithiumParser::parseFactorial()
 {
-	NumericExpressionNode *term = parseTerm();
-	if (!term)
+	auto modifier = parseModifier();
+	if (!modifier.isValid())
 	{
-		return nullptr;
+		fail();
 	}
 
-	Token token = peekToken();
-
-	NumericExpressionNode *additPP = parseAdditPP(term);
-	if (!additPP)
+	auto factorialP = parseFactorialP(modifier.getNode());
+	if (!factorialP.isValid())
 	{
-		return nullptr;
+		fail();
 	}
 
-	return additPP;
+	return {true, factorialP.getNode()};
 }
 
-NumericExpressionNode *LithiumParser::parseAdditP(NumericExpressionNode *lhs)
+// factorial' -> ! factorial'
+//             | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseFactorialP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
-
-	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUAL)
+	if (token != '!')
 	{
-		int op = token;
-		nextToken();
-
-		NumericExpressionNode *term = parseTerm();
-
-		if (!term)
-		{
-			return nullptr;
-		}
-
-		return new BinaryExpressionNode(lhs, op, term);
+		return {true, lhs};
 	}
 
-	return nullptr;
+	nextToken();
+
+	auto factorialP = parseFactorialP(new UnaryExpressionNode(lhs, '!'));
+	if (!factorialP.isValid())
+	{
+		fail();
+	}
+
+	return {true, factorialP.getNode()};
 }
 
-NumericExpressionNode *LithiumParser::parseAdditPP(NumericExpressionNode *lhs)
+// modifier -> primary modifier'
+ParseResult<NumericExpressionNode> LithiumParser::parseModifier()
+{
+	auto primary = parsePrimary();
+	if (!primary.isValid())
+	{
+		fail();
+	}
+
+	auto modifierP = parseModifierP(primary.getNode());
+	if (!modifierP.isValid())
+	{
+		fail();
+	}
+
+	return {true, modifierP.getNode()};
+}
+
+// modifier' -> ++ modifier'
+//            | -- modifier'
+//            | nothing
+ParseResult<NumericExpressionNode> LithiumParser::parseModifierP(NumericExpressionNode *lhs)
 {
 	Token token = peekToken();
-
-	if (token == '+' || token == '-' || token == '<' || token == '>' || token == EQUAL)
+	if (token != INCREMENT && token != DECREMENT)
 	{
-		NumericExpressionNode *additP = parseAdditP(lhs);
-		if (!additP)
-		{
-			return nullptr;
-		}
-
-		NumericExpressionNode *additPP = parseAdditPP(additP);
-		if (!additPP)
-		{
-			return nullptr;
-		}
-
-		return additPP;
+		return {true, lhs};
 	}
 
-	return lhs;
+	nextToken();
+
+	auto modifierP = parseModifierP(new UnaryExpressionNode(lhs, token));
+	if (!modifierP.isValid())
+	{
+		fail();
+	}
+
+	return {true, modifierP.getNode()};
 }
 
-NumericExpressionNode *LithiumParser::parseTerm()
-{
-	NumericExpressionNode *exponent = parseExponent();
-	if (!exponent)
-	{
-		return nullptr;
-	}
-
-	NumericExpressionNode *termPP = parseTermPP(exponent);
-	if (!termPP)
-	{
-		return nullptr;
-	}
-
-	return termPP;
-}
-
-NumericExpressionNode *LithiumParser::parseTermP(NumericExpressionNode *lhs)
-{
-	Token token = peekToken();
-
-	if (token == '*' || token == '/' || token == '%')
-	{
-		char op = token;
-		nextToken();
-
-		NumericExpressionNode *exponent = parseExponent();
-		if (!exponent)
-		{
-			return nullptr;
-		}
-
-		return new BinaryExpressionNode(lhs, op, exponent);
-	}
-
-	return nullptr;
-}
-
-NumericExpressionNode *LithiumParser::parseTermPP(NumericExpressionNode *lhs)
-{
-	Token token = peekToken();
-
-	if (token == '*' || token == '/' || token == '%')
-	{
-		NumericExpressionNode *termP = parseTermP(lhs);
-		if (!termP)
-		{
-			return nullptr;
-		}
-
-		NumericExpressionNode *termPP = parseTermPP(termP);
-		if (!termPP)
-		{
-			return nullptr;
-		}
-
-		return termPP;
-	}
-
-	return lhs;
-}
-
-NumericExpressionNode *LithiumParser::parseExponent()
-{
-	NumericExpressionNode *fact = parseFact();
-	if (!fact)
-	{
-		return nullptr;
-	}
-
-	NumericExpressionNode *exponentP = parseExponentP(fact);
-	if (!exponentP)
-	{
-		return nullptr;
-	}
-
-	return exponentP;
-}
-
-NumericExpressionNode *LithiumParser::parseExponentP(NumericExpressionNode *lhs)
-{
-	Token token = peekToken();
-
-	if (token == '^')
-	{
-		char op = token;
-		nextToken();
-
-		NumericExpressionNode *factorial = parseFactorial();
-		if (!factorial)
-		{
-			return nullptr;
-		}
-
-		BinaryExpressionNode *exponent = new BinaryExpressionNode(lhs, op, factorial);
-
-		NumericExpressionNode *exponentP = parseExponentP(exponent);
-		if (!exponentP)
-		{
-			return nullptr;
-		}
-
-		return exponentP;
-	}
-
-	return lhs;
-}
-
-NumericExpressionNode *LithiumParser::parseFactorial()
-{
-	NumericExpressionNode *primary = parsePrimary();
-	if (!primary)
-	{
-		return nullptr;
-	}
-
-	NumericExpressionNode *factorialP = parseFactorialP(primary);
-	if (!factorialP)
-	{
-		return nullptr;
-	}
-
-	return factorialP;
-}
-
-NumericExpressionNode *LithiumParser::parseFactorialP(NumericExpressionNode *lhs)
-{
-	Token token = peekToken();
-
-	if (token == '!')
-	{
-		char op = token;
-		nextToken();
-
-		UnaryExpressionNode *unary = new UnaryExpressionNode(lhs, op);
-
-		NumericExpressionNode *factorialP = parseFactorialP(unary);
-		if (!factorialP)
-		{
-			return nullptr;
-		}
-
-		return factorialP;
-	}
-
-	return lhs;
-}
-
-NumericExpressionNode *LithiumParser::parsePrimary()
+// ( numeric_expression )
+// NUMBER
+// IDENTIFIER
+ParseResult<NumericExpressionNode> LithiumParser::parsePrimary()
 {
 	Token token = peekToken();
 
 	if (token == '(')
 	{
 		nextToken();
-
-		NumericExpressionNode *expression = parseNumericExpression();
-		if (!expression)
+		auto expression = parseNumericExpression();
+		if (!expression.isValid())
 		{
-			return nullptr;
+			fail();
 		}
 
 		token = peekToken();
 		if (token != ')')
 		{
-			return nullptr;
+			expected("')'", token);
+			dropStatement();
+			fail();
 		}
 
 		nextToken();
-		return expression;
+
+		return {true, expression.getNode()};
 	}
 
 	if (token == NUMBER)
 	{
 		nextToken();
 		int value = std::stoi(token.getText());
-		return new IntExpressionNode(value);
+		return {true, new IntExpressionNode(value)};
 	}
 
 	if (token == IDENTIFIER)
 	{
 		nextToken();
-		return new VariableExpressionNode(token);
+		return {true, new VariableExpressionNode(token)};
 	}
 
-	return nullptr;
+	expected("an expression", token);
+	dropStatement();
+	fail();
 }
 
-NumericExpressionNode *LithiumParser::parseFact()
+void LithiumParser::dropStatement()
 {
 	Token token = peekToken();
-
-	if (token == '-')
+	while (token != ';' && token != END && (token != '}' || depth == 0))
 	{
-		nextToken();
-
-		NumericExpressionNode *factorial = parseFactorial();
-		if (!factorial)
-		{
-			return nullptr;
-		}
-
-		return new UnaryExpressionNode(factorial, '-');
+		//fprintf(stderr, "dropped: %s\n", token.getText().c_str());
+		token = nextToken();
 	}
-
-	return parseFactorial();
-}
-
-DeclNode *LithiumParser::parseDeclaration()
-{
-	return parseVarDeclaration();
-}
-
-VarDeclNode *LithiumParser::parseVarDeclaration()
-{
-	Token token = peekToken();
-
-	if (token != IDENTIFIER)
-	{
-		nextToken();
-		error("expected identifier", token);
-		return nullptr;
-	}
-
-	Token identifier = token;
-	nextToken();
-
-	token = peekToken();
-
-	if (token == ';')
-	{
-		return new VarDeclNode(identifier, new IntExpressionNode(0));
-	}
-
-	if (token != '=')
-	{
-		nextToken();
-		expected('=', token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	ExpressionNode *expression = parseExpression();
-	if (!expression)
-	{
-		return nullptr;
-	}
-
-	return new VarDeclNode(identifier, expression);
-}
-
-StatementNode *LithiumParser::parseStatementP(const Token &identifier)
-{
-	Token token = peekToken();
-
-	if (token == ';')
-	{
-		nextToken();
-		return new VarDeclNode(identifier, new IntExpressionNode(0));
-	}
-
-	if (token == '(')
-	{
-		nextToken();
-
-		std::vector<ExpressionNode *> expressions;
-
-		while (true)
-		{
-			ExpressionNode *expression = parseExpression();
-			if (!expression)
-			{
-				return nullptr;
-			}
-
-			expressions.push_back(expression);
-
-			token = peekToken();
-			if (token == ')')
-			{
-				break;
-			}
-
-			if (token != ',')
-			{
-				nextToken();
-				error("expected ','", token);
-				return nullptr;
-			}
-
-			nextToken();
-		}
-
-		nextToken();
-
-		token = peekToken();
-
-		if (token != ';')
-		{
-			nextToken();
-			error("expected ';'", token);
-			return nullptr;
-		}
-
-		nextToken();
-
-		//return new FuncCallNode(identifier, expressions);
-		return nullptr;
-	}
-
-	if (token == '=')
-	{
-		nextToken();
-
-		ExpressionNode *expression = parseExpression();
-		if (!expression)
-		{
-			return nullptr;
-		}
-
-		token = peekToken();
-
-		if (token == ';')
-		{
-			nextToken();
-		}
-
-		return new AssignNode(identifier, expression);
-	}
-
-	if (token == INCREMENT)
-	{
-		nextToken();
-
-		token = peekToken();
-
-		if (token == ';' || token == ')')
-		{
-			if (token == ';') nextToken();
-			BinaryExpressionNode *add = new BinaryExpressionNode(new VariableExpressionNode(identifier), '+', new IntExpressionNode(1));
-			AssignNode *assign = new AssignNode(identifier, add);
-
-			return assign;
-		}
-
-		nextToken();
-
-		error("expected ';'", token);
-		return nullptr;
-	}
-
-	nextToken();
-	expected("';', '=', or '('", token);
-	return nullptr;
-}
-
-StatementsNode *LithiumParser::parseStatements()
-{
-	StatementsNode *statements = new StatementsNode();
-
-    while (true)
-	{
-		Token token = peekToken();
-		if (token == END)
-		{
-			break;
-		}
-
-		StatementNode *statement = parseStatement();
-		if (statement == nullptr)
-		{
-			return statements;
-		}
-
-		statements->addChild(statement);
-	}
-
-	return statements;
-}
-
-ForStatementNode *LithiumParser::parseForStatement()
-{
-	Token token = peekToken();
-
-	if (token != FOR)
-	{
-		nextToken();
-		error("expected 'for'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	token = peekToken();
-
-	if (token != '(')
-	{
-		nextToken();
-		error("expected '('", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	global::symbolTable.increaseScope();
-
-	StatementNode *init = parseAssignment();
-	if (!init)
-	{
-		return nullptr;
-	}
-
-	token = peekToken();
-
-	if (token != ';')
-	{
-		nextToken();
-		error("expected ';'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	ExpressionNode *condition = parseExpression();
-	if (!condition)
-	{
-		return nullptr;
-	}
-
-	token = peekToken();
-
-	if (token != ';')
-	{
-		nextToken();
-		error("expected ';'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	StatementNode *increment = parseStatement();
-	if (!increment)
-	{
-		return nullptr;
-	}
-
-	token = peekToken();
-
-	if (token != ')')
-	{
-		nextToken();
-		error("expected ')'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	BlockNode *block = parseBlock();
-	if (!block)
-	{
-		return nullptr;
-	}
-
-	global::symbolTable.decreaseScope();
-
-	return new ForStatementNode(init, condition, increment, block);
-}
-
-BlockNode *LithiumParser::parseBlock()
-{
-	Token token = peekToken();
-
-	if (token != '{')
-	{
-		nextToken();
-		error("expected '{'", token);
-		return nullptr;
-	}
-
-	global::symbolTable.increaseScope();
-
-	nextToken();
-
-	StatementsNode *statements = parseStatements();
-	if (!statements)
-	{
-		return nullptr;
-	}
-
-	token = peekToken();
 
 	if (token != '}')
 	{
 		nextToken();
-		error("expected '}'", token);
-		return nullptr;
 	}
-
-	nextToken();
-
-	global::symbolTable.decreaseScope();
-
-	return new BlockNode(statements);
-}
-
-AssignNode *LithiumParser::parseAssignment()
-{
-	Token token = peekToken();
-
-	if (token != IDENTIFIER)
-	{
-		nextToken();
-		error("expected identifier", token);
-		return nullptr;
-	}
-
-	Token identifier = token;
-	nextToken();
-
-	token = peekToken();
-
-	if (token == ';')
-	{
-		return new AssignNode(identifier, new IntExpressionNode(0));
-	}
-
-	if (token != '=')
-	{
-		nextToken();
-		error("expected '='", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	ExpressionNode *expression = parseExpression();
-	if (!expression)
-	{
-		return nullptr;
-	}
-
-	return new AssignNode(identifier, expression);
-}
-
-WhileStatementNode *LithiumParser::parseWhileStatement()
-{
-	Token token = peekToken();
-
-	if (token != WHILE)
-	{
-		nextToken();
-		error("expected 'while'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	token = peekToken();
-
-	if (token != '(')
-	{
-		nextToken();
-		error("expected '('", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	ExpressionNode *condition = parseExpression();
-	if (!condition)
-	{
-		return nullptr;
-	}
-
-	token = peekToken();
-
-	if (token != ')')
-	{
-		nextToken();
-		error("expected ')'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	BlockNode *block = parseBlock();
-	if (!block)
-	{
-		return nullptr;
-	}
-
-	return new WhileStatementNode(condition, block);
-}
-
-// IF ( numeric_expression ) block ifStatementP
-IfStatementNode *LithiumParser::parseIfStatement()
-{
-	Token token = peekToken();
-
-	if (token != IF)
-	{
-		nextToken();
-		error("expected 'if'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	token = peekToken();
-
-	if (token != '(')
-	{
-		nextToken();
-		error("expected '('", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	NumericExpressionNode *condition = parseNumericExpression();
-	if (!condition)
-	{
-		return nullptr;
-	}
-
-	token = peekToken();
-
-	if (token != ')')
-	{
-		nextToken();
-		expected("')'", token);
-		return nullptr;
-	}
-
-	nextToken();
-
-	StatementNode *statement = parseStatement();
-	if (!statement)
-	{
-		return nullptr;
-	}
-
-	StatementNode *ifStatementP = parseIfStatementP();
-
-	return new IfStatementNode(condition, statement, ifStatementP);
-}
-
-StatementNode *LithiumParser::parseIfStatementP()
-{
-	Token token = peekToken();
-
-	if (token != ELSE)
-	{
-		return nullptr;
-	}
-
-	nextToken();
-
-	return parseStatement();
 }

@@ -7,125 +7,196 @@
 #include "LithiumSymbolTable.h"
 #include "LithiumTokenizer.h"
 
+template <typename T>
+class ParseResult
+{
+public:
+	ParseResult(bool success, T* node = nullptr):
+		success(success),
+		node(node)
+	{
+	}
+
+	bool isValid() const
+	{
+		return success;
+	}
+
+	T* getNode() const
+	{
+		return node;
+	}
+private:
+	bool success;
+	T* node;
+};
+
 class LithiumParser
 {
 public:
 	LithiumParser();
 
-	Node *parse(const std::string &source);
+	ParseResult<Node> parse(const std::string &source);
 	std::vector<std::string> getErrors() const;
 private:
-	Node *parseInternal(const std::string &source, const std::string &filename = "");
+	ParseResult<Node> parseInternal(const std::string &source, const std::string &filename = "");
 
 	Token peekToken();
 	Token nextToken();
 
-	// statements
-	ProgramNode *parseProgram();
+	// program -> statements
+	ParseResult<ProgramNode> parseProgram();
 
-	// print_statement
-	// asm_statement
-	// expression
-	// IDENTIFIER statementP
-	// for
-	StatementNode *parseStatement();
+	// statements -> statement statements
+	//             | nothing
+	ParseResult<StatementsNode> parseStatements();
 
-	// statements statement
-	// statement
-	StatementsNode *parseStatements();
+	// statement -> single_statement ;
+	//            | block
+	//            | for_statement
+	//            | while_statement
+	//            | if_statement
+	ParseResult<StatementNode> parseStatement();
+	
+	// statement_list -> single_statement statement_list'
+	ParseResult<StatementListNode> parseStatementList();
 
-	// { statements }
-	BlockNode *parseBlock();
+	// statement_list' -> , single_statement statement_list'
+	//                  | nothing
+	ParseResult<StatementListNode> parseStatementListP(StatementNode *lhs);
 
-	// var_decl
-	DeclNode *parseDeclaration();
+	// single_statement -> expression
+	//                   | print_statement
+	//                   | asm_statement
+	ParseResult<StatementNode> parseSingleStatement();
 
-	AssignNode *parseAssignment();
+	// block -> { statements }
+	ParseResult<BlockNode> parseBlock();
 
-	// identifier = expression
-	VarDeclNode *parseVarDeclaration();
+	// if_statement -> IF ( numeric_expression ) statement if_statement'
+	ParseResult<IfStatementNode> parseIfStatement();
 
-	// print ( expression )
-	PrintStatementNode *parsePrintStatement();
+	// if_statement' -> ELSE statement
+	//                | nothing
+	ParseResult<StatementNode> parseIfStatementP();
 
-	// asm ( string_expression )
-	AsmStatementNode *parseAsmStatement();
+	// while_statement -> WHILE ( numeric_expression ) statement
+	ParseResult<WhileStatementNode> parseWhileStatement();
 
-	// FOR ( var_decl ; expression ; statement ) block
-	ForStatementNode *parseForStatement();
+	// for -> FOR ( statement_list ; numeric_expression ; statement_list ) statement
+	ParseResult<ForStatementNode> parseForStatement();
 
-	// WHILE ( expression ) block
-	WhileStatementNode *parseWhileStatement();
+	// asm_statement -> ASM ( string_expression )
+	ParseResult<AsmStatementNode> parseAsmStatement();
 
-	// IF ( numeric_expression ) block ifStatementP
-	IfStatementNode *parseIfStatement();
+	// print_statement -> PRINT ( expression )
+	ParseResult<PrintStatementNode> parsePrintStatement();
 
-	// ELSE block
-	// nothing
-	StatementNode *parseIfStatementP();
+	// expression -> numeric_expression
+	// 			   | string_expression
+	ParseResult<ExpressionNode> parseExpression();
 
-	// numeric_expression
-	// string_expression
-	ExpressionNode *parseExpression();
+	// string_expression -> STRING string_expression'
+	ParseResult<StringExpressionNode> parseStringExpression();
 
-	// addit
-	NumericExpressionNode *parseNumericExpression();
+	// string_expression' -> + string_expression
+	//                     | nothing
+	ParseResult<StringExpressionNode> parseStringExpressionP(StringExpressionNode *lhs);
 
-	// STRING string_expressionPP
-	StringExpressionNode *parseStringExpression();
+	// numeric_expression -> assignment
+	ParseResult<NumericExpressionNode> parseNumericExpression();
 
-	// ;
-	// ( expression_list ) ;
-	// = expression ;
-	StatementNode *parseStatementP(const Token &identifier);
+	// assignment -> optional assignment'
+	ParseResult<NumericExpressionNode> parseAssignment();
 
-	// STRING
-	// NUMBER
-	StringExpressionNode *parseStringExpressionP();
+	// assignment' -> = expression
+	//              | nothing
+	ParseResult<NumericExpressionNode> parseAssignmentP(VariableExpressionNode *lhs);
 
-	// + string_expressionP string_expressionPP
-	// nothing
-	StringExpressionNode *parseStringExpressionPP(StringExpressionNode *lhs);
+	// optional -> compound optional'
+	ParseResult<NumericExpressionNode> parseOptional();
 
-	// term additPP
-	NumericExpressionNode *parseAddit();
-	// + term
-	// - term
-	NumericExpressionNode *parseAdditP(NumericExpressionNode *lhs);
-	// additP additPP
-	// nothing
-	NumericExpressionNode *parseAdditPP(NumericExpressionNode *lhs);
+	// optional' -> || compound optional'
+	// 			  | nothing
+	ParseResult<NumericExpressionNode> parseOptionalP(NumericExpressionNode *lhs);
 
-	// exponent termPP
-	NumericExpressionNode *parseTerm();
-	// * exponent
-	// / exponent
-	// % exponent
-	NumericExpressionNode *parseTermP(NumericExpressionNode *lhs);
-	// termP termPP
-	// nothing
-	NumericExpressionNode *parseTermPP(NumericExpressionNode *lhs);
+	// compound -> equality compound'
+	ParseResult<NumericExpressionNode> parseCompound();
 
-	// fact exponentP
-	NumericExpressionNode *parseExponent();
-	// ^ fact exponentP
-	// nothing
-	NumericExpressionNode *parseExponentP(NumericExpressionNode *);
+	// compound' -> && equality compound'
+	//			  | nothing
+	ParseResult<NumericExpressionNode> parseCompoundP(NumericExpressionNode *lhs);
 
-	// - factorial
-	// factorial
-	NumericExpressionNode *parseFact();
+	// equality -> comparison equality'
+	ParseResult<NumericExpressionNode> parseEquality();
 
-	// primary factorialP
-	NumericExpressionNode *parseFactorial();
-	// ! factorialP
-	// nothing
-	NumericExpressionNode *parseFactorialP(NumericExpressionNode *lhs);
+	// equality' -> == comparison equality'
+	//            | != comparison equality'
+	//            | nothing
+	ParseResult<NumericExpressionNode> parseEqualityP(NumericExpressionNode *lhs);
+
+	// comparison -> addit comparison'
+	ParseResult<NumericExpressionNode> parseComparison();
+
+	// comparison' -> < addit comparison'
+	// 				| > addit comparison'
+	// 				| <= addit comparison'
+	// 				| >= addit comparison'
+	ParseResult<NumericExpressionNode> parseComparisonP(NumericExpressionNode *lhs);
+
+	// addit -> term addit'
+	ParseResult<NumericExpressionNode> parseAddit();
+
+	// addit' -> + term addit'
+	//         | - term addit'
+    //         | nothing
+	ParseResult<NumericExpressionNode> parseAdditP(NumericExpressionNode *lhs);
+
+
+	// term -> exponent term'
+	ParseResult<NumericExpressionNode> parseTerm();
+
+	// term' -> * exponent
+	//        | / exponent
+	//        | % exponent
+	//        | nothing
+	ParseResult<NumericExpressionNode> parseTermP(NumericExpressionNode *lhs);
+
+	// exponent -> fact exponent'
+	ParseResult<NumericExpressionNode>  parseExponent();
+
+	// exponent' -> ^ fact exponent'
+	// 			  | nothing
+	ParseResult<NumericExpressionNode> parseExponentP(NumericExpressionNode *);
+
+	// fact -> - factorial
+	//       | factorial
+	ParseResult<NumericExpressionNode> parseFact();
+
+	// factorial -> primary factorial'
+	ParseResult<NumericExpressionNode> parseFactorial();
+
+	// factorial' -> ! factorial'
+	//             | nothing
+	ParseResult<NumericExpressionNode> parseFactorialP(NumericExpressionNode *lhs);
+
+	// modifier -> primary modifier'
+	ParseResult<NumericExpressionNode> parseModifier();
+
+	// modifier' -> ++ modifier'
+	//            | -- modifier'
+	//            | nothing
+	ParseResult<NumericExpressionNode> parseModifierP(NumericExpressionNode *lhs);
 
 	// ( numeric_expression )
 	// NUMBER
-	NumericExpressionNode *parsePrimary();
+	// IDENTIFIER
+	ParseResult<NumericExpressionNode> parsePrimary();
+private:
+	void dropStatement();
 private:
 	LithiumTokenizer tokenizer;
 	std::vector<std::string> errors;
+
+	int depth = 0;
 };
