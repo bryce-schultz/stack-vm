@@ -1,3 +1,7 @@
+//***********************************************
+// LithiumCompiler.cpp
+//***********************************************
+
 #include "LithiumCompiler.h"
 #include "LithiumParser.h"
 #include "GeneratorVisitor.h"
@@ -17,7 +21,7 @@ bool LithiumCompiler::compile(const std::string &filename)
 		return false;
 	}
 
-	if ( global::hadError)
+	if (global::hadError)
 	{
 		delete root.getNode();
 		return false;

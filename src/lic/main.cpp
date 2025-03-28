@@ -1,3 +1,7 @@
+//***********************************************
+// main.cpp
+//***********************************************
+
 #include <cstdio>
 #include <cstdint>
 
@@ -6,18 +10,24 @@
 
 constexpr uint8_t requiredArgCount = 2;
 
+//#define DEBUG
+
 int main(int argc, char **argv)
 {
-	if (argc != requiredArgCount)
-	{
-		argv[1] = "test.li";
-		//printf("usage: %s <source>\n", argv[0]);
-		//return EXIT_FAILURE;
-	}
+	#ifdef DEBUG
+		const char *filename = "test.li";
+	#else
+		if (argc != requiredArgCount)
+		{
+			printf("usage: %s <source>\n", argv[0]);
+			return EXIT_FAILURE;
+		}
+		const char *filename = argv[1];
+	#endif
 
 	LithiumCompiler compiler;
 
-	if (!compiler.compile(argv[1]))
+	if (!compiler.compile(filename))
 	{
 		return EXIT_FAILURE;
 	}

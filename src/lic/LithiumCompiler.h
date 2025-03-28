@@ -1,3 +1,7 @@
+//***********************************************
+// LithiumCompiler.h
+//***********************************************
+
 #pragma once
 
 #include "LithiumParser.h"
@@ -10,6 +14,6 @@ class LithiumCompiler
 public:
     bool compile(const std::string &filename);
 private:
-    LithiumParser li_parser;
+    LithiumParser parser;
 	GeneratorVisitor generator;
 };

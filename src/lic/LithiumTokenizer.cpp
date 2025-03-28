@@ -1,3 +1,7 @@
+//***********************************************
+// LithiumTokenizer.cpp
+//***********************************************
+
 #include "LithiumTokenizer.h"
 #include "Error.h"
 

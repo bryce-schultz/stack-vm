@@ -1,3 +1,7 @@
+//***********************************************
+// Error.cpp
+//***********************************************
+
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -62,23 +66,36 @@ std::string getSquiggleLine(const Token &token)
     return "│  " + line + "\n│  " + red + squiggles + reset;
 }
 
-void error_(const std::string &message, const Token &token, const std::string &file, int line)
+std::string getErrorHeader(const Token &token, const std::string &message)
 {
-    const bool showErrorSourceLocation = true;
-
     std::stringstream ss;
     const std::string &filename = token.getLocation().getFilename();
     const int linenum = token.getLocation().getLine();
     const int colnum = token.getLocation().getColumn();
 
-
     ss << red << "error" << reset << ": " << filename << ":" << linenum << ":" << colnum << ": " << message << "\n";
-    ss << getSquiggleLine(token) << "\n";
+    return ss.str();
+}
+
+std::string getError(const Token &token, const std::string &message)
+{
+    return getErrorHeader(token, message) + getSquiggleLine(token) + "\n";
+}
+
+void error_(const std::string &message, const Token &token, const std::string &file, int line)
+{
+    const bool showErrorSourceLocation = true;
+
+    std::stringstream ss;
+    ss << getError(token, message);
     if (showErrorSourceLocation)
     {
         ss << "╰─ @ " << file << ":" << line << "\n";
     }
 
+    // Print the error message to stderr.
     std::cerr << ss.str();
+
+    // Set the global error flag.
     global::hadError = true;
 }

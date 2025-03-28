@@ -1,3 +1,7 @@
+//***********************************************
+// GeneratorVisitor.h
+//***********************************************
+
 #pragma once
 #include <string>
 #include <fstream>

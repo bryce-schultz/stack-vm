@@ -1,3 +1,7 @@
+//***********************************************
+// GeneratorVisitor.cpp
+//***********************************************
+
 #include "GeneratorVisitor.h"
 #include "Nodes.h"
 #include "Error.h"
@@ -9,6 +13,7 @@ GeneratorVisitor::GeneratorVisitor(const std::string &output_filename):
 
 void GeneratorVisitor::visitAllChildren(Node *node)
 {
+    // Visit the root node.
     node->visit(this);
 
     // Don't attepmt to output to the file if there is an error.
@@ -246,7 +251,7 @@ void GeneratorVisitor::visit(VariableExpressionNode *node)
     // Ensure the variable is defined.
     if (variables.find(symbol) == variables.end())
     {
-        error("variable " + name + " is not defined", token);
+        undefined(token);
     }
 
     // Load the variable onto the stack.
@@ -322,8 +327,11 @@ void GeneratorVisitor::visit(WhileStatementNode *node)
     // If the condition evaluates to 0 (false), jump to the end of the while loop.
     out("jz while" + std::to_string(whileId) + "end\n");
 
-    // Visit the body of the while loop.
-    node->getBody()->visit(this);
+    // Visit the body of the while loop if it exists.
+    if (node->getBody())
+    {
+        node->getBody()->visit(this);
+    }
 
     // Jump back to the start of the while loop.
     out("jmp while" + std::to_string(whileId) + "loop\n");

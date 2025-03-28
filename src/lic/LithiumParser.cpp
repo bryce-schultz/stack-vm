@@ -1,3 +1,7 @@
+//***********************************************
+// LithiumParser.cpp
+//***********************************************
+
 #include <fstream>
 #include <string.h>
 #include <string>
@@ -8,17 +12,18 @@
 #include "Error.h"
 #include "Color.h"
 
+#define fail() return {false}
+#define accept(x) return {true, x}
+
 #define ret(x) \
 { \
 	auto node = x; \
 	if (!node.isValid()) \
 	{ \
-		return {false}; \
+		fail(); \
 	} \
-	return {true, node.getNode()}; \
+	accept(node.getNode()); \
 }
-
-#define fail() return {false}
 
 LithiumParser::LithiumParser():
 	tokenizer(),
@@ -70,10 +75,10 @@ ParseResult<Node> LithiumParser::parseInternal(const std::string &source, const 
 	auto result = parseProgram();
 	if (!result.isValid())
 	{
-		return {false};
+		fail();
 	}
 
-	return {true, result.getNode()};
+	accept(result.getNode());
 }
 
 // program -> statements
@@ -82,10 +87,10 @@ ParseResult<ProgramNode> LithiumParser::parseProgram()
 	auto statements = parseStatements();
 	if (!statements.isValid())
 	{
-		return {false};
+		fail();
 	}
 
-	return {true, new ProgramNode(statements.getNode())};
+	accept(new ProgramNode(statements.getNode()));
 }
 
 // statements -> statement statements
@@ -110,7 +115,7 @@ ParseResult<StatementsNode> LithiumParser::parseStatements()
 		statements->addStatement(statement.getNode());
 	}
 
-	return {true, statements};
+	accept(statements);
 }
 
 // statement -> single_statement ;
@@ -145,7 +150,7 @@ ParseResult<StatementNode> LithiumParser::parseStatement()
 		}
 
 		blockDepth--;
-		return {true, block.getNode()};
+		accept(block.getNode());
 	}
 	else if (token == FOR)
 	{
@@ -163,7 +168,7 @@ ParseResult<StatementNode> LithiumParser::parseStatement()
 	auto statement = parseSingleStatement();
 	if (!statement.isValid())
 	{
-		return {false};
+		fail();
 	}
 
 	token = peekToken();
@@ -171,12 +176,12 @@ ParseResult<StatementNode> LithiumParser::parseStatement()
 	if (token != ';')
 	{
 		expected("';'", token);
-		return {false};
+		fail();
 	}
 
 	nextToken();
 
-	return {true, statement.getNode()};
+	accept(statement.getNode());
 }
 
 // statement_list -> single_statement statement_list'
@@ -194,7 +199,7 @@ ParseResult<StatementListNode> LithiumParser::parseStatementList()
 		fail();
 	}
 	
-	return {true, statementListP.getNode()};
+	accept(statementListP.getNode());
 }
 
 // statement_list' -> , single_statement statement_list'
@@ -204,7 +209,7 @@ ParseResult<StatementListNode> LithiumParser::parseStatementListP(StatementNode 
 	Token token = peekToken();
 	if (token != ',')
 	{
-		return {true, new StatementListNode(lhs)};
+		accept(new StatementListNode(lhs));
 	}
 
 	nextToken();
@@ -221,12 +226,13 @@ ParseResult<StatementListNode> LithiumParser::parseStatementListP(StatementNode 
 		fail();
 	}
 
-	return {true, statementListP.getNode()};
+	accept(statementListP.getNode());
 }
 
 // single_statement -> expression
 //                   | print_statement
 //                   | asm_statement
+//                   | ;
 ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 {
 	Token token = peekToken();
@@ -238,6 +244,10 @@ ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 	else if (token == ASM)
 	{
 		ret(parseAsmStatement());
+	}
+	else if (token == ';')
+	{
+		accept(nullptr);
 	}
 
 	ret(parseExpression());
@@ -274,7 +284,7 @@ ParseResult<BlockNode> LithiumParser::parseBlock()
 
 	nextToken();
 
-	return {true, new BlockNode(statements.getNode())};
+	accept(new BlockNode(statements.getNode()));
 }
 
 // if_statement -> IF ( numeric_expression ) statement if_statement'
@@ -325,7 +335,7 @@ ParseResult<IfStatementNode> LithiumParser::parseIfStatement()
 		fail();
 	}
 
-	return {true, new IfStatementNode(condition.getNode(), statement.getNode(), ifStatementP.getNode())};
+	accept(new IfStatementNode(condition.getNode(), statement.getNode(), ifStatementP.getNode()));
 }
 
 // if_statement' -> ELSE statement
@@ -335,7 +345,7 @@ ParseResult<StatementNode> LithiumParser::parseIfStatementP()
 	Token token = peekToken();
 	if (token != ELSE)
 	{
-		return {true};
+		accept();
 	}
 
 	nextToken();
@@ -346,7 +356,7 @@ ParseResult<StatementNode> LithiumParser::parseIfStatementP()
 		fail();
 	}
 
-	return {true, statement.getNode()};
+	accept(statement.getNode());
 }
 
 // while_statement -> WHILE ( numeric_expression ) statement
@@ -391,7 +401,7 @@ ParseResult<WhileStatementNode> LithiumParser::parseWhileStatement()
 		fail();
 	}
 
-	return {true, new WhileStatementNode(condition.getNode(), statement.getNode())};
+	accept(new WhileStatementNode(condition.getNode(), statement.getNode()));
 }
 
 // for -> FOR ( statement_list ; numeric_expression ; statement_list ) statement
@@ -471,7 +481,7 @@ ParseResult<ForStatementNode> LithiumParser::parseForStatement()
 		fail();
 	}
 
-	return {true, new ForStatementNode(init.getNode(), condition.getNode(), increment.getNode(), statement.getNode())};
+	accept(new ForStatementNode(init.getNode(), condition.getNode(), increment.getNode(), statement.getNode()));
 }
 
 // asm_statement -> ASM ( string_expression )
@@ -555,7 +565,7 @@ ParseResult<PrintStatementNode> LithiumParser::parsePrintStatement()
 
 	nextToken();
 
-	return {true, new PrintStatementNode(expression.getNode())};
+	accept(new PrintStatementNode(expression.getNode()));
 }
 
 // expression -> numeric_expression
@@ -591,7 +601,7 @@ ParseResult<StringExpressionNode> LithiumParser::parseStringExpression()
 		fail();
 	}
 
-	return {true, stringExpressionP.getNode()};
+	accept(stringExpressionP.getNode());
 }
 
 // string_expression' -> + expression string_expression'
@@ -601,7 +611,7 @@ ParseResult<StringExpressionNode> LithiumParser::parseStringExpressionP(StringEx
 	Token token = peekToken();
 	if (token != '+')
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -618,7 +628,7 @@ ParseResult<StringExpressionNode> LithiumParser::parseStringExpressionP(StringEx
 		fail();
 	}
 
-	return {true, stringExpressionP.getNode()};
+	accept(stringExpressionP.getNode());
 }
 
 // numeric_expression -> assignment
@@ -638,7 +648,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAssignment()
 
 	if (!optional.getNode()->isVariable())
 	{
-		return {true, optional.getNode()};
+		accept(optional.getNode());
 	}
 
 	VariableExpressionNode *lhs = dynamic_cast<VariableExpressionNode*>(optional.getNode());
@@ -649,7 +659,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAssignment()
 		fail();
 	}
 
-	return {true, assignmentP.getNode()};
+	accept(assignmentP.getNode());
 }
 
 // assignment' -> = expression
@@ -659,7 +669,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAssignmentP(VariableExpre
 	Token token = peekToken();
 	if (token != '=')
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -670,7 +680,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAssignmentP(VariableExpre
 		fail();
 	}
 
-	return {true, new AssignNode(lhs, expression.getNode())};
+	accept(new AssignNode(lhs, expression.getNode()));
 	
 }
 
@@ -689,7 +699,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseOptional()
 		fail();
 	}
 
-	return {true, optionalP.getNode()};
+	accept(optionalP.getNode());
 }
 
 // optional' -> || compound optional'
@@ -699,7 +709,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseOptionalP(NumericExpressi
 	Token token = peekToken();
 	if (token != OR)
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -716,7 +726,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseOptionalP(NumericExpressi
 		fail();
 	}
 
-	return {true, optionalP.getNode()};
+	accept(optionalP.getNode());
 }
 
 // compound -> equality compound'
@@ -734,7 +744,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseCompound()
 		fail();
 	}
 
-	return {true, compoundP.getNode()};
+	accept(compoundP.getNode());
 }
 
 // compound' -> && equality compound'
@@ -744,7 +754,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseCompoundP(NumericExpressi
 	Token token = peekToken();
 	if (token != AND)
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -761,7 +771,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseCompoundP(NumericExpressi
 		fail();
 	}
 
-	return {true, compoundP.getNode()};
+	accept(compoundP.getNode());
 }
 
 // equality -> comparison equality'
@@ -779,7 +789,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseEquality()
 		fail();
 	}
 
-	return {true, equalityP.getNode()};
+	accept(equalityP.getNode());
 }
 
 // equality' -> == comparison equality'
@@ -790,7 +800,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseEqualityP(NumericExpressi
 	Token token = peekToken();
 	if (token != EQUAL && token != NOT_EQUAL)
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -807,7 +817,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseEqualityP(NumericExpressi
 		fail();
 	}
 
-	return {true, equalityP.getNode()};
+	accept(equalityP.getNode());
 }
 
 // comparison -> addit comparison'
@@ -825,7 +835,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseComparison()
 		fail();
 	}
 
-	return {true, comparisonP.getNode()};
+	accept(comparisonP.getNode());
 }
 
 // comparison' -> < addit comparison'
@@ -837,7 +847,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseComparisonP(NumericExpres
 	Token token = peekToken();
 	if (token != '<' && token != '>' && token != LESS_OR_EQUAL && token != GREATER_OR_EQUAL)
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -854,7 +864,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseComparisonP(NumericExpres
 		fail();
 	}
 
-	return {true, comparisonP.getNode()};
+	accept(comparisonP.getNode());
 }
 
 // addit -> term addit'
@@ -872,7 +882,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAddit()
 		fail();
 	}
 
-	return {true, additP.getNode()};
+	accept(additP.getNode());
 }
 
 // addit' -> + term addit'
@@ -883,7 +893,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAdditP(NumericExpressionN
 	Token token = peekToken();
 	if (token != '+' && token != '-')
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -900,7 +910,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAdditP(NumericExpressionN
 		fail();
 	}
 
-	return {true, additP.getNode()};
+	accept(additP.getNode());
 }
 
 
@@ -919,7 +929,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseTerm()
 		fail();
 	}
 
-	return {true, termP.getNode()};
+	accept(termP.getNode());
 }
 
 // term' -> * exponent
@@ -931,7 +941,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseTermP(NumericExpressionNo
 	Token token = peekToken();
 	if (token != '*' && token != '/' && token != '%')
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -948,7 +958,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseTermP(NumericExpressionNo
 		fail();
 	}
 
-	return {true, termP.getNode()};
+	accept(termP.getNode());
 }
 
 // exponent -> fact exponent'
@@ -966,7 +976,7 @@ ParseResult<NumericExpressionNode>  LithiumParser::parseExponent()
 		fail();
 	}
 
-	return {true, exponentP.getNode()};
+	accept(exponentP.getNode());
 }
 
 // exponent' -> ^ fact exponent'
@@ -976,7 +986,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseExponentP(NumericExpressi
 	Token token = peekToken();
 	if (token != '^')
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -993,7 +1003,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseExponentP(NumericExpressi
 		fail();
 	}
 
-	return {true, exponentP.getNode()};
+	accept(exponentP.getNode());
 }
 
 // fact -> - factorial
@@ -1011,7 +1021,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseFact()
 			fail();
 		}
 
-		return {true, new UnaryExpressionNode(factorial.getNode(), '-')};
+		accept(new UnaryExpressionNode(factorial.getNode(), '-'));
 	}
 
 	ret(parseFactorial());
@@ -1032,7 +1042,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseFactorial()
 		fail();
 	}
 
-	return {true, factorialP.getNode()};
+	accept(factorialP.getNode());
 }
 
 // factorial' -> ! factorial'
@@ -1042,7 +1052,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseFactorialP(NumericExpress
 	Token token = peekToken();
 	if (token != '!')
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -1053,7 +1063,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseFactorialP(NumericExpress
 		fail();
 	}
 
-	return {true, factorialP.getNode()};
+	accept(factorialP.getNode());
 }
 
 // modifier -> primary modifier'
@@ -1071,7 +1081,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseModifier()
 		fail();
 	}
 
-	return {true, modifierP.getNode()};
+	accept(modifierP.getNode());
 }
 
 // modifier' -> ++ modifier'
@@ -1082,7 +1092,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseModifierP(NumericExpressi
 	Token token = peekToken();
 	if (token != INCREMENT && token != DECREMENT)
 	{
-		return {true, lhs};
+		accept(lhs);
 	}
 
 	nextToken();
@@ -1093,7 +1103,7 @@ ParseResult<NumericExpressionNode> LithiumParser::parseModifierP(NumericExpressi
 		fail();
 	}
 
-	return {true, modifierP.getNode()};
+	accept(modifierP.getNode());
 }
 
 // ( numeric_expression )
@@ -1122,20 +1132,20 @@ ParseResult<NumericExpressionNode> LithiumParser::parsePrimary()
 
 		nextToken();
 
-		return {true, expression.getNode()};
+		accept(expression.getNode());
 	}
 
 	if (token == NUMBER)
 	{
 		nextToken();
 		int value = std::stoi(token.getText());
-		return {true, new IntExpressionNode(value)};
+		accept(new IntExpressionNode(value));
 	}
 
 	if (token == IDENTIFIER)
 	{
 		nextToken();
-		return {true, new VariableExpressionNode(token)};
+		accept(new VariableExpressionNode(token));
 	}
 
 	expected("an expression", token);

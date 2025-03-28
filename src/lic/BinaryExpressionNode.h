@@ -1,3 +1,7 @@
+//***********************************************
+// BinaryExpressionNode.h
+//***********************************************
+
 #pragma once
 
 #include "NumericExpressionNode.h"
