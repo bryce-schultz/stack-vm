@@ -14,6 +14,11 @@ public:
 		}
 	}
 
+	StatementsNode *getStatements() const
+	{
+		return static_cast<StatementsNode *>(getChild(0));
+	}
+
 	virtual void visit(IVisitor *visitor) override
 	{
 		visitor->visit(this);

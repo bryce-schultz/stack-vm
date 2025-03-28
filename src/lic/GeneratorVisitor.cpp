@@ -3,11 +3,7 @@
 #include "Error.h"
 
 GeneratorVisitor::GeneratorVisitor(const std::string &output_filename):
-    _outputFilename(output_filename)
-{
-}
-
-GeneratorVisitor::~GeneratorVisitor()
+    outputFilename(output_filename)
 {
 }
 
@@ -15,33 +11,39 @@ void GeneratorVisitor::visitAllChildren(Node *node)
 {
     node->visit(this);
 
+    // Don't attepmt to output to the file if there is an error.
     if (global::hadError)
     {
         return;
     }
 
-    std::ofstream file(_outputFilename);
+    std::ofstream file(outputFilename);
 
     if (file.is_open())
     {
-        file << _buffer.str();
+        file << outputBuffer.str();
         file.close();
 
-        printf("-> %s\n", _outputFilename.c_str());
+        printf("-> %s\n", outputFilename.c_str());
     }
 }
 
 void GeneratorVisitor::visit(ProgramNode *node)
 {
-    node->visitAllChildren(this);
+    // Visit the statements that are in the program.
+    node->getStatements()->visit(this);
+    // Tell the vm the program is done.
     out("halt\n");
 }
 
 void GeneratorVisitor::visit(BinaryExpressionNode *node)
 {
+    // Visit the left and right children of the binary expression.
     node->getLeft()->visit(this);
     node->getRight()->visit(this);
 
+    // Get the operator of the binary expression and 
+    // output the corresponding instruction.
     switch ((int)node->getOperator())
     {
     case '+':
@@ -92,6 +94,7 @@ void GeneratorVisitor::visit(BinaryExpressionNode *node)
 
 void GeneratorVisitor::visit(IntExpressionNode *node)
 {
+    // Push the value of the integer expression onto the stack.
     out("push");
     out(node->getValue());
     out("\n");
@@ -101,13 +104,16 @@ void GeneratorVisitor::visit(PrintStatementNode *node)
 {
     auto expression = node->getExpression();
 
+    // Ensure the expression is not null.
     if (!expression)
     {
         return;
     }
 
+    // Visit the expression.
     expression->visit(this);
 
+    // Output the print instruction based on expression type.
     if (expression->isString())
     {
         out("printstr");
@@ -122,8 +128,10 @@ void GeneratorVisitor::visit(PrintStatementNode *node)
 
 void GeneratorVisitor::visit(UnaryExpressionNode *node)
 {
+    // Visit the expression of the unary expression.
     node->getExpr()->visit(this);
 
+    // Get the operator of the unary expression and output the corresponding instruction.
     switch (node->getOperator())
     {
     case '!':
@@ -141,18 +149,19 @@ void GeneratorVisitor::visit(UnaryExpressionNode *node)
     }
     out("\n");
 
-    // if our expression was a variable, we need to store the result back into the variable
+    // If our expression was a variable, we store the result back into the variable.
     if (node->getExpr()->isVariable())
     {
         auto var = dynamic_cast<VariableExpressionNode *>(node->getExpr());
         out("store");
-        out(_variables[var->getSymbol()]);
+        out(variables[var->getSymbol()]);
         out("\n");
     }
 }
 
 void GeneratorVisitor::visit(AsmStatementNode *node)
 {
+    // Get the raw assembly code and output it.
     std::string asm_ = node->getStringExpression()->getValue();
     out(asm_);
     out("\n");
@@ -160,9 +169,10 @@ void GeneratorVisitor::visit(AsmStatementNode *node)
 
 void GeneratorVisitor::visit(StringExpressionNode *node)
 {
+    // Get the string value of the string expression.
     std::string str = node->getValue();
 
-    // loop backwards through the string
+    // Loop backwards through the string, pushing each character onto the stack.
     for (int i = str.size() - 1; i >= 0; i--)
     {
         out("push");
@@ -170,6 +180,7 @@ void GeneratorVisitor::visit(StringExpressionNode *node)
         out("\n");
     }
 
+    // Push the size of the string onto the stack.
     out("push");
     out(str.size());
     out("\n");
@@ -177,115 +188,163 @@ void GeneratorVisitor::visit(StringExpressionNode *node)
 
 void GeneratorVisitor::visit(ConcatNode *node)
 {
+    // Visit the left and right children of the concat node.
     node->getLeft()->visit(this);
     node->getRight()->visit(this);
 
+    // Output the concat instruction.
     out("concat\n");
 }
 
 std::string GeneratorVisitor::getOutput() const
 {
-    return _buffer.str();
+    return outputBuffer.str();
 }
 
 void GeneratorVisitor::out(const std::string &text)
 {
-    _buffer << text;
+    outputBuffer << text;
 }
 
 void GeneratorVisitor::out(int64_t value)
 {
-    _buffer << " " << value;
+    outputBuffer << " " << value;
 }
 
 void GeneratorVisitor::visit(VarDeclNode *node)
 {
+    // Get the symbol and expression of the variable declaration.
     auto symbol = node->getSymbol();
     auto expr = node->getExpression();
 
+    // Ensure the expression is numeric as string variables are not supported yet.
     if (expr->isNumeric())
     {
-        _variables[symbol] = _variables.size();
+        // Store the variable in the variables map if it doesn't already exist.
+        // We use the symbol as the key so that variables in different scopes can have the same name.
+        if (variables.find(symbol) == variables.end())
+        {
+            variables[symbol] = variables.size();
+        }
 
+        // Visit the expression and store the result in the variable.
         expr->visit(this);
 
         out("store");
-        out(_variables[symbol]);
+        out(variables[symbol]);
         out("\n");
     }
 }
 
 void GeneratorVisitor::visit(VariableExpressionNode *node)
 {
-    if (_variables.find(node->getSymbol()) == _variables.end())
+    // Get the symbol and name of the variable expression.
+    auto symbol = node->getSymbol();
+    auto name = node->getName();
+    auto token = node->getToken();
+
+    // Ensure the variable is defined.
+    if (variables.find(symbol) == variables.end())
     {
-        error("variable " + node->getName() + " is not defined", node->getToken());
+        error("variable " + name + " is not defined", token);
     }
 
+    // Load the variable onto the stack.
     out("load");
-    out(_variables[node->getSymbol()]);
+    out(variables[symbol]);
     out("\n");
 }
 
 void GeneratorVisitor::visit(AssignNode *node)
 {
+    // Get the symbol and expression of the assignment.
     auto symbol = node->getSymbol();
     auto expr = node->getExpression();
 
     if (expr->isNumeric())
     {
-        int id = _variables.size();
-        if (_variables.find(symbol) != _variables.end())
+        // Store the variable in the variables map if it doesn't already exist.
+        if (variables.find(symbol) == variables.end())
         {
-            id = _variables[symbol];
-        }
-        else
-        {
-            _variables[symbol] = id;
+            variables[symbol] = variables.size();
         }
 
+        // Visit the expression and store the result in the variable.
         expr->visit(this);
 
         out("store");
-        out(_variables[symbol]);
+        out(variables[symbol]);
         out("\n");
     }
 }
 
 void GeneratorVisitor::visit(ForStatementNode *node)
-{
+{   
+    // This is a static variable so this is only set once.
     static int forCount = 1;
+    // Create a unique id for the for loop.
     int forId = forCount++;
+    
+    // Create a starting label for the for loop and visit the init expression.
     out("for" + std::to_string(forId) + "start:\n");
     node->getInit()->visit(this);
+
+    // Create a label for the loop and visit the condition.
+    // We always want to jump back to before the condition check.
     out("for" + std::to_string(forId) + "loop:\n");
     node->getCondition()->visit(this);
+
+    // If the condition evaluates to 0 (false), jump to the end of the for loop.
     out("jz for" + std::to_string(forId) + "end\n");
+
+    // Visit the statement and increment expression.
     node->getStatement()->visit(this);
     node->getIncrement()->visit(this);
+
+    // Jump back to the start of the for loop.
     out("jmp for" + std::to_string(forId) + "loop\n");
+
+    // Create a label for the end of the for loop.
     out("for" + std::to_string(forId) + "end:\n");
 }
 
 void GeneratorVisitor::visit(WhileStatementNode *node)
 {
+    // This is a static variable so this is only set once.
     static int whileCount = 1;
+    // Create a unique id for the while loop.
     int whileId = whileCount++;
+
+    // Create a label for the start of the while loop and visit the condition.
     out("while" + std::to_string(whileId) + "loop:\n");
     node->getCondition()->visit(this);
+
+    // If the condition evaluates to 0 (false), jump to the end of the while loop.
     out("jz while" + std::to_string(whileId) + "end\n");
+
+    // Visit the body of the while loop.
     node->getBody()->visit(this);
+
+    // Jump back to the start of the while loop.
     out("jmp while" + std::to_string(whileId) + "loop\n");
+
+    // Create a label for the end of the while loop.
     out("while" + std::to_string(whileId) + "end:\n");
 }
 
 void GeneratorVisitor::visit(IfStatementNode *node)
 {
+    // This is a static variable so this is only set once.
     static int ifCount = 1;
+    // Create a unique id for the if statement.
     int ifId = ifCount++;
-    node->getCondition()->visit(this);
-    StatementNode *elseStatement = node->getElseStatement();
 
+    // Visit the condition of the if statement.
+    node->getCondition()->visit(this);
+
+    // If the if statement has an else statement, jump to the else statement if the condition is false.
+    // Otherwise, jump to the end of the if statement.
+    StatementNode *elseStatement = node->getElseStatement();
     if (elseStatement)
     {
         out("jz if" + std::to_string(ifId) + "else\n");
@@ -295,15 +354,20 @@ void GeneratorVisitor::visit(IfStatementNode *node)
         out("jz if" + std::to_string(ifId) + "end\n");
     }
 
+    // Visit the body of the if statement.
     node->getStatement()->visit(this);
 
+    // Jump to the end of the if statement.
     out("jmp if" + std::to_string(ifId) + "end\n");
     
+    // If the if statement has an else statement, visit the else statement.
     if (elseStatement)
     {
+        // Create a label for the else statement and visit it.
         out("if" + std::to_string(ifId) + "else:\n");
         elseStatement->visit(this);
     }
 
+    // Create a label for the end of the if statement.
     out("if" + std::to_string(ifId) + "end:\n");
 }
