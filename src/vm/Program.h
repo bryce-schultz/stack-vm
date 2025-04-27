@@ -39,7 +39,10 @@ typedef std::vector<uint64_t> Program;
 #define iand        (uint64_t)Instruction::AND
 #define ior         (uint64_t)Instruction::OR
 #define istore      (uint64_t)Instruction::STORE
+#define ipstore     (uint64_t)Instruction::PSTORE
 #define iload       (uint64_t)Instruction::LOAD
 #define istostr     (uint64_t)Instruction::STOSTR
 #define iloadstr    (uint64_t)Instruction::LOADSTR
 #define isyscall    (uint64_t)Instruction::SYSCALL
+#define icall       (uint64_t)Instruction::CALL
+#define iret        (uint64_t)Instruction::RET

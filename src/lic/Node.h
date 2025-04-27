@@ -21,6 +21,17 @@ public:
 		children.push_back(child);
 	}
 
+	void setChild(size_t index, Node *child)
+	{
+		if (index >= children.size())
+		{
+			return;
+		}
+
+		delete children[index];
+		children[index] = child;
+	}
+
 	Node *getChild(int index) const
 	{
 		return children[index];
@@ -40,7 +51,6 @@ public:
 			child->visit(visitor);
 		}
 	}
-
 private:
 	std::vector<Node *> children;
 };

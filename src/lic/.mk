@@ -1,2 +1,2 @@
-CPPFLAGS += -g
+CXXFLAGS += -g
 MAIN_EXE = lic

@@ -489,6 +489,17 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			*(heap + address) = value;
 			break;
 		}
+		case Instruction::PSTORE:
+		{
+			uint64_t address = fetch();
+			// save the return address
+			uint64_t return_address = pop();
+			uint64_t value = pop();
+			*(heap + address) = value;
+			// push the return address back to the stack
+			push(return_address);
+			break;
+		}
 		case Instruction::LOAD:
 		{
 			uint64_t address = fetch();
@@ -521,6 +532,19 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		case Instruction::HALT:
 		{
 			return false;
+		}
+		case Instruction::CALL:
+		{
+			int64_t offset = fetch();
+			push(reinterpret_cast<uint64_t>(ip));
+			ip += offset;
+			break;
+		}
+		case Instruction::RET:
+		{
+			uint64_t return_address = pop();
+			ip = reinterpret_cast<uint64_t *>(return_address);
+			break;
 		}
 		default:
 		{

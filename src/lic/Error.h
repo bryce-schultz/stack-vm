@@ -18,6 +18,7 @@ namespace global
 #define error(message, toekn) error_(message, toekn, __FILE__, __LINE__)
 #define expected(message, token) error(std::string("expected ") + message + std::string(" but got '") + token.getText() + (token == JUNK ? "' (JUNK) instead" : "' instead"), token)
 #define undefined(token) error("variable " + token.getText() + " is not defined", token);
+#define undefined_function(token) error("function " + token.getText() + " is not defined", token);
 
 //***********************************************
 // error_

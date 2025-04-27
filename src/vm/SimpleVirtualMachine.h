@@ -59,10 +59,13 @@ enum class Instruction : uint64_t
 	OR,
 	DUP,
 	STORE,
+	PSTORE,
 	LOAD,
 	STOSTR,
 	LOADSTR,
-	SYSCALL
+	SYSCALL,
+	CALL,
+	RET
 };
 
 enum class Syscall : uint64_t

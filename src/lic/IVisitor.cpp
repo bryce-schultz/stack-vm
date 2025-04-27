@@ -114,3 +114,38 @@ void IVisitor::visit(IfStatementNode *node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(FuncDeclNode* node)
+{
+    node->visitAllChildren(this);
+}
+
+void IVisitor::visit(ParamNode *node)
+{
+	node->visitAllChildren(this);
+}
+
+void IVisitor::visit(ParamListNode* node)
+{
+    node->visitAllChildren(this);
+}
+
+void IVisitor::visit(ArgNode* node)
+{
+    node->visitAllChildren(this);
+}
+
+void IVisitor::visit(ArgListNode* node)
+{
+    node->visitAllChildren(this);
+}
+
+void IVisitor::visit(CallNode* node) 
+{
+    node->visitAllChildren(this);
+}
+
+void IVisitor::visit(Symbol *node)
+{
+	node->visitAllChildren(this);
+}

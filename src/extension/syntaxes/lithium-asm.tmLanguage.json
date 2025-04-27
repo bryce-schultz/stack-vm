@@ -3,7 +3,7 @@
   "patterns": [
     {
       "name": "keyword.control.lithium-asm",
-      "match": "(?i)\\b(NOP|HALT|PUSH|POP|ADD|SUB|MUL|DIV|MOD|NEG|POW|FACT|PRINT|PRINTSTR|CONCAT|JMP|JZ|JNZ|JE|JNE|JG|JGE|JL|GT|LT|JLE|EQ|NE|DUP|STORE|LOAD|STOSTR|LOADSTR|SYSCALL)\\b"
+      "match": "(?i)\\b(NOP|HALT|PUSH|POP|ADD|SUB|MUL|DIV|MOD|NEG|POW|FACT|PRINT|PRINTSTR|CONCAT|JMP|JZ|JNZ|JE|JNE|JG|JGE|JL|GT|LT|JLE|EQ|NE|DUP|STORE|LOAD|STOSTR|LOADSTR|SYSCALL|CALL|RET)\\b"
     },
     {
       "name": "variable.other.lithium-asm",

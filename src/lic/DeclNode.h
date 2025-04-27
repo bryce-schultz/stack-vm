@@ -9,6 +9,11 @@
 class DeclNode : public StatementNode
 {
 public:
+    virtual bool isFunction() const
+    {
+        return false;
+    }
+
     virtual void visit(IVisitor *visitor) override
     {
         visitor->visit(this);

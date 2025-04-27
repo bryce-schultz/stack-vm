@@ -8,7 +8,7 @@
     },
     {
       "name": "keyword.control.lithium",
-      "match": "\\b(for|while|print|asm)\\b"
+      "match": "\\b(for|while|print|asm|let|const|fn|return)\\b"
     },
     {
       "name": "keyword.control.conditional.lithium",

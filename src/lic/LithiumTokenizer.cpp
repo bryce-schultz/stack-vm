@@ -134,7 +134,8 @@ Token LithiumTokenizer::getToken()
         c == '%' ||
         c == '^' ||
         c == '<' ||
-        c == '>')
+        c == '>' ||
+        c == ',')
     {
         text = c;
         next();
@@ -249,6 +250,21 @@ Token LithiumTokenizer::getToken()
         if (text == "print")
         {
             return {PRINT, text, tokenStart};
+        }
+
+        if (text == "let")
+        {
+            return {LET, text, tokenStart};
+        }
+
+        if (text == "fn")
+        {
+            return {FN, text, tokenStart};
+        }
+
+        if (text == "return")
+        {
+            return {RETURN, text, tokenStart};
         }
 
         if (text == "asm")

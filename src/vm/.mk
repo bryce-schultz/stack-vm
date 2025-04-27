@@ -1,2 +1,2 @@
-CPPFLAGS += -g
+CXXFLAGS += -g -O0
 MAIN_EXE = vm

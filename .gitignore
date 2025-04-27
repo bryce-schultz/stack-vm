@@ -9,3 +9,4 @@
 # directories
 node_modules/
 build/
+.vscode/

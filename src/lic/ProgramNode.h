@@ -2,6 +2,7 @@
 
 #include "Node.h"
 #include "StatementsNode.h"
+#include "HasVisitor.h"
 
 class ProgramNode : public Node
 {
@@ -12,6 +13,14 @@ public:
 		{
 			addChild(statements);
 		}
+	}
+
+	bool hasMain()
+	{
+		HasVisitor visitor;
+		visitAllChildren(&visitor);
+
+		return visitor.has("main");
 	}
 
 	StatementsNode *getStatements() const

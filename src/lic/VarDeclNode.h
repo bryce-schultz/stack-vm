@@ -8,16 +8,16 @@
 class VarDeclNode : public DeclNode
 {
 public:
-    VarDeclNode(const Token &token, ExpressionNode *expression)
+    VarDeclNode(const Token &identifier, ExpressionNode *expression)
     {
-        if (global::symbolTable.lookupLocal(token.getText()))
+        if (global::symbolTable.lookupLocal(identifier.getText()))
         {
             // if the variable is already declared in the current scope reassing the symbol
-            symbol = global::symbolTable.lookupLocal(token.getText());
+            symbol = global::symbolTable.lookupLocal(identifier.getText());
         }
         else
         {
-            symbol = new Symbol(token);
+            symbol = new Symbol(identifier);
             symbol->setDecl(this);
             global::symbolTable.addSymbol(symbol);
         }

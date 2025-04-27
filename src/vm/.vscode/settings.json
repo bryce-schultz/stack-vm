@@ -47,5 +47,12 @@
         "streambuf": "cpp",
         "typeinfo": "cpp",
         "sstream": "cpp"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/milk/projects/stack-vm/src/vm",
+            "binaryPath": "/home/milk/projects/stack-vm/src/vm/vm",
+            "binaryArgs": []
+        }
+    ]
 }

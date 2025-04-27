@@ -1,17 +1,10 @@
-if (1 < 10)
+fn println(value)
 {
-    print("1 is less than 10\n");
-}
-else
-{
-    print("1 is not less than 10\n");
-}
+    print(value);
+    print("\n");
+};
 
-if (10 < 1)
+fn main()
 {
-    print("10 is less than 1\n");
-}
-else
-{
-    print("10 is not less than 1\n");
-}
+    println(5);
+};

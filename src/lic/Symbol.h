@@ -3,18 +3,14 @@
 #include "Token.h"
 #include "DeclNode.h"
 
-class Symbol
+class Symbol : public Node
 {
 public:
     Symbol(const Token &token):
         token(token),
         decl(nullptr)
-    {}
-
-    /*bool operator==(const Symbol &other) const
     {
-        return token == other.token;
-    }*/
+    }
 
     DeclNode *getDecl() const
     {
@@ -34,6 +30,16 @@ public:
     std::string getName() const
     {
         return token.getText();
+    }
+
+    bool isFunction() const
+    {
+        return decl && decl->isFunction();
+    }
+
+    virtual void visit(IVisitor *visitor) override
+    {
+        visitor->visit(this);
     }
 private:
     Token token;

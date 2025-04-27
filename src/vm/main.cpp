@@ -3,16 +3,23 @@
 
 #include "SimpleVirtualMachine.h"
 
+//#define DEBUG
+
 int main(int argc, char **argv)
 {
+	std::string filename = "test.lsm";
+#ifndef DEBUG
 	if (argc != 2)
 	{
 		printf("usage: %s <source>\n", argv[0]);
 		return 1;
 	}
 
+	filename = argv[1];
+#endif
+
 	SVASMParser asm_parser;
-	SVASMParserResult result = asm_parser.parse(argv[1]);
+	SVASMParserResult result = asm_parser.parse(filename);
 
 	if (!result.success)
 	{

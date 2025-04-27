@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -e
+
+lic test.li
+../vm/vm test.lsm

@@ -27,6 +27,13 @@ class WhileStatementNode;
 class IfStatementNode;
 class BlockNode;
 class StatementListNode;
+class FuncDeclNode;
+class ParamNode;
+class ParamListNode;
+class ArgNode;
+class ArgListNode;
+class CallNode;
+class Symbol;
 
 class IVisitor
 {
@@ -54,5 +61,12 @@ public:
 	virtual void visit(IfStatementNode* node);
 	virtual void visit(BlockNode* node);
 	virtual void visit(StatementListNode* node);
+	virtual void visit(FuncDeclNode* node);
+	virtual void visit(ParamNode* node);
+	virtual void visit(ParamListNode* node);
+	virtual void visit(ArgNode* node);
+	virtual void visit(ArgListNode* node);
+	virtual void visit(CallNode* node);
+	virtual void visit(Symbol* node);
 };
 

@@ -4,10 +4,10 @@ VM=../../src/vm/vm
 all: run
 
 compile: main.li
-	$(LIC) main.li
+	@$(LIC) main.li
 
 run: compile
-	$(VM) main.lsm
+	@$(VM) main.lsm
 
 clean:
-	rm -f main.lsm
+	@rm -f main.lsm

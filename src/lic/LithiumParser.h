@@ -40,7 +40,7 @@ class LithiumParser
 public:
 	LithiumParser();
 
-	ParseResult<Node> parse(const std::string &source);
+	ParseResult<Node> parse(const std::string &filename);
 	std::vector<std::string> getErrors() const;
 private:
 	ParseResult<Node> parseInternal(const std::string &source, const std::string &filename = "");
@@ -57,9 +57,8 @@ private:
 
 	// statement -> single_statement ;
 	//            | block
-	//            | for_statement
-	//            | while_statement
-	//            | if_statement
+	// 		      | control_statement
+	//            | ;
 	ParseResult<StatementNode> parseStatement();
 	
 	// statement_list -> single_statement statement_list'
@@ -69,10 +68,36 @@ private:
 	//                  | nothing
 	ParseResult<StatementListNode> parseStatementListP(StatementNode *lhs);
 
-	// single_statement -> expression
-	//                   | print_statement
-	//                   | asm_statement
+	//control_statement -> for_statement
+    //                   | while_statement
+    //                   | if_statement
+	ParseResult<StatementNode> parseControlStatement();
+
+	// single_statement -> asm_statement
+	//                   | expression
+	//                   | decl
+	//                   | ;
 	ParseResult<StatementNode> parseSingleStatement();
+
+	// decl -> var_decl
+	//       | func_decl
+	ParseResult<StatementNode> parseDecl();
+
+	// var_decl -> LET IDENTIFIER = expression
+	ParseResult<VarDeclNode> parseVarDecl();
+
+	// func_decl -> FN IDENTIFIER ( param_list ) statement
+	ParseResult<FuncDeclNode> parseFuncDecl();
+
+	//param_list -> param param_list'
+	ParseResult<ParamListNode> parseParamList();
+
+	//param_list' -> , param_list
+    //             | nothing
+	ParseResult<ParamListNode> parseParamListP(ParamNode *lhs);
+
+	// param -> IDENTIFIER
+	ParseResult<ParamNode> parseParam();
 
 	// block -> { statements }
 	ParseResult<BlockNode> parseBlock();
@@ -92,9 +117,6 @@ private:
 
 	// asm_statement -> ASM ( string_expression )
 	ParseResult<AsmStatementNode> parseAsmStatement();
-
-	// print_statement -> PRINT ( expression )
-	ParseResult<PrintStatementNode> parsePrintStatement();
 
 	// expression -> numeric_expression
 	// 			   | string_expression
@@ -192,10 +214,24 @@ private:
 	//            | nothing
 	ParseResult<NumericExpressionNode> parseModifierP(NumericExpressionNode *lhs);
 
-	// ( numeric_expression )
-	// NUMBER
-	// IDENTIFIER
+	// primary -> ( numeric_expression )
+	//          | NUMBER
+	//          | IDENTIFIER primary'
 	ParseResult<NumericExpressionNode> parsePrimary();
+	
+	// primary' -> ( arg_list )
+    //           | ϵ
+	ParseResult<NumericExpressionNode> parsePrimaryP(const Token &identifier);
+
+	// arg_list -> arg arg_list'
+	ParseResult<ArgListNode> parseArgList();
+
+	// arg_list' -> , arg_list
+	//            | nothing
+	ParseResult<ArgListNode> parseArgListP(ArgNode *lhs);
+	
+	// arg -> expression
+	ParseResult<ArgNode> parseArg();
 private:
 	void dropStatement();
 private:

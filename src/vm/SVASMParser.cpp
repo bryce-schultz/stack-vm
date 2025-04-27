@@ -140,6 +140,12 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 			result.program.push_back(istore);
 			result.program.push_back(address);
 		}
+		else if (tokens[i] == "pstore")
+		{
+			uint64_t address = std::stoull(tokens[++i]);
+			result.program.push_back(ipstore);
+			result.program.push_back(address);
+		}
 		else if (tokens[i] == "load")
 		{
 			uint64_t address = std::stoull(tokens[++i]);
@@ -236,6 +242,16 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		{
 			result.program.push_back(ihalt);
 		}
+		else if (tokens[i] == "call")
+		{
+			int64_t offset = getOffset(tokens, i);
+			result.program.push_back(icall);
+			result.program.push_back(offset);
+		}
+		else if (tokens[i] == "ret")
+		{
+			result.program.push_back(iret);
+		}
 		else
 		{
 			result.success = false;
@@ -285,27 +301,6 @@ int64_t SVASMParser::getOffset(const std::vector<std::string> &tokens, size_t &i
 
 	int64_t address = symbolTable.get(token);
 	return address - i - 1;
-}
-
-bool SVASMParser::push(Program &program, const std::vector<std::string> &tokens, size_t &i)
-{
-	if (i + 1 >= tokens.size())
-	{
-		return false;
-	}
-
-	program.push_back(ipush);
-	try
-	{
-		uint64_t value = std::stoull(tokens[++i]);
-		program.push_back(value);
-	}
-	catch (const std::exception&)
-	{
-		return false;
-	}
-
-	return true;
 }
 
 SVASMParserResult SVASMParser::parse(const std::string& source)

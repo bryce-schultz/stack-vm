@@ -160,6 +160,38 @@ public:
     virtual void visit(IfStatementNode *node) override;
 
     //***********************************************
+    // visit (FuncDeclNode) - not to be called outside
+    // of the visitor.
+    //
+    // Visits the FuncDeclNode.
+    //***********************************************
+    virtual void visit(FuncDeclNode *node) override;
+
+    //***********************************************
+    // visit (CallNode) - not to be called outside
+    // of the visitor.
+    //
+    // Visits the CallNode.
+    //***********************************************
+    virtual void visit(CallNode *node) override;
+
+    //***********************************************
+    // visit (ParamListNode) - not to be called outside
+    // of the visitor.
+    //
+    // Visits the ParamListNode.
+    //***********************************************
+    virtual void visit(ParamListNode *node) override;
+
+    //***********************************************
+    // visit (ParamNode) - not to be called outside
+    // of the visitor.
+    //
+    // Visits the ParamNode.
+    //***********************************************
+    virtual void visit(ParamNode *node) override;
+    
+    //***********************************************
     // getOutput
     // 
     // Returns the generated code.
