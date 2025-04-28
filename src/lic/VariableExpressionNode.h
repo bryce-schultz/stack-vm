@@ -6,11 +6,17 @@
 class VariableExpressionNode : public NumericExpressionNode
 {
 public:
-    VariableExpressionNode(Token token):
+    VariableExpressionNode(const Token &token):
         symbol(nullptr),
         token(token)
     {
-        symbol = global::symbolTable.lookupGlobal(token.getText());
+        auto text = token.getText();
+        symbol = global::symbolTable.lookupGlobal(text);
+
+        if (!symbol)
+        {
+            undefined(token);
+        }
     }
 
     virtual void visit(IVisitor *visitor) override

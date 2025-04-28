@@ -44,6 +44,6 @@ fn main()
 
     error(invalid_arg);
 
-    _ = println(5);
+    let _ = println(5);
     println(_);
 };
