@@ -186,10 +186,10 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 			result.program.push_back(ijne);
 			result.program.push_back(offset);
 		}
-		else if (tokens[i] == "jg")
+		else if (tokens[i] == "jgt")
 		{
 			int64_t offset = getOffset(tokens, i);
-			result.program.push_back(ijg);
+			result.program.push_back(ijgt);
 			result.program.push_back(offset);
 		}
 		else if (tokens[i] == "jge")
@@ -198,10 +198,10 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 			result.program.push_back(ijge);
 			result.program.push_back(offset);
 		}
-		else if (tokens[i] == "jl")
+		else if (tokens[i] == "jlt")
 		{
 			int64_t offset = getOffset(tokens, i);
-			result.program.push_back(ijl);
+			result.program.push_back(ijlt);
 			result.program.push_back(offset);
 		}
 		else if (tokens[i] == "gt")

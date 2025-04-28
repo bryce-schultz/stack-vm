@@ -396,7 +396,7 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			}
 			break;
 		}
-		case Instruction::JG:
+		case Instruction::JGT:
 		{
 			int64_t offset = fetch();
 			uint64_t right = pop();
@@ -418,7 +418,7 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			}
 			break;
 		}
-		case Instruction::JL:
+		case Instruction::JLT:
 		{
 			int64_t offset = fetch();
 			uint64_t right = pop();

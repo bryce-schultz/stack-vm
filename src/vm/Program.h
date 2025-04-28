@@ -28,9 +28,9 @@ typedef std::vector<uint64_t> Program;
 #define ijnz        (uint64_t)Instruction::JNZ
 #define ije         (uint64_t)Instruction::JE
 #define ijne        (uint64_t)Instruction::JNE
-#define ijg         (uint64_t)Instruction::JG
+#define ijgt         (uint64_t)Instruction::JGT
 #define ijge        (uint64_t)Instruction::JGE
-#define ijl         (uint64_t)Instruction::JL
+#define ijlt         (uint64_t)Instruction::JLT
 #define igt         (uint64_t)Instruction::GT
 #define ige         (uint64_t)Instruction::GE
 #define ilt         (uint64_t)Instruction::LT
