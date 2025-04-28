@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	}
 
 	SimpleVirtualMachine vm(128_KB);
-	//vm.enableStackCheck(true);
+	//vm.enableStackCheck(true); // uncomment to enable stack check, bad if using functions with unused return value
 
 	try
 	{

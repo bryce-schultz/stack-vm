@@ -1,0 +1,12 @@
+fn println(value)
+{
+    print(value);
+    print("\n");
+}
+
+fn main()
+{
+    println(10 + 10);
+    println(100 * 10);
+    println(4 * 4 + 2);
+}

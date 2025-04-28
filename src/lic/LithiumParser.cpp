@@ -120,6 +120,7 @@ ParseResult<StatementsNode> LithiumParser::parseStatements()
 // statement -> single_statement ;
 //            | block
 //            | control_statement
+//            | func_decl
 //            | ;
 ParseResult<StatementNode> LithiumParser::parseStatement()
 {
@@ -153,6 +154,10 @@ ParseResult<StatementNode> LithiumParser::parseStatement()
 	else if (token == FOR || token == WHILE || token == IF)
 	{
 		ret(parseControlStatement());
+	}
+	else if (token == FN)
+	{
+		ret(parseFuncDecl());
 	}
 
 	auto statement = parseSingleStatement();
@@ -245,9 +250,9 @@ ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 {
 	Token token = peekToken();
 
-	if (token == LET || token == FN)
+	if (token == LET)
 	{
-		ret(parseDecl());
+		ret(parseVarDecl());
 	}
 	else if (token == ASM)
 	{
@@ -313,26 +318,6 @@ ParseResult<ReturnStatementNode> LithiumParser::parseReturnStatement()
 	}
 
 	accept(new ReturnStatementNode(expression.getNode()));
-}
-
-// decl -> var_decl
-//       | func_decl
-ParseResult<StatementNode> LithiumParser::parseDecl()
-{
-	Token token = peekToken();
-
-	if (token == LET)
-	{
-		ret(parseVarDecl());
-	}
-	else if (token == FN)
-	{
-		ret(parseFuncDecl());
-	}
-
-	expected("'let' or 'fn'", token);
-	dropStatement();
-	fail();
 }
 
 // var_decl -> LET IDENTIFIER = expression

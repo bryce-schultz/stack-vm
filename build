@@ -105,6 +105,7 @@ do_tests()
     run_test math
     run_test if
     run_test complex
+    run_test functions
 }
 
 main()

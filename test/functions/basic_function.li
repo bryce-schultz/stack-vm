@@ -1,0 +1,9 @@
+fn print_hello_world()
+{
+    print("Hello, World!\n");
+}
+
+fn main()
+{
+    print_hello_world();
+}

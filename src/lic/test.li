@@ -1,18 +1,8 @@
 fn println(value)
 {
-    const is_big = value >= 2^8;
-
-    if (is_big)
-    {
-        for (let i = 0; i < 10; i++)
-            print("big number: ");
-    }
-
     print(value);
     print("\n");
-
-    return value;
-};
+}
 
 fn error(code)
 {
@@ -30,7 +20,7 @@ fn error(code)
         print("unknown error");
     }
     print("\n");
-};
+}
 
 fn main()
 {
@@ -43,7 +33,4 @@ fn main()
     println(10!);
 
     error(invalid_arg);
-
-    let _ = println(5);
-    println(_);
-};
+}

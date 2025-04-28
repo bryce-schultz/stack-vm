@@ -1,0 +1,18 @@
+fn retval(val)
+{
+    print("returning value: ");
+    print(val);
+    print("\n");
+    return val;
+}
+
+fn main()
+{
+    const a = 10;
+    const b = 20;
+    const c = 30;
+
+    const result = retval(a + b + c);
+    print(result);
+    print("\n");
+}
