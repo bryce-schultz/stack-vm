@@ -12,6 +12,8 @@ class HasVisitor : public IVisitor
 
         virtual void visit(FuncDeclNode *node) override;
 
+        virtual void visit(ReturnStatementNode *node) override;
+
         bool has(const std::string &name) const;
     private:
         std::unordered_map<std::string, bool> hasMap;

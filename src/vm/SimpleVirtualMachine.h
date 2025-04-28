@@ -51,7 +51,9 @@ enum class Instruction : uint64_t
 	JGE,
 	JL,
 	GT,
+	GE,
 	LT,
+	LE,
 	EQ,
 	NE,
 	JLE,
@@ -65,7 +67,8 @@ enum class Instruction : uint64_t
 	LOADSTR,
 	SYSCALL,
 	CALL,
-	RET
+	RET,
+	RETVAL
 };
 
 enum class Syscall : uint64_t

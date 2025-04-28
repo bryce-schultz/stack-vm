@@ -32,7 +32,9 @@ typedef std::vector<uint64_t> Program;
 #define ijge        (uint64_t)Instruction::JGE
 #define ijl         (uint64_t)Instruction::JL
 #define igt         (uint64_t)Instruction::GT
+#define ige         (uint64_t)Instruction::GE
 #define ilt         (uint64_t)Instruction::LT
+#define ile         (uint64_t)Instruction::LE
 #define ieq         (uint64_t)Instruction::EQ
 #define ine         (uint64_t)Instruction::NE
 #define ijle        (uint64_t)Instruction::JLE
@@ -46,3 +48,4 @@ typedef std::vector<uint64_t> Program;
 #define isyscall    (uint64_t)Instruction::SYSCALL
 #define icall       (uint64_t)Instruction::CALL
 #define iret        (uint64_t)Instruction::RET
+#define iretval     (uint64_t)Instruction::RETVAL

@@ -76,8 +76,12 @@ private:
 	// single_statement -> asm_statement
 	//                   | expression
 	//                   | decl
+	//                   | return_statement
 	//                   | ;
 	ParseResult<StatementNode> parseSingleStatement();
+
+	// return_statement -> RETURN expression
+	ParseResult<ReturnStatementNode> parseReturnStatement();
 
 	// decl -> var_decl
 	//       | func_decl

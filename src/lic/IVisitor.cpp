@@ -149,3 +149,8 @@ void IVisitor::visit(Symbol *node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(ReturnStatementNode *node)
+{
+	node->visitAllChildren(this);
+}

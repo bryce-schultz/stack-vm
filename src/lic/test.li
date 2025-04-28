@@ -1,10 +1,49 @@
 fn println(value)
 {
+    const is_big = value >= 2^8;
+
+    if (is_big)
+    {
+        for (let i = 0; i < 10; i++)
+            print("big number: ");
+    }
+
     print(value);
+    print("\n");
+
+    return value;
+};
+
+fn error(code)
+{
+    print("error: ");
+    if (code == 1)
+    {
+        print("invalid argument");
+    }
+    else if (code == 2)
+    {
+        print("out of memory");
+    }
+    else
+    {
+        print("unknown error");
+    }
     print("\n");
 };
 
 fn main()
 {
+    const invalid_arg = 1;
+    const out_of_memory = 2;
+    const unknown_error = 3;
+
     println(5);
+    println(10);
+    println(10!);
+
+    error(invalid_arg);
+
+    _ = println(5);
+    println(_);
 };

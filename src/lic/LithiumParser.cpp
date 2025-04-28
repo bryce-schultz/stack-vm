@@ -119,9 +119,8 @@ ParseResult<StatementsNode> LithiumParser::parseStatements()
 
 // statement -> single_statement ;
 //            | block
-//            | for_statement
-//            | while_statement
-//            | if_statement
+//            | control_statement
+//            | ;
 ParseResult<StatementNode> LithiumParser::parseStatement()
 {
 	static int blockDepth = 0;
@@ -246,7 +245,6 @@ ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 {
 	Token token = peekToken();
 
-
 	if (token == LET || token == FN)
 	{
 		ret(parseDecl());
@@ -254,6 +252,10 @@ ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 	else if (token == ASM)
 	{
 		ret(parseAsmStatement());
+	}
+	else if (token == RETURN)
+	{
+		ret(parseReturnStatement());
 	}
 	if (token == PRINT)
 	{
@@ -291,6 +293,26 @@ ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 	}
 
 	ret(parseExpression());
+}
+
+ParseResult<ReturnStatementNode> LithiumParser::parseReturnStatement()
+{
+	Token token = peekToken();
+	if (token != RETURN)
+	{
+		expected("'return'", token);
+		dropStatement();
+		fail();
+	}
+	nextToken();
+
+	auto expression = parseExpression();
+	if (!expression.isValid())
+	{
+		fail();
+	}
+
+	accept(new ReturnStatementNode(expression.getNode()));
 }
 
 // decl -> var_decl
@@ -489,6 +511,7 @@ ParseResult<BlockNode> LithiumParser::parseBlock()
 	nextToken();
 
 	depth++;
+	global::symbolTable.increaseScope();
 
 	auto statements = parseStatements();
 	if (!statements.isValid())
@@ -505,6 +528,7 @@ ParseResult<BlockNode> LithiumParser::parseBlock()
 	nextToken();
 
 	depth--;
+	global::symbolTable.decreaseScope();
 
 	accept(new BlockNode(statements.getNode()));
 }

@@ -14,6 +14,7 @@ public:
         if (!symbol)
         {
             undefined_function(identifier);
+            return;
         }
 
         if (!symbol->isFunction())

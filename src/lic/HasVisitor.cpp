@@ -31,6 +31,17 @@ void HasVisitor::visit(FuncDeclNode *node)
     }
 }
 
+void HasVisitor::visit(ReturnStatementNode *node)
+{
+    auto expr = node->getExpression();
+    if (expr)
+    {
+        expr->visit(this);
+    }
+    // Mark that the function has a return statement.
+    hasMap["return"] = true;
+}
+
 bool HasVisitor::has(const std::string &name) const
 {
     auto it = hasMap.find(name);

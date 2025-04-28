@@ -461,11 +461,25 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			push(left > right);
 			break;
 		}
+		case Instruction::GE:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left >= right);
+			break;
+		}
 		case Instruction::LT:
 		{
 			uint64_t right = pop();
 			uint64_t left = pop();
 			push(left < right);
+			break;
+		}
+		case Instruction::LE:
+		{
+			uint64_t right = pop();
+			uint64_t left = pop();
+			push(left <= right);
 			break;
 		}
 		case Instruction::AND:
@@ -544,6 +558,14 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		{
 			uint64_t return_address = pop();
 			ip = reinterpret_cast<uint64_t *>(return_address);
+			break;
+		}
+		case Instruction::RETVAL:
+		{
+			uint64_t return_value = pop();
+			uint64_t return_address = pop();
+			ip = reinterpret_cast<uint64_t *>(return_address);
+			push(return_value);
 			break;
 		}
 		default:

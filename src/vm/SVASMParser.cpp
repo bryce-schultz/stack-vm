@@ -208,9 +208,17 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		{
 			result.program.push_back(igt);
 		}
+		else if (tokens[i] == "ge")
+		{
+			result.program.push_back(ige);
+		}
 		else if (tokens[i] == "lt")
 		{
 			result.program.push_back(ilt);
+		}
+		else if (tokens[i] == "le")
+		{
+			result.program.push_back(ile);
 		}
 		else if (tokens[i] == "eq")
 		{
@@ -251,6 +259,10 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		else if (tokens[i] == "ret")
 		{
 			result.program.push_back(iret);
+		}
+		else if (tokens[i] == "retval")
+		{
+			result.program.push_back(iretval);
 		}
 		else
 		{

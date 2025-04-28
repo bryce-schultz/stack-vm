@@ -108,8 +108,33 @@ Token LithiumTokenizer::getToken()
         text = c;
         return {c, text, tokenStart};
     }
+    else if (c == '<')
+    {
+        char c2 = next();
+        if (c2 == '=')
+        {
+            text = "<=";
+            next();
+            return {LESS_OR_EQUAL, text, tokenStart};
+        }
 
-    if (c == '!')
+        text = c;
+        return {c, text, tokenStart};
+    }
+    else if (c == '>')
+    {
+        char c2 = next();
+        if (c2 == '=')
+        {
+            text = ">=";
+            next();
+            return {GREATER_OR_EQUAL, text, tokenStart};
+        }
+
+        text = c;
+        return {c, text, tokenStart};
+    }
+    else if (c == '!')
     {
         char c2 = next();
         if (c2 == '=')
@@ -239,9 +264,9 @@ Token LithiumTokenizer::getToken()
     }
 
     // parse identifiers
-    if (isalpha(c))
+    if (isalpha(c) || c == '_')
     {
-        while (isalnum(c))
+        while (isalnum(c) || c == '_')
         {
             text += c;
             c = next();
@@ -253,6 +278,11 @@ Token LithiumTokenizer::getToken()
         }
 
         if (text == "let")
+        {
+            return {LET, text, tokenStart};
+        }
+
+        if (text == "const")
         {
             return {LET, text, tokenStart};
         }

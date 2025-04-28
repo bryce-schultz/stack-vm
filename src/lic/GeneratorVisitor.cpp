@@ -208,27 +208,53 @@ void GeneratorVisitor::visit(ConcatNode *node)
 void GeneratorVisitor::visit(FuncDeclNode *node)
 {
     auto name = node->getSymbol()->getName();
+    auto paramList = node->getParamList();
+
+    std::string paramListStr = "(";
+    if (paramList)
+    {
+        for (int i = 0; i < paramList->getParamCount(); i++)
+        {
+            auto param = paramList->getParam(i);
+            auto param_name = param->getSymbol()->getName();
+            paramListStr += param_name + (i == paramList->getParamCount() - 1 ? "" : ", ");
+        }
+    }
+    paramListStr += ")";
+
+    out("\n# function " + name + paramListStr + "\n");
     // Create function label format is "func_<function_name>:".
     out("func_" + name + ":\n");
 
     // Get the parameter list and visit it.
-    auto paramList = node->getParamList();
     if (paramList)
     {
         paramList->visit(this);
     }
+    
+    bool hasReturn = false;
 
     // Visit the function body.
     auto body = node->getBody();
     if (body)
     {
+        HasVisitor hasVisitor;
+        body->visit(&hasVisitor);
         body->visit(this);
+        hasReturn = hasVisitor.has("return");
     }
 
     if (name != "main")
     {
         // If the function is not main, return to the caller.
-        out("ret\n");
+        if (!hasReturn)
+        {
+            out("ret\n");
+        }
+        else
+        {
+            out("retval\n");
+        }
     }
 }
 
