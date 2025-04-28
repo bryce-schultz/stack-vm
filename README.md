@@ -9,7 +9,7 @@ The stack machine reads the Lithium assembly and performs the simple instruction
 ## Documentation
 
 [Grammar](https://github.com/bryce-schultz/stack-vm/blob/master/grammar)
-[Instruction List](https://github.com/bryce-schultz/stack-vm/blob/master/instructions)
+[Instruction List](https://github.com/bryce-schultz/stack-vm/blob/master/instructions.md)
 
 ## Building
 
