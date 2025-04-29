@@ -1,3 +1,7 @@
+//***********************************************
+// Token.cpp
+//***********************************************
+
 #include "Token.h"
 
 Token::Token(int type, const std::string &text, const Location &location):

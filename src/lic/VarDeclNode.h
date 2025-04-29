@@ -1,3 +1,7 @@
+//***********************************************
+// VarDeclNode.h
+//***********************************************
+
 #pragma once
 
 #include "DeclNode.h"
@@ -30,15 +34,8 @@ public:
         visitor->visit(this);
     }
 
-    Symbol *getSymbol() const
-    {
-        return symbol;
-    }
-
     ExpressionNode *getExpression() const
     {
         return static_cast<ExpressionNode *>(getChild(0));
     }
-private:
-    Symbol *symbol;
 };

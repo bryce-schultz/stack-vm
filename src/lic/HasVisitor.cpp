@@ -1,3 +1,7 @@
+//***********************************************
+// HasVisitor.cpp
+//***********************************************
+
 #include "HasVisitor.h"
 #include "Nodes.h"
 
@@ -40,6 +44,22 @@ void HasVisitor::visit(ReturnStatementNode *node)
     }
     // Mark that the function has a return statement.
     hasMap["return"] = true;
+}
+
+void HasVisitor::visit(CallNode *node)
+{
+    hasMap["call"] = true;
+    
+    auto name = node->getSymbol()->getName();
+    auto key = "call_" + name;
+    hasMap[key] = true;
+
+    // Visit the argument list of the function call.
+    auto argList = node->getArgs();
+    if (argList)
+    {
+        argList->visit(this);
+    }
 }
 
 bool HasVisitor::has(const std::string &name) const

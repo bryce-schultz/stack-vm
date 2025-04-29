@@ -1,3 +1,7 @@
+//***********************************************
+// SymbolTable.cpp
+//***********************************************
+
 #include "SymbolTable.h"
 
 void Scope::addSymbol(Symbol *symbol)

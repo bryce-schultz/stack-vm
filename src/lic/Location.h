@@ -12,6 +12,8 @@ public:
     Location();
     Location(size_t line, size_t column, const std::string &filename);
 
+    const std::string toString() const;
+
     bool operator==(const Location &other) const;
 
     size_t getLine() const;

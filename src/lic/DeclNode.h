@@ -18,4 +18,11 @@ public:
     {
         visitor->visit(this);
     }
+
+    Symbol *getSymbol() const
+    {
+        return symbol;
+    }
+protected:
+    Symbol *symbol;
 };

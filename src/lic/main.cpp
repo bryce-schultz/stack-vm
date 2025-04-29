@@ -10,8 +10,6 @@
 
 constexpr uint8_t requiredArgCount = 2;
 
-//#define DEBUG
-
 int main(int argc, char **argv)
 {
 	#ifdef DEBUG
@@ -19,7 +17,7 @@ int main(int argc, char **argv)
 	#else
 		if (argc != requiredArgCount)
 		{
-			printf("usage: %s <source>\n", argv[0]);
+			general_error("usage: lic <filename>");
 			return EXIT_FAILURE;
 		}
 		const char *filename = argv[1];

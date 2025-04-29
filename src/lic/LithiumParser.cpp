@@ -415,7 +415,67 @@ ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 		fail();
 	}
 
-	accept(new FuncDeclNode(identifier, paramList.getNode(), statement.getNode()));
+	Symbol *symbol = global::symbolTable.lookupLocal(identifier.getText());
+	// The symbol is free to use for the function declaration
+	if (!symbol)
+	{
+		accept(new FuncDeclNode(identifier, paramList.getNode(), statement.getNode()));
+	}
+
+	// The symbol exists but is not a function
+	if (!symbol->getDecl()->isFunction())
+	{
+		accept(new FuncDeclNode(identifier, paramList.getNode(), statement.getNode()));
+	}
+
+	// The symbol exists and is a function
+	FuncDeclNode *funcDecl = static_cast<FuncDeclNode *>(symbol->getDecl());
+	if (funcDecl->hasBody())
+	{
+		error("function '" + identifier.getText() + "' is already defined here: " + symbol->getToken().getLocation().toString(), identifier);
+		fail();
+	}
+
+	// Compare the parameters of the existing function with the parsed parameters
+	int existingParamCount = funcDecl->getParamList()->getParamCount();
+	int newParamCount = paramList.getNode()->getParamCount();
+
+	if (existingParamCount != newParamCount)
+	{
+		error("function '" + identifier.getText() + "' has a different number of parameters here: " + symbol->getToken().getLocation().toString(), identifier);
+		fail();
+	}
+
+	bool hadParamError = false;
+
+	for (int i = 0; i < existingParamCount; ++i)
+	{
+		Token existingParamToken = funcDecl->getParamList()->getParam(i)->getSymbol()->getToken();
+		Token newParamToken = paramList.getNode()->getParam(i)->getSymbol()->getToken();
+		std::string existingText = existingParamToken.getText();
+		std::string existingLocationString = existingParamToken.getLocation().toString();
+		std::string newText = newParamToken.getText();
+		std::string newLocationString = newParamToken.getLocation().toString();
+
+		if (existingText != newText)
+		{
+			// The parameter names are different
+			error("function '" + identifier.getText() + "' has different parameter names here: " + existingLocationString, newParamToken);
+			hadParamError = true;
+		}
+	}
+
+	if (hadParamError)
+	{
+		fail();
+	}
+
+	// reassign the function body and parameter list
+	funcDecl->setParamList(paramList.getNode());
+	funcDecl->setBody(statement.getNode());
+
+	// accept the parsed function declaration but don't create a new node for it
+	accept(nullptr);
 }
 
 //param_list -> param param_list'

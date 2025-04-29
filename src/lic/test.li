@@ -15,11 +15,32 @@ fn error(code)
     {
         print("out of memory");
     }
+    else if (code == 3)
+    {
+        print("parse error");
+    }
     else
     {
         print("unknown error");
     }
     print("\n");
+}
+
+fn two_args(a, b)
+{
+    print("a: ");
+    print(a);
+    print("\n");
+    print("b: ");
+    print(b);
+    print("\n");
+}
+
+fn add(b, a);
+
+fn add(a, b)
+{
+    return a * b;
 }
 
 fn main()
@@ -31,6 +52,8 @@ fn main()
     println(5);
     println(10);
     println(10!);
+
+    println(add(2, 3));
 
     error(invalid_arg);
 }

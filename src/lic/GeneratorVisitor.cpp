@@ -222,7 +222,7 @@ void GeneratorVisitor::visit(FuncDeclNode *node)
     }
     paramListStr += ")";
 
-    out("\n# function " + name + paramListStr + "\n");
+    out("\n# fn " + name + paramListStr + "\n");
     // Create function label format is "func_<function_name>:".
     out("func_" + name + ":\n");
 
@@ -242,6 +242,10 @@ void GeneratorVisitor::visit(FuncDeclNode *node)
         body->visit(&hasVisitor);
         body->visit(this);
         hasReturn = hasVisitor.has("return");
+    }
+    else
+    {
+        error("function " + name + " has no body", node->getSymbol()->getToken());
     }
 
     if (name != "main")

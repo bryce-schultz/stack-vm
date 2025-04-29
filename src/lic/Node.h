@@ -1,3 +1,7 @@
+//***********************************************
+// Node.h
+//***********************************************
+
 #pragma once
 
 #include <vector>
@@ -25,6 +29,7 @@ public:
 	{
 		if (index >= children.size())
 		{
+			addChild(child);
 			return;
 		}
 
@@ -32,7 +37,7 @@ public:
 		children[index] = child;
 	}
 
-	Node *getChild(int index) const
+	Node *getChild(size_t index) const
 	{
 		return children[index];
 	}

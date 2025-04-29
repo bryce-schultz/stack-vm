@@ -1,3 +1,7 @@
+//***********************************************
+// FuncDeclNode.h
+//***********************************************
+
 #pragma once
 
 #include "DeclNode.h"
@@ -8,7 +12,7 @@
 class FuncDeclNode : public DeclNode
 {
 public:
-    FuncDeclNode(const Token &token, ParamListNode *params, StatementNode *body)
+    FuncDeclNode(const Token &token, ParamListNode *params, StatementNode *body = nullptr)
     {
         if (global::symbolTable.lookupLocal(token.getText()))
         {
@@ -23,7 +27,21 @@ public:
         }
 
         addChild(params);
-        addChild(body);
+
+        if (body)
+        {
+            addChild(body);
+        }
+    }
+
+    void setParamList(ParamListNode *params)
+    {
+        setChild(0, params);
+    }
+
+    void setBody(StatementNode *body)
+    {
+        setChild(1, body);
     }
 
     virtual bool isFunction() const override
@@ -44,6 +62,11 @@ public:
     StatementNode *getBody() const
     {
         return static_cast<StatementNode *>(getChild(1));
+    }
+
+    bool hasBody() const
+    {
+        return getBody() != nullptr;
     }
 
     Symbol *getSymbol() const

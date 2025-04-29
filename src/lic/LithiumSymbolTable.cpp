@@ -1,5 +1,5 @@
 //***********************************************
-// LithiumSymbolTable.h
+// LithiumSymbolTable.cpp
 //***********************************************
 
 #include "LithiumSymbolTable.h"

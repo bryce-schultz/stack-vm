@@ -18,6 +18,16 @@ Location::Location(size_t line, size_t column, const std::string &filename):
 {
 }
 
+const std::string Location::toString() const
+{
+    if (filename.empty())
+    {
+        return std::to_string(line) + ":" + std::to_string(column);
+    }
+
+    return filename + ":" + std::to_string(line) + ":" + std::to_string(column);
+}
+
 bool Location::operator==(const Location &other) const
 {
     return line == other.line && column == other.column && filename == other.filename;

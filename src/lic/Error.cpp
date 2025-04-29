@@ -12,6 +12,11 @@
 namespace global
 {
     bool hadError = false;
+#ifdef DEBUG
+    const bool showErrorSourceLocation = true;
+#else
+    const bool showErrorSourceLocation = false;
+#endif
 }
 
 std::string getSquiggles(const Token &token)
@@ -82,13 +87,27 @@ std::string getError(const Token &token, const std::string &message)
     return getErrorHeader(token, message) + getSquiggleLine(token) + "\n";
 }
 
-void error_(const std::string &message, const Token &token, const std::string &file, int line)
+void token_error(const std::string &message, const Token &token, const std::string &file, int line)
 {
-    const bool showErrorSourceLocation = true;
-
     std::stringstream ss;
     ss << getError(token, message);
-    if (showErrorSourceLocation)
+    if (global::showErrorSourceLocation)
+    {
+        ss << "╰─ @ " << file << ":" << line << "\n";
+    }
+
+    // Print the error message to stderr.
+    std::cerr << ss.str();
+
+    // Set the global error flag.
+    global::hadError = true;
+}
+
+void error_(const std::string &message, const std::string &file, int line)
+{
+    std::stringstream ss;
+    ss << red << "error" << reset << ": " << message << "\n";
+    if (global::showErrorSourceLocation)
     {
         ss << "╰─ @ " << file << ":" << line << "\n";
     }
