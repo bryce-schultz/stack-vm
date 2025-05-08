@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "NumericExpressionNode.h"
+#include "ExpressionNode.h"
 #include "ArgListNode.h"
 #include "Symbol.h"
 #include "LithiumSymbolTable.h"
 
-class CallNode : public NumericExpressionNode
+class CallNode : public ExpressionNode
 {
 public:
     CallNode(const Token &identifier, ArgListNode *args)

@@ -74,6 +74,11 @@ public:
         return symbol;
     }
 
+    virtual const Token getToken() const override
+    {
+        return symbol->getToken();
+    }
+
 private:
     Symbol *symbol;
 };

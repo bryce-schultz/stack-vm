@@ -118,3 +118,16 @@ void error_(const std::string &message, const std::string &file, int line)
     // Set the global error flag.
     global::hadError = true;
 }
+
+void log_(const std::string &message, const std::string &file, int line)
+{
+    std::stringstream ss;
+    ss << message << "\n";
+    if (global::showErrorSourceLocation)
+    {
+        ss << "╰─ @ " << file << ":" << line << "\n";
+    }
+
+    // Print the error message to stderr.
+    std::clog << ss.str();
+}

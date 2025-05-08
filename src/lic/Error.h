@@ -5,6 +5,8 @@
 #pragma once
 
 #include <string>
+#include <iostream>
+#include <stdio.h>
 
 #include "Token.h"
 
@@ -19,6 +21,7 @@ namespace global
 #define expected(message, token) error(std::string("expected ") + message + std::string(" but got '") + token.getText() + (token == JUNK ? "' (JUNK) instead" : "' instead"), token)
 #define undefined(token) error("variable " + token.getText() + " is not defined", token);
 #define undefined_function(token) error("function " + token.getText() + " is not defined", token);
+#define log(message, ...) fprintf(stderr, message "\n", __VA_ARGS__)
 
 #define general_error(message) error_(message, __FILE__, __LINE__)
 

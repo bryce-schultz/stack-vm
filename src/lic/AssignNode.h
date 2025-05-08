@@ -9,9 +9,8 @@
 #include "Token.h"
 #include "LithiumSymbolTable.h"
 #include "IVisitor.h"
-#include "NumericExpressionNode.h"
 
-class AssignNode : public NumericExpressionNode
+class AssignNode : public ExpressionNode
 {
 public:
     AssignNode(VariableExpressionNode *variable, ExpressionNode *expression)

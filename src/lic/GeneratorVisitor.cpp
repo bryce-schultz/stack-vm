@@ -47,17 +47,52 @@ void GeneratorVisitor::visit(ProgramNode *node)
 
 void GeneratorVisitor::visit(BinaryExpressionNode *node)
 {
-    // Visit the left and right children of the binary expression.
+    bool leftIsString = node->getLeft()->isString();
+    bool rightIsString = node->getRight()->isString();
+    bool resultIsString = leftIsString || rightIsString;
+
+    log("Left is a string %s", leftIsString ? "true" : "false");
+    log("Right is a string %s", rightIsString ? "true" : "false");
+    log("Result is a string %s\n--------------------------\n", resultIsString ? "true" : "false");
+
+    // Visit the left side of the binary expression.
     node->getLeft()->visit(this);
+    // If the result will be a string, we need to convert the left operand to a string if it is not already a string.
+    if (resultIsString && !leftIsString)
+    {
+        out("tostr\n");
+    }
+
+    // Visit the right side of the binary expression.
     node->getRight()->visit(this);
+    // If the result will be a string, we need to convert the right operand to a string if it is not already a string.
+    if (resultIsString && !rightIsString)
+    {
+        out("tostr\n");
+    }
+
+    if (resultIsString && (node->getOperator() != '+'))
+    {
+        error("string concatenation is only supported with '+' operator", node->getToken());
+        return;
+    }
 
     // Get the operator of the binary expression and 
     // output the corresponding instruction.
     switch ((int)node->getOperator())
     {
     case '+':
-        out("add");
-        break;
+        {
+            if (resultIsString)
+            {
+                out("concat");
+            }
+            else
+            {
+                out("add");
+            }
+            break;
+        }
     case '-':
         out("sub");
         break;
@@ -171,7 +206,7 @@ void GeneratorVisitor::visit(UnaryExpressionNode *node)
 void GeneratorVisitor::visit(AsmStatementNode *node)
 {
     // Get the raw assembly code and output it.
-    std::string asm_ = node->getStringExpression()->getValue();
+    std::string asm_ = static_cast<StringExpressionNode*>(node->getExpression())->getValue();
     out(asm_);
     out("\n");
 }
@@ -240,7 +275,7 @@ void GeneratorVisitor::visit(FuncDeclNode *node)
     }
     else
     {
-        error("function " + name + " has no body", node->getSymbol()->getToken());
+        error("function " + name + " is declared, but has no body", node->getToken());
     }
 
     if (name != "main")

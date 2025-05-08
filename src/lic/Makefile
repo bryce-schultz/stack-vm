@@ -56,8 +56,8 @@ LithiumSymbolTable.o: LithiumSymbolTable.cpp LithiumSymbolTable.h \
  Node.h IVisitor.h
 HasVisitor.o: HasVisitor.cpp HasVisitor.h IVisitor.h Nodes.h Node.h \
  Token.h Location.h ProgramNode.h StatementsNode.h StatementNode.h \
- ExpressionNode.h BinaryExpressionNode.h NumericExpressionNode.h \
- OperatorNode.h IntExpressionNode.h UnaryExpressionNode.h \
+ ExpressionNode.h BinaryExpressionNode.h OperatorNode.h \
+ IntExpressionNode.h NumericExpressionNode.h UnaryExpressionNode.h \
  PrintStatementNode.h AsmStatementNode.h StringExpressionNode.h \
  ConcatNode.h DeclNode.h VarDeclNode.h Symbol.h LithiumSymbolTable.h \
  SymbolTable.h Error.h VariableExpressionNode.h AssignNode.h \
@@ -68,7 +68,7 @@ Util.o: Util.cpp Util.h
 main.o: main.cpp LithiumCompiler.h LithiumParser.h Nodes.h Node.h \
  IVisitor.h Token.h Location.h ProgramNode.h StatementsNode.h \
  StatementNode.h HasVisitor.h ExpressionNode.h BinaryExpressionNode.h \
- NumericExpressionNode.h OperatorNode.h IntExpressionNode.h \
+ OperatorNode.h IntExpressionNode.h NumericExpressionNode.h \
  UnaryExpressionNode.h PrintStatementNode.h AsmStatementNode.h \
  StringExpressionNode.h ConcatNode.h DeclNode.h VarDeclNode.h Symbol.h \
  LithiumSymbolTable.h SymbolTable.h Error.h VariableExpressionNode.h \
@@ -80,8 +80,8 @@ LithiumTokenizer.o: LithiumTokenizer.cpp LithiumTokenizer.h Token.h \
  Location.h Error.h
 IVisitor.o: IVisitor.cpp IVisitor.h Nodes.h Node.h Token.h Location.h \
  ProgramNode.h StatementsNode.h StatementNode.h HasVisitor.h \
- ExpressionNode.h BinaryExpressionNode.h NumericExpressionNode.h \
- OperatorNode.h IntExpressionNode.h UnaryExpressionNode.h \
+ ExpressionNode.h BinaryExpressionNode.h OperatorNode.h \
+ IntExpressionNode.h NumericExpressionNode.h UnaryExpressionNode.h \
  PrintStatementNode.h AsmStatementNode.h StringExpressionNode.h \
  ConcatNode.h DeclNode.h VarDeclNode.h Symbol.h LithiumSymbolTable.h \
  SymbolTable.h Error.h VariableExpressionNode.h AssignNode.h \
@@ -91,7 +91,7 @@ IVisitor.o: IVisitor.cpp IVisitor.h Nodes.h Node.h Token.h Location.h \
 LithiumParser.o: LithiumParser.cpp LithiumParser.h Nodes.h Node.h \
  IVisitor.h Token.h Location.h ProgramNode.h StatementsNode.h \
  StatementNode.h HasVisitor.h ExpressionNode.h BinaryExpressionNode.h \
- NumericExpressionNode.h OperatorNode.h IntExpressionNode.h \
+ OperatorNode.h IntExpressionNode.h NumericExpressionNode.h \
  UnaryExpressionNode.h PrintStatementNode.h AsmStatementNode.h \
  StringExpressionNode.h ConcatNode.h DeclNode.h VarDeclNode.h Symbol.h \
  LithiumSymbolTable.h SymbolTable.h Error.h VariableExpressionNode.h \
@@ -102,8 +102,8 @@ LithiumParser.o: LithiumParser.cpp LithiumParser.h Nodes.h Node.h \
 GeneratorVisitor.o: GeneratorVisitor.cpp GeneratorVisitor.h IVisitor.h \
  Symbol.h Token.h Location.h DeclNode.h StatementNode.h Node.h Nodes.h \
  ProgramNode.h StatementsNode.h HasVisitor.h ExpressionNode.h \
- BinaryExpressionNode.h NumericExpressionNode.h OperatorNode.h \
- IntExpressionNode.h UnaryExpressionNode.h PrintStatementNode.h \
+ BinaryExpressionNode.h OperatorNode.h IntExpressionNode.h \
+ NumericExpressionNode.h UnaryExpressionNode.h PrintStatementNode.h \
  AsmStatementNode.h StringExpressionNode.h ConcatNode.h VarDeclNode.h \
  LithiumSymbolTable.h SymbolTable.h Error.h VariableExpressionNode.h \
  AssignNode.h ForStatementNode.h StatementListNode.h BlockNode.h \
@@ -118,8 +118,8 @@ Error.o: Error.cpp Error.h Token.h Location.h Color.h
 LithiumCompiler.o: LithiumCompiler.cpp LithiumCompiler.h LithiumParser.h \
  Nodes.h Node.h IVisitor.h Token.h Location.h ProgramNode.h \
  StatementsNode.h StatementNode.h HasVisitor.h ExpressionNode.h \
- BinaryExpressionNode.h NumericExpressionNode.h OperatorNode.h \
- IntExpressionNode.h UnaryExpressionNode.h PrintStatementNode.h \
+ BinaryExpressionNode.h OperatorNode.h IntExpressionNode.h \
+ NumericExpressionNode.h UnaryExpressionNode.h PrintStatementNode.h \
  AsmStatementNode.h StringExpressionNode.h ConcatNode.h DeclNode.h \
  VarDeclNode.h Symbol.h LithiumSymbolTable.h SymbolTable.h Error.h \
  VariableExpressionNode.h AssignNode.h ForStatementNode.h \

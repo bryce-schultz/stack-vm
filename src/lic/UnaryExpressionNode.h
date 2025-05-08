@@ -4,21 +4,21 @@
 
 #pragma once
 
-#include "NumericExpressionNode.h"
+#include "ExpressionNode.h"
 #include "OperatorNode.h"
 
-class UnaryExpressionNode : public NumericExpressionNode
+class UnaryExpressionNode : public ExpressionNode
 {
 public:
-	UnaryExpressionNode(NumericExpressionNode *expr, int op)
+	UnaryExpressionNode(ExpressionNode *expr, int op)
 	{
 		addChild(expr);
 		addChild(new OperatorNode(op));
 	}
 
-	NumericExpressionNode *getExpr() const
+	ExpressionNode *getExpr() const
 	{
-		return dynamic_cast<NumericExpressionNode *>(getChild(0));
+		return dynamic_cast<ExpressionNode *>(getChild(0));
 	}
 
 	int getOperator() const

@@ -1,18 +1,17 @@
 #include "StringExpressionNode.h"
-#include "NumericExpressionNode.h"
+#include "ExpressionNode.h"
 
-class StringConversionNode : public StringExpressionNode
+class StringConversionNode : public ExpressionNode
 {
 public:
-    StringConversionNode(NumericExpressionNode *expression)
-        : StringExpressionNode(expression->getToken())
+    StringConversionNode(ExpressionNode *expression)
     {
         addChild(expression);
     }
     
-    NumericExpressionNode *getExpression() const
+    ExpressionNode *getExpression() const
     {
-        return static_cast<NumericExpressionNode *>(getChild(0));
+        return static_cast<ExpressionNode *>(getChild(0));
     }
 
     virtual void visit(IVisitor *visitor) override

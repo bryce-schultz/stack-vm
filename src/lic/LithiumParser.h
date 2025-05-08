@@ -122,111 +122,99 @@ private:
 	// asm_statement -> ASM ( string_expression )
 	ParseResult<AsmStatementNode> parseAsmStatement();
 
-	// expression -> numeric_expression
-	// 			   | string_expression
+	// expression -> assignment
 	ParseResult<ExpressionNode> parseExpression();
 
-	// string_expression -> STRING string_expression'
-	//                    | STR ( numeric_expression )
-	ParseResult<StringExpressionNode> parseStringExpression();
-
-	// string_expression' -> + string_expression
-	//                     | nothing
-	ParseResult<StringExpressionNode> parseStringExpressionP(StringExpressionNode *lhs);
-
-	// numeric_expression -> assignment
-	ParseResult<NumericExpressionNode> parseNumericExpression();
-
 	// assignment -> optional assignment'
-	ParseResult<NumericExpressionNode> parseAssignment();
+	ParseResult<ExpressionNode> parseAssignment();
 
 	// assignment' -> = expression
 	//              | nothing
-	ParseResult<NumericExpressionNode> parseAssignmentP(VariableExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseAssignmentP(VariableExpressionNode *lhs);
 
 	// optional -> compound optional'
-	ParseResult<NumericExpressionNode> parseOptional();
+	ParseResult<ExpressionNode> parseOptional();
 
 	// optional' -> || compound optional'
 	// 			  | nothing
-	ParseResult<NumericExpressionNode> parseOptionalP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseOptionalP(ExpressionNode *lhs);
 
 	// compound -> equality compound'
-	ParseResult<NumericExpressionNode> parseCompound();
+	ParseResult<ExpressionNode> parseCompound();
 
 	// compound' -> && equality compound'
 	//			  | nothing
-	ParseResult<NumericExpressionNode> parseCompoundP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseCompoundP(ExpressionNode *lhs);
 
 	// equality -> comparison equality'
-	ParseResult<NumericExpressionNode> parseEquality();
+	ParseResult<ExpressionNode> parseEquality();
 
 	// equality' -> == comparison equality'
 	//            | != comparison equality'
 	//            | nothing
-	ParseResult<NumericExpressionNode> parseEqualityP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseEqualityP(ExpressionNode *lhs);
 
 	// comparison -> addit comparison'
-	ParseResult<NumericExpressionNode> parseComparison();
+	ParseResult<ExpressionNode> parseComparison();
 
 	// comparison' -> < addit comparison'
 	// 				| > addit comparison'
 	// 				| <= addit comparison'
 	// 				| >= addit comparison'
-	ParseResult<NumericExpressionNode> parseComparisonP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseComparisonP(ExpressionNode *lhs);
 
 	// addit -> term addit'
-	ParseResult<NumericExpressionNode> parseAddit();
+	ParseResult<ExpressionNode> parseAddit();
 
 	// addit' -> + term addit'
 	//         | - term addit'
     //         | nothing
-	ParseResult<NumericExpressionNode> parseAdditP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseAdditP(ExpressionNode *lhs);
 
 
 	// term -> exponent term'
-	ParseResult<NumericExpressionNode> parseTerm();
+	ParseResult<ExpressionNode> parseTerm();
 
 	// term' -> * exponent
 	//        | / exponent
 	//        | % exponent
 	//        | nothing
-	ParseResult<NumericExpressionNode> parseTermP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseTermP(ExpressionNode *lhs);
 
 	// exponent -> fact exponent'
-	ParseResult<NumericExpressionNode>  parseExponent();
+	ParseResult<ExpressionNode>  parseExponent();
 
 	// exponent' -> ^ fact exponent'
 	// 			  | nothing
-	ParseResult<NumericExpressionNode> parseExponentP(NumericExpressionNode *);
+	ParseResult<ExpressionNode> parseExponentP(ExpressionNode *);
 
 	// fact -> - factorial
 	//       | factorial
-	ParseResult<NumericExpressionNode> parseFact();
+	ParseResult<ExpressionNode> parseFact();
 
 	// factorial -> primary factorial'
-	ParseResult<NumericExpressionNode> parseFactorial();
+	ParseResult<ExpressionNode> parseFactorial();
 
 	// factorial' -> ! factorial'
 	//             | nothing
-	ParseResult<NumericExpressionNode> parseFactorialP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseFactorialP(ExpressionNode *lhs);
 
 	// modifier -> primary modifier'
-	ParseResult<NumericExpressionNode> parseModifier();
+	ParseResult<ExpressionNode> parseModifier();
 
 	// modifier' -> ++ modifier'
 	//            | -- modifier'
 	//            | nothing
-	ParseResult<NumericExpressionNode> parseModifierP(NumericExpressionNode *lhs);
+	ParseResult<ExpressionNode> parseModifierP(ExpressionNode *lhs);
 
 	// primary -> ( numeric_expression )
 	//          | NUMBER
 	//          | IDENTIFIER primary'
-	ParseResult<NumericExpressionNode> parsePrimary();
+	ParseResult<ExpressionNode> parsePrimary();
 	
 	// primary' -> ( arg_list )
     //           | ϵ
-	ParseResult<NumericExpressionNode> parsePrimaryP(const Token &identifier);
+	ParseResult<ExpressionNode> parsePrimaryP(const Token &identifier);
 
 	// arg_list -> arg arg_list'
 	ParseResult<ArgListNode> parseArgList();

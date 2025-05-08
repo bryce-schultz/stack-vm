@@ -96,10 +96,10 @@ public:
     virtual void visit(AsmStatementNode *node) override;
 
     //***********************************************
-    // visit (NumericExpressionNode) - not to be called
+    // visit (ExpressionNode) - not to be called
     // outside of the visitor.
     //
-    // Visits the NumericExpressionNode.
+    // Visits the ExpressionNode.
     //***********************************************
     virtual void visit(StringExpressionNode *node) override;
 

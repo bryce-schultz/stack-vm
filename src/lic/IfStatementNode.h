@@ -5,13 +5,13 @@
 #pragma once
 
 #include "StatementNode.h"
-#include "NumericExpressionNode.h"
+#include "ExpressionNode.h"
 #include "IVisitor.h"
 
 class IfStatementNode : public StatementNode
 {
 public:
-    IfStatementNode(NumericExpressionNode *condition, StatementNode *statement, StatementNode *elseStatement = nullptr)
+    IfStatementNode(ExpressionNode *condition, StatementNode *statement, StatementNode *elseStatement = nullptr)
     {
         addChild(condition);
         addChild(statement);
@@ -21,9 +21,9 @@ public:
         }
     }
 
-    NumericExpressionNode *getCondition() const
+    ExpressionNode *getCondition() const
     {
-        return static_cast<NumericExpressionNode *>(getChild(0));
+        return static_cast<ExpressionNode *>(getChild(0));
     }
 
     StatementNode *getStatement() const
