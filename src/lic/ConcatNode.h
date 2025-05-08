@@ -9,7 +9,8 @@
 class ConcatNode : public StringExpressionNode
 {
 public:
-    ConcatNode(StringExpressionNode *left, ExpressionNode *right)
+    ConcatNode(StringExpressionNode *left, ExpressionNode *right):
+        StringExpressionNode(left->getToken())
     {
         addChild(left);
         addChild(right);

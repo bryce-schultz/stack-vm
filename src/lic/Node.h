@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "IVisitor.h"
+#include "Token.h"
 
 class Node
 {
@@ -37,8 +38,17 @@ public:
 		children[index] = child;
 	}
 
+	virtual const Token getToken() const
+	{
+		return TOKEN_NONE;
+	}
+
 	Node *getChild(size_t index) const
 	{
+		if (index >= children.size())
+		{
+			return nullptr;
+		}
 		return children[index];
 	}
 

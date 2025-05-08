@@ -231,17 +231,12 @@ void GeneratorVisitor::visit(FuncDeclNode *node)
     {
         paramList->visit(this);
     }
-    
-    bool hasReturn = false;
 
     // Visit the function body.
     auto body = node->getBody();
     if (body)
     {
-        HasVisitor hasVisitor;
-        body->visit(&hasVisitor);
         body->visit(this);
-        hasReturn = hasVisitor.has("return");
     }
     else
     {
@@ -250,15 +245,7 @@ void GeneratorVisitor::visit(FuncDeclNode *node)
 
     if (name != "main")
     {
-        // If the function is not main, return to the caller.
-        if (!hasReturn)
-        {
-            out("ret\n");
-        }
-        else
-        {
-            out("retval\n");
-        }
+        out("ret\n");
     }
 }
 
@@ -482,4 +469,21 @@ void GeneratorVisitor::visit(IfStatementNode *node)
 
     // Create a label for the end of the if statement.
     out("if" + std::to_string(ifId) + "end:\n");
+}
+
+void GeneratorVisitor::visit(ReturnStatementNode *node)
+{
+    // Get the expression of the return statement.
+    auto expr = node->getExpression();
+
+    // If the expression is not null, visit it.
+    if (expr)
+    {
+        expr->visit(this);
+        out("retval\n");
+    }
+    else
+    {
+        out("ret\n");
+    }
 }

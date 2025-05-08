@@ -1,47 +1,10 @@
-fn println(value)
-{
-    print(value);
-    print("\n");
-}
-
-fn error(code)
-{
-    print("error: ");
-    if (code == 1)
-    {
-        print("invalid argument");
-    }
-    else if (code == 2)
-    {
-        print("out of memory");
-    }
-    else if (code == 3)
-    {
-        print("parse error");
-    }
-    else
-    {
-        print("unknown error");
-    }
-    print("\n");
-}
-
-fn two_args(a, b)
-{
-    print("a: ");
-    print(a);
-    print("\n");
-    print("b: ");
-    print(b);
-    print("\n");
-}
-
-fn add(b, a);
-
-fn add(a, b)
-{
-    return a * b;
-}
+fn println(value);
+fn add(a, b);
+fn two_args(a, b);
+fn error(code);
+fn recursive_function(n);
+fn distance(x1, y1, x2, y2);
+fn dist_lbl_print(dist);
 
 fn main()
 {
@@ -56,4 +19,77 @@ fn main()
     println(add(2, 3));
 
     error(invalid_arg);
+
+    two_args(1, 2);
+
+    let recursion_count = 10;
+
+    recursive_function(recursion_count);
+    print("End of recursion\n");
+
+    dist_lbl_print(distance(1, 2, 3, 4));
+    dist_lbl_print(distance(1, 2, 3, 4) * 4);
+}
+
+fn dist_lbl_print(dist)
+{
+    print("Distance: ");
+    println(dist);
+}
+
+fn distance(x1, y1, x2, y2)
+{
+    return ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1));
+}
+
+fn add(a, b)
+{
+    return a + b;
+}
+
+fn two_args(a, b)
+{
+    print("a: ");
+    println(a);
+    #print("\n");
+    print("b: ");
+    println(b);
+    #print("\n");
+}
+
+fn println(value)
+{
+    print(value);
+    print("\n");
+}
+
+fn error(code)
+{
+    if (code == 1) 
+    {
+        print("Invalid argument\n");
+    } 
+    else if (code == 2) 
+    {
+        print("Out of memory\n");
+    } 
+    else if (code == 3) 
+    {
+        print("Unknown error\n");
+    } 
+    else 
+    {
+        print("Unknown error code\n");
+    }
+}
+
+fn recursive_function(n)
+{
+    if (n == 0)
+    {
+        return;
+    }
+
+    println(n);
+    recursive_function(n - 1);
 }

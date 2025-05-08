@@ -12,12 +12,14 @@
 class VarDeclNode : public DeclNode
 {
 public:
-    VarDeclNode(const Token &identifier, ExpressionNode *expression)
+    VarDeclNode(const Token &identifier, ExpressionNode *expression, bool isConst = false):
+        _isConst(isConst)
     {
         if (global::symbolTable.lookupLocal(identifier.getText()))
         {
-            // if the variable is already declared in the current scope reassing the symbol
-            symbol = global::symbolTable.lookupLocal(identifier.getText());
+            std::string type = isConst ? "const" : "variable";
+            error(type + " '" + identifier.getText() + "' already declared in this scope", identifier);
+            return;
         }
         else
         {
@@ -29,6 +31,11 @@ public:
         addChild(expression);
     }
 
+    virtual bool isConst() const override
+    {
+        return _isConst;
+    }
+
     virtual void visit(IVisitor *visitor) override
     {
         visitor->visit(this);
@@ -38,4 +45,6 @@ public:
     {
         return static_cast<ExpressionNode *>(getChild(0));
     }
+private:
+    bool _isConst;
 };

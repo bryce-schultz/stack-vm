@@ -7,20 +7,29 @@
 #include "Node.h"
 #include "ArgNode.h"
 #include "IVisitor.h"
+#include "Error.h"
 
 class ArgListNode : public Node
 {
 public:
     ArgListNode(ArgNode *arg = nullptr)
     {
-        if (arg)
-        {
-            addChild(arg);
-        }
+        addArg(arg);
     }
 
     void addArg(ArgNode *arg)
     {
+        if (!arg)
+        {
+            return;
+        }
+        
+        if (arg->isString())
+        {
+            error("string arguments are not allowed", arg->getToken());
+            return;
+        }
+
         addChild(arg);
     }
 

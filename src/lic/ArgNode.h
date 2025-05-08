@@ -4,20 +4,30 @@
 
 #pragma once
 
-#include "Node.h"
+#include "ExpressionNode.h"
 #include "IVisitor.h"
 
-class ArgNode : public Node
+class ArgNode : public ExpressionNode
 {
 public:
-    ArgNode(Node *expression)
+    ArgNode(ExpressionNode *expression)
     {
         addChild(expression);
     }
 
-    Node *getExpression() const
+    ExpressionNode *getExpression() const
     {
-        return getChild(0);
+        return static_cast<ExpressionNode *>(getChild(0));
+    }
+
+    virtual bool isString() const override
+    {
+        return getExpression()->isString();
+    }
+
+    virtual const Token getToken() const override
+    {
+        return getExpression()->getToken();
     }
 
     virtual void visit(IVisitor *visitor) override

@@ -190,6 +190,14 @@ public:
     // Visits the ParamNode.
     //***********************************************
     virtual void visit(ParamNode *node) override;
+
+    //***********************************************
+    // visit (ReturnStatementNode) - not to be called
+    // outside of the visitor.
+    //
+    // Visits the ReturnStatementNode.
+    //***********************************************
+    virtual void visit(ReturnStatementNode *node) override;
     
     //***********************************************
     // getOutput

@@ -15,7 +15,7 @@ class AssignNode : public NumericExpressionNode
 {
 public:
     AssignNode(VariableExpressionNode *variable, ExpressionNode *expression)
-    {
+    {   
         symbol = global::symbolTable.lookupGlobal(variable->getToken().getText());
         if (!symbol)
         {
@@ -26,6 +26,11 @@ public:
             }
         }
         addChild(expression);
+    }
+
+    virtual const Token getToken() const override
+    {
+        return symbol->getToken();
     }
 
     Symbol *getSymbol() const

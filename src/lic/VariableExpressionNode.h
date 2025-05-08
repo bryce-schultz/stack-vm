@@ -23,6 +23,11 @@ public:
         }
     }
 
+    bool isConst() const
+    {
+        return symbol && symbol->isConst();
+    }
+
     virtual void visit(IVisitor *visitor) override
     {
         visitor->visit(this);
@@ -38,7 +43,7 @@ public:
         return token.getText();
     }
 
-    Token getToken() const
+    virtual const Token getToken() const override
     {
         return token;
     }

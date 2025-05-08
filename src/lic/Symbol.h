@@ -26,9 +26,14 @@ public:
         this->decl = decl;
     }
 
-    Token getToken() const
+    virtual const Token getToken() const override
     {
         return token;
+    }
+
+    bool isConst() const
+    {
+        return decl && decl->isConst();
     }
 
     std::string getName() const

@@ -5,6 +5,8 @@
 #pragma once
 
 #include "StatementNode.h"
+#include "IVisitor.h"
+#include "Token.h"
 
 class ExpressionNode : public StatementNode
 {

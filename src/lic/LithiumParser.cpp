@@ -311,6 +311,13 @@ ParseResult<ReturnStatementNode> LithiumParser::parseReturnStatement()
 	}
 	nextToken();
 
+	token = peekToken();
+
+	if (token == ';')
+	{
+		accept(new ReturnStatementNode());
+	}
+
 	auto expression = parseExpression();
 	if (!expression.isValid())
 	{
@@ -332,6 +339,8 @@ ParseResult<VarDeclNode> LithiumParser::parseVarDecl()
 		fail();
 	}
 	nextToken();
+
+	bool isConst = token.getText() == "const";
 
 	token = peekToken();
 
@@ -360,7 +369,7 @@ ParseResult<VarDeclNode> LithiumParser::parseVarDecl()
 		fail();
 	}
 
-	accept(new VarDeclNode(identifier, expression.getNode()));
+	accept(new VarDeclNode(identifier, expression.getNode(), isConst));
 }
 
 // func_decl -> FN IDENTIFIER ( param_list ) statement
@@ -394,6 +403,10 @@ ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 	}
 	nextToken();
 
+	// Increase the scope for the function parameters
+	// and body
+	global::symbolTable.increaseScope();
+
 	auto paramList = parseParamList();
 	if (!paramList.isValid())
 	{
@@ -414,6 +427,10 @@ ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 	{
 		fail();
 	}
+
+	// Decrease the scope for the function parameters
+	// and body
+	global::symbolTable.decreaseScope();
 
 	Symbol *symbol = global::symbolTable.lookupLocal(identifier.getText());
 	// The symbol is free to use for the function declaration
@@ -716,6 +733,10 @@ ParseResult<ForStatementNode> LithiumParser::parseForStatement()
 	}
 	nextToken();
 
+	// Increase the scope for the for loop
+	// and body
+	global::symbolTable.increaseScope();
+
 	auto init = parseStatementList();
 	if (!init.isValid())
 	{
@@ -766,6 +787,9 @@ ParseResult<ForStatementNode> LithiumParser::parseForStatement()
 	{
 		fail();
 	}
+
+	// Decrease the scope for the for loop
+	global::symbolTable.decreaseScope();
 
 	accept(new ForStatementNode(init.getNode(), condition.getNode(), increment.getNode(), statement.getNode()));
 }
@@ -839,7 +863,7 @@ ParseResult<StringExpressionNode> LithiumParser::parseStringExpression()
 
 	nextToken();
 
-	auto stringExpressionP = parseStringExpressionP(new StringExpressionNode(token.getText()));
+	auto stringExpressionP = parseStringExpressionP(new StringExpressionNode(token));
 	if (!stringExpressionP.isValid())
 	{
 		fail();
@@ -915,8 +939,13 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAssignmentP(VariableExpre
 	{
 		accept(lhs);
 	}
-
 	nextToken();
+
+	if (lhs->isConst())
+	{
+		error("cannot assign to constant: " + lhs->getName() + " defined here: " + lhs->getSymbol()->getDecl()->getToken().getLocation().toString(), lhs->getToken());
+		fail();
+	}
 
 	auto expression = parseExpression();
 	if (!expression.isValid())
@@ -925,7 +954,6 @@ ParseResult<NumericExpressionNode> LithiumParser::parseAssignmentP(VariableExpre
 	}
 
 	accept(new AssignNode(lhs, expression.getNode()));
-	
 }
 
 // optional -> compound optional'

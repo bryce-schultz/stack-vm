@@ -6,10 +6,17 @@
 
 #include "StatementNode.h"
 
+class Symbol;
+
 class DeclNode : public StatementNode
 {
 public:
     virtual bool isFunction() const
+    {
+        return false;
+    }
+
+    virtual bool isConst() const
     {
         return false;
     }
@@ -23,6 +30,8 @@ public:
     {
         return symbol;
     }
+
+    const Token getToken() const;
 protected:
     Symbol *symbol;
 };
