@@ -568,6 +568,17 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 			push(return_value);
 			break;
 		}
+		case Instruction::TOSTR:
+		{
+			uint64_t value = pop();
+			std::string str = std::to_string(value);
+			for (ssize_t i = str.size() - 1; i >= 0; i--)
+			{
+				push(str[i]);
+			}
+			push(str.size());
+			break;
+		}
 		default:
 		{
 			if (instruction == canary)

@@ -11,6 +11,7 @@ const hoverTexts = {
     "let": "Variable declaration. Declares a new variable with the specified name and value.",
     "const": "Constant declaration. Declares a new constant with the specified name and value.",
     "return": "Returns a value from a function. Ends the execution of the function.",
+    "str": "Converts a numeric expression to a string.",
     "&&": "Logical AND operator. Returns true if both operands are true.",
     "||": "Logical OR operator. Returns true if either operand is true.",
     "!=": "Not equal operator. Returns true if the operands are not equal.",
