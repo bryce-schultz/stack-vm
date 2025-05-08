@@ -322,6 +322,11 @@ Token LithiumTokenizer::getToken()
             return {ELSE, text, tokenStart};
         }
 
+        if (text == "str")
+        {
+            return {STR, text, tokenStart};
+        }
+
         return {IDENTIFIER, text, tokenStart};
     }
 

@@ -13,6 +13,7 @@ enum TokenType
 	NONE = 1000,
 	NUMBER,
 	PRINT,
+    STR,
 	IDENTIFIER,
 	STRING,
 	ASM,

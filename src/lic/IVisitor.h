@@ -35,6 +35,7 @@ class ArgListNode;
 class CallNode;
 class Symbol;
 class ReturnStatementNode;
+class StringConversionNode;
 
 class IVisitor
 {
@@ -70,5 +71,6 @@ public:
 	virtual void visit(CallNode* node);
 	virtual void visit(Symbol* node);
 	virtual void visit(ReturnStatementNode* node);
+	virtual void visit(StringConversionNode* node);
 };
 

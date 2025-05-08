@@ -127,6 +127,7 @@ private:
 	ParseResult<ExpressionNode> parseExpression();
 
 	// string_expression -> STRING string_expression'
+	//                    | STR ( numeric_expression )
 	ParseResult<StringExpressionNode> parseStringExpression();
 
 	// string_expression' -> + string_expression

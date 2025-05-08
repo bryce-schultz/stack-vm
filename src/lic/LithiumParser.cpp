@@ -842,7 +842,7 @@ ParseResult<ExpressionNode> LithiumParser::parseExpression()
 {
 	Token token = peekToken();
 
-	if (token == STRING)
+	if (token == STRING || token == STR)
 	{
 		ret(parseStringExpression());
 	}
@@ -851,9 +851,50 @@ ParseResult<ExpressionNode> LithiumParser::parseExpression()
 }
 
 // string_expression -> STRING string_expression'
+//                    | STR ( numeric_expression ) string_expression'
 ParseResult<StringExpressionNode> LithiumParser::parseStringExpression()
 {
 	Token token = peekToken();
+
+	if (token == STR)
+	{
+		nextToken();
+
+		token = peekToken();
+		if (token != '(')
+		{
+			expected("'('", token);
+			dropStatement();
+			fail();
+		}
+		nextToken();
+
+		auto expression = parseNumericExpression();
+		if (!expression.isValid())
+		{
+			fail();
+		}
+
+		token = peekToken();
+		if (token != ')')
+		{
+			expected("')'", token);
+			dropStatement();
+			fail();
+		}
+		nextToken();
+
+		StringConversionNode *conversion = new StringConversionNode(expression.getNode());
+
+		auto stringExpressionP = parseStringExpressionP(conversion);
+		if (!stringExpressionP.isValid())
+		{
+			fail();
+		}
+
+		accept(stringExpressionP.getNode());
+	}
+
 	if (token != STRING)
 	{
 		expected("a string", token);
