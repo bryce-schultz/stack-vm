@@ -1,2 +1,2 @@
-CXXFLAGS += -g
+CXXFLAGS += -g -DDEBUG
 MAIN_EXE = lic

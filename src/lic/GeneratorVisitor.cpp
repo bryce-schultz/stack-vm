@@ -487,3 +487,12 @@ void GeneratorVisitor::visit(ReturnStatementNode *node)
         out("ret\n");
     }
 }
+
+void GeneratorVisitor::visit(StringConversionNode *node)
+{
+    // Visit the expression of the string conversion.
+    node->getExpression()->visit(this);
+
+    // Output the string conversion instruction.
+    out("tostr\n");
+}

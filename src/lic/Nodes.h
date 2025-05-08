@@ -35,3 +35,4 @@
 #include "ArgListNode.h"
 #include "CallNode.h"
 #include "ReturnStatementNode.h"
+#include "StringConversionNode.h"

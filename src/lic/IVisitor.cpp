@@ -154,3 +154,8 @@ void IVisitor::visit(ReturnStatementNode *node)
 {
 	node->visitAllChildren(this);
 }
+
+void IVisitor::visit(StringConversionNode *node)
+{
+	node->visitAllChildren(this);
+}

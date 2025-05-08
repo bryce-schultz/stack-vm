@@ -198,6 +198,14 @@ public:
     // Visits the ReturnStatementNode.
     //***********************************************
     virtual void visit(ReturnStatementNode *node) override;
+
+    //***********************************************
+    // visit (StringConversionNode) - not to be called outside
+    // of the visitor.
+    //
+    // Visits the StringConversionNode.
+    //***********************************************
+    virtual void visit(StringConversionNode *node) override;
     
     //***********************************************
     // getOutput
