@@ -49,3 +49,4 @@ typedef std::vector<uint64_t> Program;
 #define icall       (uint64_t)Instruction::CALL
 #define iret        (uint64_t)Instruction::RET
 #define iretval     (uint64_t)Instruction::RETVAL
+#define itostr      (uint64_t)Instruction::TOSTR

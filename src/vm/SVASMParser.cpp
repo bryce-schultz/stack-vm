@@ -264,6 +264,10 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		{
 			result.program.push_back(iretval);
 		}
+		else if (tokens[i] == "tostr")
+		{
+			result.program.push_back(itostr);
+		}
 		else
 		{
 			result.success = false;
