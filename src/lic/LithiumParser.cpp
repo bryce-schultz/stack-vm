@@ -373,6 +373,7 @@ ParseResult<VarDeclNode> LithiumParser::parseVarDecl()
 	if (expression.getNode()->isString())
 	{
 		error("string variables are not supported yet", expression.getNode()->getToken());
+		dropStatement();
 		fail();
 	}
 

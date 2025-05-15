@@ -9,41 +9,6 @@
 #include "IVisitor.h"
 #include "Error.h"
 
-/*
-Node
-ProgramNode
-StatementNode
-ExpressionNode
-BinaryExpressionNode
-OperatorNode
-NumberExpressionNode
-UnaryExpressionNode
-PrintStatementNode
-AsmStatementNode
-StringExpressionNode
-NumericExpressionNode
-ConcatNode
-DeclNode
-VarDeclNode
-VariableExpressionNode
-AssignNode
-Symbol
-ForStatementNode
-BlockNode
-StatementsNode
-WhileStatementNode
-IfStatementNode
-StatementListNode
-FuncDeclNode
-ParamListNode
-ParamNode
-ArgNode
-ArgListNode
-CallNode
-ReturnStatementNode
-StringConversionNode
-*/
-
 class PrintVisitor : public IVisitor
 {
 public:

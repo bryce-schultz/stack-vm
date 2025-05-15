@@ -10,6 +10,9 @@
 #include "Error.h"
 #include "Options.h"
 
+using global::options;
+using global::hadError;
+
 bool LithiumCompiler::compile(const std::string &filename)
 {
     LithiumParser parser;
@@ -23,15 +26,13 @@ bool LithiumCompiler::compile(const std::string &filename)
 		return false;
 	}
 
-	if (global::hadError)
+	if (hadError)
 	{
 		delete root.getNode();
 		return false;
 	}
 
-	std::cout << "Parsing complete" << std::endl;
-
-	if (global::options.outputAst)
+	if (options.outputAst)
 	{
 		PrintVisitor printVisitor;
 		printVisitor.visitAllChildren(root.getNode());
@@ -43,7 +44,7 @@ bool LithiumCompiler::compile(const std::string &filename)
 	// done with the AST, clean it up
 	delete root.getNode();
 
-	if (global::hadError)
+	if (hadError)
 	{
 		return false;
 	}

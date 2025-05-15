@@ -746,6 +746,10 @@ bool SimpleVirtualMachine::write()
 	return true;
 }
 
+// read syscall
+// push fd - file descriptor
+// push size - size of the buffer
+// push 2 - read syscall
 bool SimpleVirtualMachine::read()
 {
 	uint64_t size = pop();

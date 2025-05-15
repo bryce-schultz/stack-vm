@@ -39,8 +39,6 @@ void GeneratorVisitor::visit(ProgramNode *node)
 
     bool hasMain = node->hasMain();
 
-    out("# global variable declarations\n");
-
     // Visit the variable declarations in the program.
     for (int i = 0; i < node->getStatements()->getStatementCount(); i++)
     {
@@ -53,13 +51,11 @@ void GeneratorVisitor::visit(ProgramNode *node)
         }
     }
 
-    out("\n# jump to the starting point\n");
     if (hasMain)
         out("jmp func_main\n");
     else
         out("jmp main\n");
 
-    out("\n# function declarations\n");
     // Visit the function declarations in the program.
     for (int i = 0; i < node->getStatements()->getStatementCount(); i++)
     {
@@ -72,7 +68,6 @@ void GeneratorVisitor::visit(ProgramNode *node)
         }
     }
 
-    out("\n# main entry point\n");
     // If the program does not have a main function, we need to output the main function label.
     if (!node->hasMain())
     {
@@ -424,8 +419,6 @@ void GeneratorVisitor::visit(VarDeclNode *node)
     auto symbol = node->getSymbol();
     auto expr = node->getExpression();
 
-    out("# var " + symbol->getName() + "\n");
-
     // Ensure the expression is numeric as string variables are not supported yet.
     if (expr->isNumeric())
     {
@@ -439,6 +432,7 @@ void GeneratorVisitor::visit(VarDeclNode *node)
         // Visit the expression and store the result in the variable.
         expr->visit(this);
 
+        out("# var " + symbol->getName() + "\n");
         out("store");
         out(variables[symbol]);
         out("\n");
@@ -458,6 +452,7 @@ void GeneratorVisitor::visit(VariableExpressionNode *node)
     }
 
     // Load the variable onto the stack.
+    out("# var " + symbol->getName() + "\n");
     out("load");
     out(variables[symbol]);
     out("\n");

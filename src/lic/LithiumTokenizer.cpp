@@ -238,7 +238,7 @@ Token LithiumTokenizer::getToken()
         {
             Token junk(JUNK, text, tokenStart);
             error("unterminated string", junk);
-            return {JUNK, text, tokenStart};
+            return junk;
         }
 
         next();
