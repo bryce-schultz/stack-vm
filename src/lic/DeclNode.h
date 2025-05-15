@@ -5,6 +5,7 @@
 #pragma once
 
 #include "StatementNode.h"
+#include "Type.h"
 
 class Symbol;
 
@@ -26,9 +27,19 @@ public:
         visitor->visit(this);
     }
 
+    virtual Type getType() const
+    {
+        return Type::UNDEFINED;
+    }
+
     Symbol *getSymbol() const
     {
         return symbol;
+    }
+
+    virtual bool isDecl() const override
+    {
+        return true;
     }
 
     const Token getToken() const;

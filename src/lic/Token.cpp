@@ -63,7 +63,7 @@ const Location &Token::getLocation() const
 
 size_t Token::getLength() const
 {
-    return text.size();
+    return text.length();
 }
 
 std::string tokenTypeToString(int type)
@@ -84,6 +84,38 @@ std::string tokenTypeToString(int type)
             return "END";
         case JUNK:
             return "JUNK";
+        case LESS_OR_EQUAL:
+            return "<=";
+        case GREATER_OR_EQUAL:
+            return ">=";
+        case EQUAL:
+            return "==";
+        case NOT_EQUAL:
+            return "!=";
+        case OR:
+            return "||";
+        case AND:
+            return "&&";
+        case INCREMENT:
+            return "++";
+        case DECREMENT:
+            return "--";
+        case FOR:
+            return "FOR";
+        case WHILE:
+            return "WHILE";
+        case LET:
+            return "LET";
+        case FN:
+            return "FN";
+        case RETURN:
+            return "RETURN";
+        case IF:
+            return "IF";
+        case ELSE:
+            return "ELSE";
+        case STR:
+            return "STR";
         default:
         {
             if (type >= 0 && type <= 255)

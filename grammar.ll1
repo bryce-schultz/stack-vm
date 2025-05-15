@@ -25,28 +25,20 @@ single_statement -> expression
 
 block -> { statements }
 
-if_statement -> IF ( numeric_expression ) statement if_statement'
+if_statement -> IF ( expression ) statement if_statement'
 
 if_statement' -> ELSE statement
                | nothing
 
-while_statement -> WHILE ( numeric_expression ) statement
+while_statement -> WHILE ( expression ) statement
 
-for_statement -> FOR ( statement_list ; numeric_expression ; statement_list ) statement
+for_statement -> FOR ( statement_list ; expression ; statement_list ) statement
 
 asm_statement -> ASM ( string_expression )
 
 print_statement -> PRINT ( expression )
 
-expression -> numeric_expression
-            | string_expression
-
-string_expression -> STRING string_expression'
-
-string_expression' -> + expression string_expression'
-                    | nothing
-
-numeric_expression -> assignment
+expression -> assignment
 
 assignment -> optional assignment'
 
@@ -109,6 +101,8 @@ modifier' -> ++ modifier'
            | -- modifier'
            | nothing
 
-primary -> ( numeric_expression )
+primary -> ( expression )
          | NUMBER
          | IDENTIFIER
+         | STRING
+         | STR ( expression )

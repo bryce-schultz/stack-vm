@@ -16,11 +16,6 @@ public:
     {
         auto text = token.getText();
         symbol = global::symbolTable.lookupGlobal(text);
-
-        if (!symbol)
-        {
-            undefined(token);
-        }
     }
 
     bool isConst() const
@@ -37,7 +32,7 @@ public:
     {
         return true;
     }
-
+    
     const std::string getName() const
     {
         return token.getText();

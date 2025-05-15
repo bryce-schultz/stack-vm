@@ -4,32 +4,47 @@
 
 #pragma once
 
-#include "NumericExpressionNode.h"
+#include "ExpressionNode.h"
 #include "OperatorNode.h"
 
-class BinaryExpressionNode : public NumericExpressionNode
+class BinaryExpressionNode : public ExpressionNode
 {
 public:
-	BinaryExpressionNode(NumericExpressionNode *left, int op, NumericExpressionNode *right)
+	BinaryExpressionNode(ExpressionNode *left, Token op, ExpressionNode *right)
 	{
 		addChild(left);
 		addChild(new OperatorNode(op));
 		addChild(right);
 	}
 
-	NumericExpressionNode *getLeft() const
+	ExpressionNode *getLeft() const
 	{
-		return dynamic_cast<NumericExpressionNode *>(getChild(0));
+		return dynamic_cast<ExpressionNode *>(getChild(0));
 	}
 
-	NumericExpressionNode *getRight() const
+	ExpressionNode *getRight() const
 	{
-		return dynamic_cast<NumericExpressionNode *>(getChild(2));
+		return dynamic_cast<ExpressionNode *>(getChild(2));
 	}
 
-	int getOperator() const
+	OperatorNode* getOperator() const
 	{
-		return dynamic_cast<OperatorNode*>(getChild(1))->getOperator();
+		return dynamic_cast<OperatorNode*>(getChild(1));
+	}
+
+	virtual bool isString() const override
+	{
+		return getLeft()->isString() || getRight()->isString();
+	}
+
+	virtual bool isNumeric() const override
+	{
+		return getLeft()->isNumeric() && getRight()->isNumeric();
+	}
+
+	virtual const Token getToken() const override
+	{
+		return getLeft()->getToken();
 	}
 
 	virtual void visit(IVisitor* visitor) override

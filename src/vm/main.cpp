@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include "SimpleVirtualMachine.h"
+#include "Error.h"
 
 //#define DEBUG
 
@@ -36,7 +37,7 @@ int main(int argc, char **argv)
 	}
 	catch (const SVMException &e)
 	{
-		printf("error: %s\n", e.what());
+		error(e.what());
 		return 1;
 	}
 

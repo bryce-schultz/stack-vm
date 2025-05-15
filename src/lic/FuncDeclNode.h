@@ -14,17 +14,9 @@ class FuncDeclNode : public DeclNode
 public:
     FuncDeclNode(const Token &token, ParamListNode *params, StatementNode *body = nullptr)
     {
-        if (global::symbolTable.lookupLocal(token.getText()))
-        {
-            // if the variable is already declared in the current scope reassing the symbol
-            symbol = global::symbolTable.lookupLocal(token.getText());
-        }
-        else
-        {
-            symbol = new Symbol(token);
-            symbol->setDecl(this);
-            global::symbolTable.addSymbol(symbol);
-        }
+        symbol = new Symbol(token);
+        symbol->setDecl(this);
+        global::symbolTable.addSymbol(symbol);
 
         addChild(params);
 
@@ -74,6 +66,20 @@ public:
         return symbol;
     }
 
+    virtual const Token getToken() const override
+    {
+        return symbol->getToken();
+    }
+
+    const std::string getName() const
+    {
+        return symbol->getName();
+    }
+
+    virtual bool isFuncDecl() const override
+    {
+        return true;
+    }
 private:
     Symbol *symbol;
 };

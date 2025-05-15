@@ -4,12 +4,12 @@
 
 #pragma once
 
-#include "NumericExpressionNode.h"
+#include "ExpressionNode.h"
 #include "ArgListNode.h"
 #include "Symbol.h"
 #include "LithiumSymbolTable.h"
 
-class CallNode : public NumericExpressionNode
+class CallNode : public ExpressionNode
 {
 public:
     CallNode(const Token &identifier, ArgListNode *args)
@@ -42,6 +42,21 @@ public:
     Symbol *getSymbol() const
     {
         return symbol;
+    }
+
+    const Token getToken() const override
+    {
+        return symbol->getToken();
+    }
+
+    const std::string getName() const
+    {
+        return symbol->getName();
+    }
+
+    virtual bool isNumeric() const override
+    {
+        return true;
     }
 
 private:

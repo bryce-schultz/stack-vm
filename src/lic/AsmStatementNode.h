@@ -7,19 +7,19 @@
 #include <string>
 
 #include "StatementNode.h"
-#include "StringExpressionNode.h"
+#include "ExpressionNode.h"
 
 class AsmStatementNode : public StatementNode
 {
 public:
-    AsmStatementNode(StringExpressionNode *string_expression)
+    AsmStatementNode(ExpressionNode *string_expression)
     {
         addChild(string_expression);
     }
 
-    StringExpressionNode *getStringExpression() const
+    ExpressionNode *getExpression() const
     {
-        return dynamic_cast<StringExpressionNode *>(getChild(0));
+        return dynamic_cast<ExpressionNode *>(getChild(0));
     }
 
     virtual void visit(IVisitor *visitor) override

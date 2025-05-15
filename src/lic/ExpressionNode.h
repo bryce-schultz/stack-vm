@@ -7,6 +7,7 @@
 #include "StatementNode.h"
 #include "IVisitor.h"
 #include "Token.h"
+#include "Type.h"
 
 class ExpressionNode : public StatementNode
 {
@@ -29,6 +30,11 @@ public:
     virtual bool isVariable() const
     {
         return false;
+    }
+
+    virtual Type getType() const
+    {
+        return Type::UNDEFINED;
     }
 };
 

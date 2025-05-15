@@ -1,6 +1,7 @@
 #include <fstream>
 
 #include "SVASMParser.h"
+#include "Error.h"
 
 SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 {
@@ -268,10 +269,18 @@ SVASMParserResult SVASMParser::parseInternal(const std::string& source)
 		{
 			result.program.push_back(itostr);
 		}
+		else if (tokens[i] == "caps")
+		{
+			result.program.push_back(icaps);			
+		}
+		else if (tokens[i] == "lower")
+		{
+			result.program.push_back(ilower);
+		}
 		else
 		{
 			result.success = false;
-			printf("error: unknown instruction '%s'\n", tokens[i].c_str());
+			error("unknown instruction '" + tokens[i] + "'");
 			continue;
 		}
 	}

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+file="test"
+
+if [ -n "$1" ]; then
+  file="$1"
+fi
+
+lic $file.li > /dev/null
+../vm/vm $file.lsm

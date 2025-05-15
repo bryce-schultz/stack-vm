@@ -5,6 +5,7 @@
 
 #include "SVMException.h"
 #include "SimpleVirtualMachine.h"
+#include "Error.h"
 
 constexpr uint64_t canary = 0xDEADBEEFDEADBEEF;
 
@@ -99,7 +100,7 @@ bool SimpleVirtualMachine::runInternal()
 		}
 		catch (const SVMException &e)
 		{
-			printf("error: %s\n", e.what());
+			error(e.what());
 			return false;
 		}
 	}
@@ -572,11 +573,61 @@ bool SimpleVirtualMachine::execute(uint64_t instruction)
 		{
 			uint64_t value = pop();
 			std::string str = std::to_string(value);
-			for (ssize_t i = str.size() - 1; i >= 0; i--)
+			for (ssize_t i = str.size() - 1; i >= 0; --i)
 			{
 				push(str[i]);
 			}
 			push(str.size());
+			break;
+		}
+		case Instruction::CAPS:
+		{
+			uint64_t length = pop();
+			std::vector<uint64_t> tmpStack(length);
+
+			// pop the values off the stack and store them in a temporary stack
+			for (uint64_t i = 0; i < length; i++)
+			{
+				tmpStack.push_back(pop());
+			}
+
+			// convert to uppercase
+			for (uint64_t i = 0; i < length; i++)
+			{
+				uint64_t value = tmpStack.back();
+				tmpStack.pop_back();
+				if (value >= 'a' && value <= 'z')
+				{
+					value -= 32;
+				}
+				push(value);
+			}
+
+			push(length);
+			break;
+		}
+		case Instruction::LOWER:
+		{
+			uint64_t length = pop();
+			std::vector<uint64_t> tmpStack(length);
+			// pop the values off the stack and store them in a temporary stack
+			for (uint64_t i = 0; i < length; i++)
+			{
+				tmpStack.push_back(pop());
+			}
+			// convert to lowercase	
+			for (uint64_t i = 0; i < length; i++)
+			{
+				uint64_t value = tmpStack.back();
+				tmpStack.pop_back();
+				if (value >= 'A' && value <= 'Z')
+				{
+					value += 32;
+				}
+				push(value);
+			}
+			// push the length of the string
+			push(length);
 			break;
 		}
 		default:
@@ -695,6 +746,10 @@ bool SimpleVirtualMachine::write()
 	return true;
 }
 
+// read syscall
+// push fd - file descriptor
+// push size - size of the buffer
+// push 2 - read syscall
 bool SimpleVirtualMachine::read()
 {
 	uint64_t size = pop();

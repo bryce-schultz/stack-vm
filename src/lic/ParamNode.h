@@ -22,6 +22,16 @@ public:
     {
         return symbol;
     }
+
+    const Token getToken() const override
+    {
+        return symbol->getToken();
+    }
+
+    const std::string getName() const
+    {
+        return symbol->getName();
+    }
     
     virtual void visit(IVisitor *visitor) override
     {
