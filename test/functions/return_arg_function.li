@@ -12,7 +12,7 @@ fn main()
     const b = 20;
     const c = 30;
 
-    const result = retval(a + b + c);
+    let result = retval(a + b + c);
     print(result);
     print("\n");
 }

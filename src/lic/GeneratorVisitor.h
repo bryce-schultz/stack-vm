@@ -64,12 +64,12 @@ public:
     virtual void visit(BinaryExpressionNode *node) override;
 
     //***********************************************
-    // visit (IntExpressionNode) - not to be called outside
+    // visit (NumberExpressionNode) - not to be called outside
     // of the visitor.
     //
-    // Visits the IntExpressionNode.
+    // Visits the NumberExpressionNode.
     //***********************************************
-    virtual void visit(IntExpressionNode *node) override;
+    virtual void visit(NumberExpressionNode *node) override;
 
     //***********************************************
     // visit (PrintStatementNode) - not to be called

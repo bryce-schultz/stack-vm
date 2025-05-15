@@ -1,1 +1,5 @@
-print("Hello " + 10 + 2 + "\n");
+const count = 10;
+
+for (let i = 0; i < count; i++) {
+    print(i + "\n");
+}

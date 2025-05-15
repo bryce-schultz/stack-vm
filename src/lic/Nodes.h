@@ -10,7 +10,7 @@
 #include "ExpressionNode.h"
 #include "BinaryExpressionNode.h"
 #include "OperatorNode.h"
-#include "IntExpressionNode.h"
+#include "NumberExpressionNode.h"
 #include "UnaryExpressionNode.h"
 #include "PrintStatementNode.h"
 #include "AsmStatementNode.h"

@@ -5,6 +5,7 @@
 *.log
 *.vsix
 *.tmp
+*.xml
 
 # directories
 node_modules/

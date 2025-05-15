@@ -19,6 +19,16 @@ public:
 		return _isEmpty;
 	}
 
+	virtual bool isDecl() const
+	{
+		return false;
+	}
+
+	virtual bool isFuncDecl() const
+	{
+		return false;
+	}
+
 	void setEmpty(bool isEmpty)
 	{
 		_isEmpty = isEmpty;

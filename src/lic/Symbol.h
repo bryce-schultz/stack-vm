@@ -6,6 +6,7 @@
 
 #include "Token.h"
 #include "DeclNode.h"
+#include "Type.h"
 
 class Symbol : public Node
 {
@@ -14,6 +15,16 @@ public:
         token(token),
         decl(nullptr)
     {
+    }
+
+    Type getType() const
+    {
+        if (decl)
+        {
+            return decl->getType();
+        }
+
+        return Type::UNDEFINED;
     }
 
     DeclNode *getDecl() const

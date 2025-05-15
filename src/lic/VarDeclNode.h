@@ -31,9 +31,19 @@ public:
         addChild(expression);
     }
 
+    virtual Type getType() const override
+    {
+        return getExpression()->getType();
+    }
+
     virtual bool isConst() const override
     {
         return _isConst;
+    }
+
+    std::string getName() const
+    {
+        return symbol->getName();
     }
 
     virtual void visit(IVisitor *visitor) override

@@ -10,7 +10,7 @@
 class BinaryExpressionNode : public ExpressionNode
 {
 public:
-	BinaryExpressionNode(ExpressionNode *left, int op, ExpressionNode *right)
+	BinaryExpressionNode(ExpressionNode *left, Token op, ExpressionNode *right)
 	{
 		addChild(left);
 		addChild(new OperatorNode(op));
@@ -27,9 +27,9 @@ public:
 		return dynamic_cast<ExpressionNode *>(getChild(2));
 	}
 
-	int getOperator() const
+	OperatorNode* getOperator() const
 	{
-		return dynamic_cast<OperatorNode*>(getChild(1))->getOperator();
+		return dynamic_cast<OperatorNode*>(getChild(1));
 	}
 
 	virtual bool isString() const override
@@ -40,6 +40,11 @@ public:
 	virtual bool isNumeric() const override
 	{
 		return getLeft()->isNumeric() && getRight()->isNumeric();
+	}
+
+	virtual const Token getToken() const override
+	{
+		return getLeft()->getToken();
 	}
 
 	virtual void visit(IVisitor* visitor) override

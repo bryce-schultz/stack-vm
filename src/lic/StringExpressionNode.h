@@ -36,6 +36,11 @@ public:
     {
         return true;
     }
+
+    virtual Type getType() const override
+    {
+        return Type::STRING;
+    }
 private:
     Token token;
 };

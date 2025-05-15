@@ -245,7 +245,6 @@ ParseResult<StatementNode> LithiumParser::parseControlStatement()
 // single_statement -> asm_statement
 // 				     | expression
 //                   | decl
-//                   | ;
 ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 {
 	Token token = peekToken();
@@ -294,7 +293,9 @@ ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 	}
 	else if (token == ';')
 	{
-		accept(nullptr);
+		error("empty statement", token);
+		dropStatement();
+		fail();
 	}
 
 	ret(parseExpression());
@@ -369,6 +370,12 @@ ParseResult<VarDeclNode> LithiumParser::parseVarDecl()
 		fail();
 	}
 
+	if (expression.getNode()->isString())
+	{
+		error("string variables are not supported yet", expression.getNode()->getToken());
+		fail();
+	}
+
 	accept(new VarDeclNode(identifier, expression.getNode(), isConst));
 }
 
@@ -422,15 +429,21 @@ ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 	}
 	nextToken();
 
+	token = peekToken();
+
+	if (token == ';')
+	{
+		nextToken();
+		global::symbolTable.decreaseScope();
+		accept(new FuncDeclNode(identifier, paramList.getNode()));
+	}
+
 	auto statement = parseStatement();
+	global::symbolTable.decreaseScope();
 	if (!statement.isValid())
 	{
 		fail();
 	}
-
-	// Decrease the scope for the function parameters
-	// and body
-	global::symbolTable.decreaseScope();
 
 	Symbol *symbol = global::symbolTable.lookupLocal(identifier.getText());
 	// The symbol is free to use for the function declaration
@@ -477,7 +490,7 @@ ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 		if (existingText != newText)
 		{
 			// The parameter names are different
-			error("function '" + identifier.getText() + "' has different parameter names here: " + existingLocationString, newParamToken);
+			error("function '" + identifier.getText() + "' has different parameters here: " + existingLocationString, newParamToken);
 			hadParamError = true;
 		}
 	}
@@ -740,6 +753,7 @@ ParseResult<ForStatementNode> LithiumParser::parseForStatement()
 	auto init = parseStatementList();
 	if (!init.isValid())
 	{
+		dropStatement();
 		fail();
 	}
 
@@ -770,6 +784,7 @@ ParseResult<ForStatementNode> LithiumParser::parseForStatement()
 	auto increment = parseStatementList();
 	if (!increment.isValid())
 	{
+		dropStatement();
 		fail();
 	}
 
@@ -890,6 +905,12 @@ ParseResult<ExpressionNode> LithiumParser::parseAssignmentP(VariableExpressionNo
 		fail();
 	}
 
+	if (expression.getNode()->isString())
+	{
+		error("cannot assign string to variable: " + lhs->getName() + " defined here: " + lhs->getSymbol()->getDecl()->getToken().getLocation().toString(), lhs->getToken());
+		fail();
+	}
+
 	accept(new AssignNode(lhs, expression.getNode()));
 }
 
@@ -920,7 +941,6 @@ ParseResult<ExpressionNode> LithiumParser::parseOptionalP(ExpressionNode *lhs)
 	{
 		accept(lhs);
 	}
-
 	nextToken();
 
 	auto compound = parseCompound();
@@ -929,7 +949,7 @@ ParseResult<ExpressionNode> LithiumParser::parseOptionalP(ExpressionNode *lhs)
 		fail();
 	}
 
-	auto optionalP = parseOptionalP(new BinaryExpressionNode(lhs, OR, compound.getNode()));
+	auto optionalP = parseOptionalP(new BinaryExpressionNode(lhs, token, compound.getNode()));
 	if (!optionalP.isValid())
 	{
 		fail();
@@ -965,7 +985,6 @@ ParseResult<ExpressionNode> LithiumParser::parseCompoundP(ExpressionNode *lhs)
 	{
 		accept(lhs);
 	}
-
 	nextToken();
 
 	auto equality = parseEquality();
@@ -974,7 +993,7 @@ ParseResult<ExpressionNode> LithiumParser::parseCompoundP(ExpressionNode *lhs)
 		fail();
 	}
 
-	auto compoundP = parseCompoundP(new BinaryExpressionNode(lhs, AND, equality.getNode()));
+	auto compoundP = parseCompoundP(new BinaryExpressionNode(lhs, token, equality.getNode()));
 	if (!compoundP.isValid())
 	{
 		fail();
@@ -1206,7 +1225,7 @@ ParseResult<ExpressionNode> LithiumParser::parseExponentP(ExpressionNode *lhs)
 		fail();
 	}
 
-	auto exponentP = parseExponentP(new BinaryExpressionNode(lhs, '^', fact.getNode()));
+	auto exponentP = parseExponentP(new BinaryExpressionNode(lhs, token, fact.getNode()));
 	if (!exponentP.isValid())
 	{
 		fail();
@@ -1230,7 +1249,7 @@ ParseResult<ExpressionNode> LithiumParser::parseFact()
 			fail();
 		}
 
-		accept(new UnaryExpressionNode(factorial.getNode(), '-'));
+		accept(new UnaryExpressionNode(factorial.getNode(), token));
 	}
 
 	ret(parseFactorial());
@@ -1263,10 +1282,9 @@ ParseResult<ExpressionNode> LithiumParser::parseFactorialP(ExpressionNode *lhs)
 	{
 		accept(lhs);
 	}
-
 	nextToken();
 
-	auto factorialP = parseFactorialP(new UnaryExpressionNode(lhs, '!'));
+	auto factorialP = parseFactorialP(new UnaryExpressionNode(lhs, token));
 	if (!factorialP.isValid())
 	{
 		fail();
@@ -1303,8 +1321,17 @@ ParseResult<ExpressionNode> LithiumParser::parseModifierP(ExpressionNode *lhs)
 	{
 		accept(lhs);
 	}
-
 	nextToken();
+
+	if (lhs->isVariable())
+	{
+		VariableExpressionNode *var = dynamic_cast<VariableExpressionNode*>(lhs);
+		if (var->isConst())
+		{
+			error("cannot modify constant: " + var->getName() + " defined here: " + var->getSymbol()->getDecl()->getToken().getLocation().toString(), var->getToken());
+			fail();
+		}
+	}
 
 	auto modifierP = parseModifierP(new UnaryExpressionNode(lhs, token));
 	if (!modifierP.isValid())
@@ -1322,6 +1349,13 @@ ParseResult<ExpressionNode> LithiumParser::parseModifierP(ExpressionNode *lhs)
 ParseResult<ExpressionNode> LithiumParser::parsePrimary()
 {
 	Token token = peekToken();
+
+	if (token == JUNK)
+	{
+		error("invalid expression, unexpected token", token);
+		dropStatement();
+		fail();
+	}
 
 	if (token == '(')
 	{
@@ -1348,8 +1382,8 @@ ParseResult<ExpressionNode> LithiumParser::parsePrimary()
 	if (token == NUMBER)
 	{
 		nextToken();
-		int value = std::stoi(token.getText());
-		accept(new IntExpressionNode(value));
+		double value = std::stod(token.getText());
+		accept(new NumberExpressionNode(value));
 	}
 
 	if (token == IDENTIFIER)
@@ -1403,7 +1437,7 @@ ParseResult<ExpressionNode> LithiumParser::parsePrimary()
 		accept(new StringConversionNode(expression.getNode()));
 	}
 
-	expected("an expression", token);
+	error("invalid expression, token: '" + token.getText() + "' is likely in the wrong place", token);
 	dropStatement();
 	fail();
 }

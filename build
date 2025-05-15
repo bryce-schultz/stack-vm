@@ -59,12 +59,25 @@ contains_clean()
     return 1
 }
 
+contains_no_test()
+{
+    for arg in $build_args; do
+        if [ $arg == "-no-test" ]; then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
 build_target()
 {
     target=$1
 
+    build_args_without_no_test=$(echo $build_args | sed 's/-no-test//g')
+
     cd src/$target
-    make $build_args > /dev/null
+    make $build_args_without_no_test > /dev/null
 
     if [ $? -eq 0 ]; then
         success $target
@@ -96,11 +109,20 @@ do_builds()
     build_target lic
     build_target vm
     build_target extension
+
+    contains_clean && {
+        echo -e "${blue}Cleaned Project${nc}"
+    }
 }
 
 do_tests()
 {
     print_test_header
+
+    contains_no_test || contains_clean && {
+        echo -e "${blue}Skipped Tests${nc}"
+        exit 0
+    }
     run_test loops
     run_test math
     run_test if
@@ -111,9 +133,6 @@ do_tests()
 main()
 {
     do_builds
-    if contains_clean; then
-        exit 0
-    fi
     echo ""
     do_tests
 }

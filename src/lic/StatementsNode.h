@@ -25,6 +25,20 @@ public:
         }
     }
 
+    StatementNode *getStatement(int index) const
+    {
+        if (index >= getChildCount())
+        {
+            return nullptr;
+        }
+        return static_cast<StatementNode *>(getChild(index));
+    }
+
+    int getStatementCount() const
+    {
+        return getChildCount();
+    }
+
     virtual void visit(IVisitor *visitor) override
     {
         visitor->visit(this);

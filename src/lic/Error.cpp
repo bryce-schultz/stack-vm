@@ -91,10 +91,10 @@ void token_error(const std::string &message, const Token &token, const std::stri
 {
     std::stringstream ss;
     ss << getError(token, message);
-    if (global::showErrorSourceLocation)
-    {
+    //if (global::showErrorSourceLocation)
+    //{
         ss << "╰─ @ " << file << ":" << line << "\n";
-    }
+    //}
 
     // Print the error message to stderr.
     std::cerr << ss.str();

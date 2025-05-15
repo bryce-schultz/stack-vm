@@ -43,6 +43,8 @@ enum class Instruction : uint64_t
 	PRINTSTR,
 	CONCAT,
 	TOSTR,
+	CAPS,
+	LOWER,
 	JMP,
 	JZ,
 	JNZ,

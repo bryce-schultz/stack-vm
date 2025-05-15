@@ -10,14 +10,25 @@
 class OperatorNode : public Node
 {
 public:
-	OperatorNode(int op) : op(op) {}
-	int getOperator() const { return op; }
+	OperatorNode(Token token):
+		value(token.getType()),
+		token(token)
+	{
+	}
+
+	int getValue() const { return value; }
+
+	virtual const Token getToken() const override
+	{
+		return token;
+	}
 
 	virtual void visit(IVisitor *visitor) override
 	{
 		visitor->visit(this);
 	}
 private:
-	int op;
+	int value;
+	Token token;
 };
 

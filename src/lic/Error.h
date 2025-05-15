@@ -16,6 +16,12 @@ namespace global
     extern bool hadError;
 }
 
+#ifdef DEBUG
+    // use to suppress unused variable warnings (use only in debug mode)
+    // must comment any use with: "// mark as unused to avoid compiler warnings"
+    #define UNUSED(x) (void)(x)
+#endif
+
 // Error macros for consistant error message formatting.
 #define error(message, token) token_error(message, token, __FILE__, __LINE__)
 #define expected(message, token) error(std::string("expected ") + message + std::string(" but got '") + token.getText() + (token == JUNK ? "' (JUNK) instead" : "' instead"), token)

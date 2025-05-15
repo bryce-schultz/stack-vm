@@ -30,7 +30,7 @@ void IVisitor::visit(OperatorNode* node)
 	node->visitAllChildren(this);
 }
 
-void IVisitor::visit(IntExpressionNode* node)
+void IVisitor::visit(NumberExpressionNode* node)
 {
 	node->visitAllChildren(this);
 }

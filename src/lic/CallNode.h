@@ -44,6 +44,21 @@ public:
         return symbol;
     }
 
+    const Token getToken() const override
+    {
+        return symbol->getToken();
+    }
+
+    const std::string getName() const
+    {
+        return symbol->getName();
+    }
+
+    virtual bool isNumeric() const override
+    {
+        return true;
+    }
+
 private:
     Symbol *symbol;
 };

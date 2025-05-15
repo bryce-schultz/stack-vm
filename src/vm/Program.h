@@ -50,3 +50,5 @@ typedef std::vector<uint64_t> Program;
 #define iret        (uint64_t)Instruction::RET
 #define iretval     (uint64_t)Instruction::RETVAL
 #define itostr      (uint64_t)Instruction::TOSTR
+#define icaps       (uint64_t)Instruction::CAPS
+#define ilower      (uint64_t)Instruction::LOWER
