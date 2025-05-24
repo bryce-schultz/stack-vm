@@ -263,33 +263,7 @@ ParseResult<StatementNode> LithiumParser::parseSingleStatement()
 	}
 	if (token == PRINT)
 	{
-		nextToken();
-
-		token = peekToken();
-		if (token != '(')
-		{
-			expected("'('", token);
-			dropStatement();
-			fail();
-		}
-		nextToken();
-		
-		auto expression = parseExpression();
-		if (!expression.isValid())
-		{
-			fail();
-		}
-
-		token = peekToken();
-		if (token != ')')
-		{
-			expected("')'", token);
-			dropStatement();
-			fail();
-		}
-		nextToken();
-
-		accept(new PrintStatementNode(expression.getNode()));
+		ret(parsePrintStatement());
 	}
 	else if (token == ';')
 	{
@@ -322,6 +296,13 @@ ParseResult<ReturnStatementNode> LithiumParser::parseReturnStatement()
 	auto expression = parseExpression();
 	if (!expression.isValid())
 	{
+		fail();
+	}
+
+	if (expression.getNode()->isString())
+	{
+		error("string return values are not supported yet", expression.getNode()->getToken());
+		dropStatement();
 		fail();
 	}
 
@@ -381,6 +362,7 @@ ParseResult<VarDeclNode> LithiumParser::parseVarDecl()
 }
 
 // func_decl -> FN IDENTIFIER ( param_list ) statement
+//            | FN IDENTIFIER ( param_list ) ;
 ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 {
 	Token token = peekToken();
@@ -431,7 +413,6 @@ ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 	nextToken();
 
 	token = peekToken();
-
 	if (token == ';')
 	{
 		nextToken();
@@ -450,13 +431,25 @@ ParseResult<FuncDeclNode> LithiumParser::parseFuncDecl()
 	// The symbol is free to use for the function declaration
 	if (!symbol)
 	{
-		accept(new FuncDeclNode(identifier, paramList.getNode(), statement.getNode()));
-	}
+		symbol = global::symbolTable.lookupGlobal(identifier.getText());
+		if (!symbol)
+		{
+			accept(new FuncDeclNode(identifier, paramList.getNode(), statement.getNode()));
+		}
 
-	// The symbol exists but is not a function
-	if (!symbol->getDecl()->isFunction())
+		if (symbol->isFunction())
+		{
+			FuncDeclNode *funcDecl = static_cast<FuncDeclNode *>(symbol->getDecl());
+			std::string definedOrDeclared = funcDecl->hasBody() ? "defined" : "declared";
+			error("function '" + identifier.getText() + "' is already " + definedOrDeclared + " here: " + symbol->getToken().getLocation().toString(), identifier);
+			fail();
+		}
+	}
+		
+	if (!symbol->isFunction())
 	{
-		accept(new FuncDeclNode(identifier, paramList.getNode(), statement.getNode()));
+		error("a variable '" + identifier.getText() + "' is already defined in this scope here: " + symbol->getToken().getLocation().toString(), identifier);
+		fail();
 	}
 
 	// The symbol exists and is a function
@@ -543,10 +536,9 @@ ParseResult<ParamListNode> LithiumParser::parseParamListP(ParamNode *lhs)
 	{
 		accept(new ParamListNode(lhs));
 	}
+	nextToken();
 
 	ParamListNode *list = new ParamListNode(lhs);
-
-	nextToken();
 
 	auto paramList = parseParamList();
 	if (!paramList.isValid())
@@ -607,6 +599,44 @@ ParseResult<BlockNode> LithiumParser::parseBlock()
 	global::symbolTable.decreaseScope();
 
 	accept(new BlockNode(statements.getNode()));
+}
+
+ParseResult<PrintStatementNode> LithiumParser::parsePrintStatement()
+{
+	Token token = peekToken();
+	if (token != PRINT)
+	{
+		expected("'print'", token);
+		dropStatement();
+		fail();
+	}
+    nextToken();
+
+	token = peekToken();
+	if (token != '(')
+	{
+		expected("'('", token);
+		dropStatement();
+		fail();
+	}
+	nextToken();
+	
+	auto expression = parseExpression();
+	if (!expression.isValid())
+	{
+		fail();
+	}
+
+	token = peekToken();
+	if (token != ')')
+	{
+		expected("')'", token);
+		dropStatement();
+		fail();
+	}
+	nextToken();
+
+	accept(new PrintStatementNode(expression.getNode()));
 }
 
 // if_statement -> IF ( numeric_expression ) statement if_statement'
@@ -1350,12 +1380,26 @@ ParseResult<ExpressionNode> LithiumParser::parseModifierP(ExpressionNode *lhs)
 ParseResult<ExpressionNode> LithiumParser::parsePrimary()
 {
 	Token token = peekToken();
-
 	if (token == JUNK)
 	{
 		error("invalid expression, unexpected token", token);
 		dropStatement();
 		fail();
+	}
+
+	if (token == ':')
+	{
+		token = nextToken();
+
+		if (token != IDENTIFIER)
+		{
+			expected("an identifier", token);
+			dropStatement();
+			fail();
+		}
+		nextToken();
+
+		accept(new VariableExpressionNode(token, true));
 	}
 
 	if (token == '(')
@@ -1374,7 +1418,6 @@ ParseResult<ExpressionNode> LithiumParser::parsePrimary()
 			dropStatement();
 			fail();
 		}
-
 		nextToken();
 
 		accept(expression.getNode());
@@ -1452,7 +1495,6 @@ ParseResult<ExpressionNode> LithiumParser::parsePrimaryP(const Token &identifier
 	{
 		accept(new VariableExpressionNode(identifier));
 	}
-
 	nextToken();
 
 	auto argList = parseArgList();
@@ -1468,7 +1510,6 @@ ParseResult<ExpressionNode> LithiumParser::parsePrimaryP(const Token &identifier
 		dropStatement();
 		fail();
 	}
-
 	nextToken();
 
 	accept(new CallNode(identifier, argList.getNode()));

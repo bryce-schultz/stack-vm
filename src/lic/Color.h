@@ -13,6 +13,13 @@
 #define white "\033[37m"
 #define reset "\033[0m"
 
+#define bright_red "\033[1;31m"
+#define bright_green "\033[1;32m"
+#define bright_yellow "\033[1;33m"
+#define bright_blue "\033[1;34m"
+#define bright_magenta "\033[1;35m"
+#define bright_cyan "\033[1;36m"
+
 #define bold "\033[1m"
 #define underline "\033[4m"
 #define blink "\033[5m"
@@ -27,9 +34,3 @@
 #define magenta_bg "\033[45m"
 #define cyan_bg "\033[46m"
 #define white_bg "\033[47m"
-
-#define bold_off "\033[21m"
-#define underline_off "\033[24m"
-#define blink_off "\033[25m"
-#define reverse_off "\033[27m"
-#define concealed_off "\033[28m"

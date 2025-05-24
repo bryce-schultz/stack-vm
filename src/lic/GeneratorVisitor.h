@@ -104,14 +104,6 @@ public:
     virtual void visit(StringExpressionNode *node) override;
 
     //***********************************************
-    // visit (ConcatNode) - not to be called outside
-    // of the visitor.
-    //
-    // Visits the ConcatNode.
-    //***********************************************
-    virtual void visit(ConcatNode *node) override;
-
-    //***********************************************
     // visit (DeclNode) - not to be called outside of
     // the visitor.
     //

@@ -13,12 +13,10 @@ constexpr uint8_t requiredArgCount = 2;
 
 int main(int argc, char **argv)
 {
+	parseOptions(argc, argv);
 	#ifdef DEBUG
-		UNUSED(argc); // mark as unused to avoid compiler warnings
-		UNUSED(argv); // mark as unused to avoid compiler warnings
 		const char *filename = "test.li";
 	#else
-		parseOptions(argc, argv);
 		if (global::options.inputFile.empty())
 		{
 			general_error("no input file specified");

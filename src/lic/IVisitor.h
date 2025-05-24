@@ -16,7 +16,6 @@ class AsmStatementNode;
 class NumericExpressionNode;
 class StringExpressionNode;
 class NumberExpressionNode;
-class ConcatNode;
 class DeclNode;
 class VarDeclNode;
 class VariableExpressionNode;
@@ -52,7 +51,6 @@ public:
 	virtual void visit(NumericExpressionNode* node);
 	virtual void visit(StringExpressionNode* node);
 	virtual void visit(NumberExpressionNode* node);
-	virtual void visit(ConcatNode* node);
 	virtual void visit(DeclNode* node);
 	virtual void visit(VarDeclNode* node);
 	virtual void visit(VariableExpressionNode* node);

@@ -77,6 +77,7 @@ private:
 	//                   | expression
 	//                   | decl
 	//                   | return_statement
+	//                   | print_statement
 	//                   | ;
 	ParseResult<StatementNode> parseSingleStatement();
 
@@ -105,6 +106,9 @@ private:
 
 	// block -> { statements }
 	ParseResult<BlockNode> parseBlock();
+
+	// print_statement -> PRINT ( expression )
+	ParseResult<PrintStatementNode> parsePrintStatement();
 
 	// if_statement -> IF ( numeric_expression ) statement if_statement'
 	ParseResult<IfStatementNode> parseIfStatement();

@@ -10,12 +10,20 @@
 class VariableExpressionNode : public NumericExpressionNode
 {
 public:
-    VariableExpressionNode(const Token &token):
+    VariableExpressionNode(const Token &token, bool checkGlobal = false):
         symbol(nullptr),
         token(token)
     {
         auto text = token.getText();
-        symbol = global::symbolTable.lookupGlobal(text);
+
+        if (checkGlobal)
+        {
+            symbol = global::symbolTable.lookupInScope(text, 0);
+        }
+        else
+        {
+            symbol = global::symbolTable.lookupGlobal(text);
+        }
     }
 
     bool isConst() const

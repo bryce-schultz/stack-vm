@@ -1,4 +1,5 @@
-fn main() {
-    let a = "Hello, World!";
-    print("a: " + a + "\n");
-}
+let i = 10;
+let j = 20;
+
+print(i + '\n');
+print(j + '\n');

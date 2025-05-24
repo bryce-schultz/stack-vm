@@ -35,11 +35,6 @@ void IVisitor::visit(NumberExpressionNode* node)
 	node->visitAllChildren(this);
 }
 
-void IVisitor::visit(ConcatNode *node)
-{
-	node->visitAllChildren(this);
-}
-
 void IVisitor::visit(UnaryExpressionNode* node)
 {
 	node->visitAllChildren(this);

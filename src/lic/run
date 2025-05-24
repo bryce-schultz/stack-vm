@@ -8,5 +8,5 @@ if [ -n "$1" ]; then
   file="$1"
 fi
 
-lic $file.li > /dev/null
+lic -a $file.li > /dev/null
 ../vm/vm $file.lsm

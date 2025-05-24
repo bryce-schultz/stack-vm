@@ -301,16 +301,6 @@ void GeneratorVisitor::visit(StringExpressionNode *node)
     out("\n");
 }
 
-void GeneratorVisitor::visit(ConcatNode *node)
-{
-    // Visit the left and right children of the concat node.
-    node->getLeft()->visit(this);
-    node->getRight()->visit(this);
-
-    // Output the concat instruction.
-    out("concat\n");
-}
-
 void GeneratorVisitor::visit(FuncDeclNode *node)
 {
     auto name = node->getSymbol()->getName();
@@ -449,6 +439,7 @@ void GeneratorVisitor::visit(VariableExpressionNode *node)
     if (variables.find(symbol) == variables.end())
     {
         undefined(token);
+        return;
     }
 
     // Load the variable onto the stack.

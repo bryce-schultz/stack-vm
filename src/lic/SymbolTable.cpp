@@ -76,3 +76,13 @@ Symbol *SymbolTable::lookupGlobal(const std::string &name)
     }
     return nullptr;
 }
+
+Symbol *SymbolTable::lookupInScope(const std::string &name, size_t scope)
+{
+    if (scope >= scopes.size())
+    {
+        return nullptr;
+    }
+
+    return scopes[scope].getSymbol(name);
+}

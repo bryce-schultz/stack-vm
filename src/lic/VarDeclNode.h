@@ -15,18 +15,17 @@ public:
     VarDeclNode(const Token &identifier, ExpressionNode *expression, bool isConst = false):
         _isConst(isConst)
     {
-        if (global::symbolTable.lookupLocal(identifier.getText()))
+        symbol = global::symbolTable.lookupLocal(identifier.getText());
+        if (symbol)
         {
-            std::string type = isConst ? "const" : "variable";
+            std::string type = symbol->isFunction() ? "function" : symbol->isConst() ? "constant" : "variable";
             error(type + " '" + identifier.getText() + "' already declared in this scope", identifier);
             return;
         }
-        else
-        {
-            symbol = new Symbol(identifier);
-            symbol->setDecl(this);
-            global::symbolTable.addSymbol(symbol);
-        }
+
+        symbol = new Symbol(identifier);
+        symbol->setDecl(this);
+        global::symbolTable.addSymbol(symbol);
 
         addChild(expression);
     }

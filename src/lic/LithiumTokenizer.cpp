@@ -160,7 +160,8 @@ Token LithiumTokenizer::getToken()
         c == '^' ||
         c == '<' ||
         c == '>' ||
-        c == ',')
+        c == ',' ||
+        c == ':')
     {
         text = c;
         next();

@@ -20,6 +20,8 @@ private:
 class SymbolTable
 {
 public:
+    const int GLOBAL_SCOPE = 0;
+public:
     SymbolTable();
     ~SymbolTable();
 
@@ -28,6 +30,7 @@ public:
     Symbol *addSymbol(Symbol *symbol);
     Symbol *lookupLocal(const std::string &name);
     Symbol *lookupGlobal(const std::string &name);
+    Symbol *lookupInScope(const std::string &name, size_t scope);
 private:
     std::vector<Scope> scopes;
 

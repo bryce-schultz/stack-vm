@@ -31,6 +31,11 @@ public:
         return static_cast<StatementNode *>(getChild(1));
     }
 
+    bool hasElseStatement() const
+    {
+        return getChildCount() == 3;
+    }
+
     StatementNode *getElseStatement() const
     {
         if (getChildCount() == 3)

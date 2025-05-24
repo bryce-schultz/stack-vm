@@ -88,13 +88,6 @@ void PrintVisitor::visit(NumberExpressionNode* node)
     node->visitAllChildren(this);
 }
 
-void PrintVisitor::visit(ConcatNode* node)
-{
-    openTag("Concat");
-    node->visitAllChildren(this);
-    closeTag("Concat");
-}
-
 void PrintVisitor::visit(DeclNode* node)
 {
     openTag("Decl");

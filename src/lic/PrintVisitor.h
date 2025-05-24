@@ -25,7 +25,6 @@ public:
     void visit(NumericExpressionNode* node) override;
     void visit(StringExpressionNode* node) override;
     void visit(NumberExpressionNode* node) override;
-    void visit(ConcatNode* node) override;
     void visit(DeclNode* node) override;
     void visit(VarDeclNode* node) override;
     void visit(VariableExpressionNode* node) override;
