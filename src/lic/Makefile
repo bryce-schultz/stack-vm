@@ -146,6 +146,6 @@ LithiumCompiler.o: LithiumCompiler.cpp LithiumCompiler.h LithiumParser.h \
 Token.o: Token.cpp Token.h Location.h
 
 # Options from .mk file:
-CXXFLAGS += -O0 -ggdb -DDEBUG
+CXXFLAGS += -O3 #0 -ggdb -DDEBUG
 MAIN_EXE = lic
 

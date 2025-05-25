@@ -2,13 +2,8 @@
   "scopeName": "source.lithium",
   "patterns": [
     {
-      "name": "comment.line.double-slash.lithium",
-      "begin": "//",
-      "end": "$"
-    },
-    {
       "name": "keyword.lithium",
-      "match": "\\b(print|asm|str|let|const)\\b"
+      "match": "\\b(let|const|true|false)\\b"
     },
     {
       "name": "keyword.control.lithium",
@@ -21,6 +16,10 @@
     {
       "name": "comment.line.number-sign.lithium",
       "match": "#.*$"
+    },
+    {
+      "name": "entity.name.function.lithium",
+      "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
     },
     {
       "name": "variable.other.lithium",
