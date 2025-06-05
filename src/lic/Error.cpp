@@ -68,7 +68,7 @@ std::string getSquiggleLine(const Token &token)
 {
     std::string line = getLine(token);
     std::string squiggles = getSquiggles(token);
-    return "│  " + line + "\n│  " + bright_red + squiggles + reset;
+    return "│  " + line + "\n│  " + brightRed + squiggles + reset;
 }
 
 std::string getErrorHeader(const Token &token, const std::string &message)
@@ -78,7 +78,7 @@ std::string getErrorHeader(const Token &token, const std::string &message)
     const int linenum = token.getLocation().getLine();
     const int colnum = token.getLocation().getColumn();
 
-    ss << bright_red << "error" << reset << ": " << filename << ":" << linenum << ":" << colnum << ": " << message << "\n";
+    ss << brightRed << "error" << reset << ": " << filename << ":" << linenum << ":" << colnum << ": " << message << "\n";
     return ss.str();
 }
 

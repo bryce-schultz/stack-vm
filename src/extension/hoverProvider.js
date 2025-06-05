@@ -32,6 +32,7 @@ const hoverTexts = {
 
 function provideHover(document, position) {
     const range = document.getWordRangeAtPosition(position, /[a-zA-Z_]+[a-zA-Z0-9_]*|&&|\|\||==|!=|<|<=|>|>=|\+|-|\*|\/|%|\+\+/);
+    if (!range) return;
     const word = document.getText(range);
 
     console.log(word);

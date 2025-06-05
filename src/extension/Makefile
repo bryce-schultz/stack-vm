@@ -9,7 +9,8 @@ build/lithium-language-support.vsix: syntaxes/lithium.tmLanguage.json \
 	lithium-asm-configuration.json \
 	package.json \
 	extension.js \
-	hoverProvider.js 
+	hoverProvider.js \
+	definitionProvider.js
 	@mkdir -p build
 	@npm install > /dev/null
 	@npm run package > /dev/null
