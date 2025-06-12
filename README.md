@@ -13,7 +13,7 @@ The stack machine reads the Lithium assembly and performs the simple instruction
 
 ## Building
 
-### What gets build
+### What gets built
 
 Building will build the compiler located in src/lic. The executable is called lic and can be run like so.
 
